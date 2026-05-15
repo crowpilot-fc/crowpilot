@@ -179,6 +179,30 @@ constexpr uint32_t I2C_BUS_HZ = 400000;  // 400 kHz fast mode on I2C0.
 #define RX_SBUS_INVERTED 1
 
 // ===========================================================================
+// Pilot channel map and RC signal range
+// ===========================================================================
+// The pilot transmitter assigns one function per channel. Channel
+// numbers are 1-based to match transmitter numbering. RC_MIN_US,
+// RC_MID_US, and RC_MAX_US are the pulse widths a centered and a fully
+// deflected stick produce, used to normalize raw channels into
+// setpoints.
+
+namespace cp {
+
+constexpr uint8_t CHANNEL_THROTTLE   = 1;
+constexpr uint8_t CHANNEL_ROLL       = 2;
+constexpr uint8_t CHANNEL_PITCH      = 3;
+constexpr uint8_t CHANNEL_YAW        = 4;
+constexpr uint8_t CHANNEL_ARM        = 5;
+constexpr uint8_t CHANNEL_TRANSITION = 6;
+
+constexpr uint16_t RC_MIN_US = 1000;
+constexpr uint16_t RC_MID_US = 1500;
+constexpr uint16_t RC_MAX_US = 2000;
+
+}  // namespace cp
+
+// ===========================================================================
 // Failsafe
 // ===========================================================================
 // On lost link the failsafe replaces the receiver channels with these
@@ -341,6 +365,26 @@ constexpr float MADGWICK_BETA = 0.10f;
 }  // namespace cp
 
 // ===========================================================================
+// Transition and pilot setpoints
+// ===========================================================================
+// The transition channel commands the move between hover and forward
+// flight. The fader slews toward that command at TRANSITION_SLEW_RATE,
+// in fader units per second, so even a snapped switch yields a
+// controllable maneuver. The setpoint limits scale a full stick
+// deflection to a roll or pitch angle and a yaw rate. All provisional,
+// set by bench tuning per spec section 12.
+
+namespace cp {
+
+constexpr float TRANSITION_SLEW_RATE = 0.5f;  // full transition in about 2 s.
+
+constexpr float MAX_ROLL_ANGLE_DEG  = 35.0f;
+constexpr float MAX_PITCH_ANGLE_DEG = 35.0f;
+constexpr float MAX_YAW_RATE_DPS    = 120.0f;
+
+}  // namespace cp
+
+// ===========================================================================
 // Tailsitter control-core tuning (provisional)
 // ===========================================================================
 // Per-axis PID gains for the tailsitter stabilizer, registered as
@@ -355,9 +399,8 @@ constexpr float MADGWICK_BETA = 0.10f;
 // in [0, 1]. The starting magnitudes here are sized small so the first
 // powered tests are gentle.
 //
-// Further control-core tuning constants (transition slew rate, pilot
-// stick limits, elevon trim) are added to this file in the build
-// phases that implement the modules that use them.
+// The elevon neutral trim is added to this file in the build phase
+// that implements the tailsitter mixer.
 
 namespace cp {
 
