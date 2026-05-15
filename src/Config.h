@@ -308,13 +308,14 @@ constexpr float DIFF_THRUST_GAIN = 0.20f;
 }  // namespace cp
 
 // ===========================================================================
-// ESC and arming
+// ESC, servo, and arming
 // ===========================================================================
 // Motors run the OneShot125 protocol: 125 us idle, 250 us full. The
 // disarm pulse sits below the valid range so a disarmed ESC sees no
-// signal and stays silent. Arming requires the throttle stick at or
-// below ARM_THROTTLE_MAX_US. ESC calibration is a one-shot bench
-// routine, kept off for flight builds.
+// signal and stays silent. Servos take standard 1000 to 2000 us hobby
+// PWM. Arming requires the throttle stick at or below
+// ARM_THROTTLE_MAX_US. ESC calibration is a one-shot bench routine,
+// kept off for flight builds.
 
 #define ENABLE_ESC_CALIBRATION 0
 
@@ -324,6 +325,9 @@ constexpr uint16_t ESC_MAX_PULSE_US    = 250;  // OneShot125 full throttle.
 constexpr uint16_t ESC_IDLE_PULSE_US   = 125;  // OneShot125 zero throttle.
 constexpr uint16_t ESC_DISARM_PULSE_US = 120;  // Below valid range: no signal.
 constexpr uint16_t ARM_THROTTLE_MAX_US = 1050; // Throttle-idle gate for arming.
+
+constexpr uint16_t SERVO_MIN_US = 1000;        // Servo PWM at command 0.
+constexpr uint16_t SERVO_MAX_US = 2000;        // Servo PWM at command 1.
 
 }  // namespace cp
 
@@ -398,9 +402,6 @@ constexpr float MAX_YAW_RATE_DPS    = 120.0f;
 // section 12). The params.def clamp bounds are P in [0, 4] and D and I
 // in [0, 1]. The starting magnitudes here are sized small so the first
 // powered tests are gentle.
-//
-// The elevon neutral trim is added to this file in the build phase
-// that implements the tailsitter mixer.
 
 namespace cp {
 
@@ -427,5 +428,28 @@ constexpr float Ki_yaw   = 0.0f;
 
 // Anti-windup clamp on each axis integrator accumulator. Provisional.
 constexpr float PID_INTEGRAL_LIMIT = 50.0f;
+
+}  // namespace cp
+
+// ===========================================================================
+// Tailsitter mixer (provisional)
+// ===========================================================================
+// Allocation of throttle and the stabilized axis demands to the two
+// motors and two elevons. The elevon trims are the per-airframe
+// mechanical neutral, 0.5 being geometric center. The gain constants
+// scale a unit axis demand to actuator travel. The feedforward gain
+// adds direct pilot stick to the elevons and fades in toward forward
+// flight. All provisional, set by bench tuning per spec section 12.
+
+namespace cp {
+
+constexpr float ELEVON_LEFT_TRIM  = 0.5f;  // servo command, [0, 1]
+constexpr float ELEVON_RIGHT_TRIM = 0.5f;
+
+constexpr float ELEVON_ROLL_GAIN  = 0.5f;  // elevon travel per unit roll demand
+constexpr float ELEVON_PITCH_GAIN = 0.5f;  // elevon travel per unit pitch demand
+constexpr float ELEVON_FF_GAIN    = 0.2f;  // forward-flight stick feedforward
+
+constexpr float MOTOR_YAW_GAIN    = 0.3f;  // differential thrust per unit yaw demand
 
 }  // namespace cp
