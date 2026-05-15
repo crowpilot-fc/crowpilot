@@ -1,0 +1,36 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2026 Nitin Kumar
+
+// Declarative parameter table. This file is an X-macro fragment: it has no
+// include guard and is #included multiple times, once per use site, each
+// time with a different definition of CP_PARAM. See Params.h (enum
+// generation) and Params.cpp (registry initialisation, persistence).
+//
+// CP_PARAM(id, key, default_expr, min, max, persist)
+//   id           - enumerator name in cp::params::ParamId
+//   key          - stable string key used in the persisted file and lookup
+//   default_expr - default value, normally the matching Config.h constant
+//   min, max     - inclusive clamp bounds applied by cp::params::set()
+//   persist      - 1 to write this parameter to flash, 0 for volatile only
+//
+// v1.0 registers the PID gain set. The table is the single place to extend
+// the parameter system: add a CP_PARAM line and the enum, registry, and
+// persistence pick it up with no other change.
+
+CP_PARAM(KP_ROLL_HOVER,  "kp_roll_hover",  Kp_roll_hover,  0.0f, 4.0f, 1)
+CP_PARAM(KD_ROLL_HOVER,  "kd_roll_hover",  Kd_roll_hover,  0.0f, 1.0f, 1)
+CP_PARAM(KP_PITCH_HOVER, "kp_pitch_hover", Kp_pitch_hover, 0.0f, 4.0f, 1)
+CP_PARAM(KD_PITCH_HOVER, "kd_pitch_hover", Kd_pitch_hover, 0.0f, 1.0f, 1)
+CP_PARAM(KP_YAW_HOVER,   "kp_yaw_hover",   Kp_yaw_hover,   0.0f, 4.0f, 1)
+CP_PARAM(KD_YAW_HOVER,   "kd_yaw_hover",   Kd_yaw_hover,   0.0f, 1.0f, 1)
+
+CP_PARAM(KP_ROLL_FF,     "kp_roll_ff",     Kp_roll_ff,     0.0f, 4.0f, 1)
+CP_PARAM(KD_ROLL_FF,     "kd_roll_ff",     Kd_roll_ff,     0.0f, 1.0f, 1)
+CP_PARAM(KP_PITCH_FF,    "kp_pitch_ff",    Kp_pitch_ff,    0.0f, 4.0f, 1)
+CP_PARAM(KD_PITCH_FF,    "kd_pitch_ff",    Kd_pitch_ff,    0.0f, 1.0f, 1)
+CP_PARAM(KP_YAW_FF,      "kp_yaw_ff",      Kp_yaw_ff,      0.0f, 4.0f, 1)
+CP_PARAM(KD_YAW_FF,      "kd_yaw_ff",      Kd_yaw_ff,      0.0f, 1.0f, 1)
+
+CP_PARAM(KI_ROLL,        "ki_roll",        Ki_roll,        0.0f, 1.0f, 1)
+CP_PARAM(KI_PITCH,       "ki_pitch",       Ki_pitch,       0.0f, 1.0f, 1)
+CP_PARAM(KI_YAW,         "ki_yaw",         Ki_yaw,         0.0f, 1.0f, 1)

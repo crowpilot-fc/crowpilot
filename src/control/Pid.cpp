@@ -4,6 +4,7 @@
 #include "control/Pid.h"
 
 #include "Config.h"
+#include "params/LiveTune.h"
 #include "params/Params.h"
 
 namespace cp::control::pid {
@@ -69,20 +70,27 @@ void update(const cp::estimation::attitude::Euler& attitude_error,
             float dt_s) {
   namespace pr = cp::params;
 
+  // Live-tune multipliers, applied to every blended P and D gain so a
+  // transmitter knob can scale the gains in flight.
+  const float kp_mult = cp::params::live::kpMultiplier();
+  const float kd_mult = cp::params::live::kdMultiplier();
+
   // Regime-scheduled gains. P and D interpolate between the hover and
-  // forward-flight sets, I is shared. All read live from the registry.
+  // forward-flight sets and are then scaled by the live-tune
+  // multipliers. I is shared and not live-tuned. All read from the
+  // runtime registry.
   const float kp_roll  = schedule(pr::get(pr::KP_ROLL_FF),
-                                  pr::get(pr::KP_ROLL_HOVER), fader);
+                                  pr::get(pr::KP_ROLL_HOVER), fader) * kp_mult;
   const float kd_roll  = schedule(pr::get(pr::KD_ROLL_FF),
-                                  pr::get(pr::KD_ROLL_HOVER), fader);
+                                  pr::get(pr::KD_ROLL_HOVER), fader) * kd_mult;
   const float kp_pitch = schedule(pr::get(pr::KP_PITCH_FF),
-                                  pr::get(pr::KP_PITCH_HOVER), fader);
+                                  pr::get(pr::KP_PITCH_HOVER), fader) * kp_mult;
   const float kd_pitch = schedule(pr::get(pr::KD_PITCH_FF),
-                                  pr::get(pr::KD_PITCH_HOVER), fader);
+                                  pr::get(pr::KD_PITCH_HOVER), fader) * kd_mult;
   const float kp_yaw   = schedule(pr::get(pr::KP_YAW_FF),
-                                  pr::get(pr::KP_YAW_HOVER), fader);
+                                  pr::get(pr::KP_YAW_HOVER), fader) * kp_mult;
   const float kd_yaw   = schedule(pr::get(pr::KD_YAW_FF),
-                                  pr::get(pr::KD_YAW_HOVER), fader);
+                                  pr::get(pr::KD_YAW_HOVER), fader) * kd_mult;
   const float ki_roll  = pr::get(pr::KI_ROLL);
   const float ki_pitch = pr::get(pr::KI_PITCH);
   const float ki_yaw   = pr::get(pr::KI_YAW);
