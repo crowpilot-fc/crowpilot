@@ -91,6 +91,11 @@
 
 #define IMU_TYPE IMU_MPU6500
 
+// One-shot IMU bias calibration. With this set, the firmware measures
+// the gyro and accelerometer offsets at boot, prints them, and halts.
+// Off for flight builds.
+#define ENABLE_IMU_CALIBRATION 0
+
 namespace cp {
 
 constexpr uint8_t IMU_I2C_ADDR   = 0x68;  // AD0 tied low. 0x69 if AD0 high.
@@ -106,6 +111,11 @@ constexpr float GYRO_BIAS_Z = 0.0f;  // deg/s
 constexpr float ACC_BIAS_X  = 0.0f;  // g
 constexpr float ACC_BIAS_Y  = 0.0f;  // g
 constexpr float ACC_BIAS_Z  = 0.0f;  // g
+
+// Samples averaged by the IMU bias calibration routine. The routine
+// paces one read per millisecond, so 2000 samples span about two
+// seconds, long enough for a stable mean of the MEMS sensor noise.
+constexpr uint32_t IMU_CALIB_SAMPLE_COUNT = 2000;
 
 }  // namespace cp
 
@@ -314,6 +324,23 @@ constexpr uint32_t USER_HOOK_HARD_LIMIT_US = 250;
 }  // namespace cp
 
 // ===========================================================================
+// Attitude estimation
+// ===========================================================================
+// The AHRS is a Madgwick gradient-descent orientation filter, gyro and
+// accelerometer only. MADGWICK_BETA is its single gain. Madgwick 2011
+// derives beta as sqrt(3/4) times the gyro measurement error in rad/s.
+// For an assumed 7.5 deg/s MEMS gyro error that is about 0.11. A higher
+// beta tracks the accelerometer faster and is noisier, a lower beta
+// trusts the gyro longer and drifts more. Provisional, refined by bench
+// observation per spec section 3.
+
+namespace cp {
+
+constexpr float MADGWICK_BETA = 0.10f;
+
+}  // namespace cp
+
+// ===========================================================================
 // Tailsitter control-core tuning (provisional)
 // ===========================================================================
 // Per-axis PID gains for the tailsitter stabilizer, registered as
@@ -328,10 +355,9 @@ constexpr uint32_t USER_HOOK_HARD_LIMIT_US = 250;
 // in [0, 1]. The starting magnitudes here are sized small so the first
 // powered tests are gentle.
 //
-// Further control-core tuning constants (attitude filter gain, IMU
-// calibration sample count, transition slew rate, pilot stick limits,
-// elevon trim) are added to this file in the build phases that
-// implement the modules that use them.
+// Further control-core tuning constants (transition slew rate, pilot
+// stick limits, elevon trim) are added to this file in the build
+// phases that implement the modules that use them.
 
 namespace cp {
 
