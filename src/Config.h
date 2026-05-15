@@ -453,3 +453,20 @@ constexpr float ELEVON_FF_GAIN    = 0.2f;  // forward-flight stick feedforward
 constexpr float MOTOR_YAW_GAIN    = 0.3f;  // differential thrust per unit yaw demand
 
 }  // namespace cp
+
+// ===========================================================================
+// Debug output
+// ===========================================================================
+// Compile-time gate for the main loop's serial debug prints. Off for
+// flight builds. When on, the loop prints a status line every
+// DEBUG_PRINT_INTERVAL_TICKS, still gated at runtime on a live USB
+// serial connection.
+
+#define ENABLE_DEBUG_PRINTS 0
+
+namespace cp {
+
+// At LOOP_HZ a value of 200 prints roughly five lines per second.
+constexpr uint32_t DEBUG_PRINT_INTERVAL_TICKS = 200;
+
+}  // namespace cp
