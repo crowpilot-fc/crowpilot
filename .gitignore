@@ -1,0 +1,53 @@
+# Internal working notes. Never ship to the public repo.
+internal-docs/
+internal-docs-rp2350/
+
+# Clean-repo handoff bundle. Never commit it.
+clean-repo-handoff/
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor and IDE state
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Arduino IDE build artifacts
+build/
+*.hex
+*.uf2
+*.elf
+*.bin
+*.map
+
+# PlatformIO build artifacts
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# CMake / host build for the SITL target (lands in Phase 12.7)
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+
+# Python (host tools)
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.pytest_cache/
+
+# Logs and captures
+*.log
+LOG*.BIN
+LOG*.CSV
+
+# Local secrets
+*.local
+.env

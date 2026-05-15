@@ -1,0 +1,97 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Nitin Kumar
+
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  spdx-headers:
+    name: SPDX header lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check SPDX header on every non-exempt file
+        run: |
+          set -euo pipefail
+
+          # Exemption list. Verbatim license texts, generated binaries, OS junk.
+          # Patterns are matched against the path returned by git ls-files.
+          exempt_paths=(
+            "LICENSE"
+            "LICENSE-docs"
+            "CLA.md"
+            "COMMERCIAL.md"
+            ".gitignore"
+            ".gitattributes"
+          )
+
+          # Files matching these extensions are checked. Everything else passes.
+          checked_extensions=(
+            "md"
+            "yml"
+            "yaml"
+            "h"
+            "hpp"
+            "c"
+            "cpp"
+            "ino"
+            "py"
+            "sh"
+            "cmake"
+            "pio"
+          )
+
+          is_exempt() {
+            local path="$1"
+            for pattern in "${exempt_paths[@]}"; do
+              if [[ "$path" == "$pattern" ]]; then
+                return 0
+              fi
+            done
+            # CMakeLists.txt is checked, but content inside generated CMake build
+            # trees is not. Build trees are gitignored, so they should not appear.
+            return 1
+          }
+
+          has_checked_extension() {
+            local path="$1"
+            local base="${path##*/}"
+            if [[ "$base" == "CMakeLists.txt" ]]; then
+              return 0
+            fi
+            local ext="${path##*.}"
+            for e in "${checked_extensions[@]}"; do
+              if [[ "$ext" == "$e" ]]; then
+                return 0
+              fi
+            done
+            return 1
+          }
+
+          missing=0
+          while IFS= read -r f; do
+            if is_exempt "$f"; then
+              continue
+            fi
+            if ! has_checked_extension "$f"; then
+              continue
+            fi
+            if ! grep -q "SPDX-License-Identifier" "$f"; then
+              echo "missing SPDX header: $f"
+              missing=$((missing + 1))
+            fi
+          done < <(git ls-files)
+
+          if [[ "$missing" -gt 0 ]]; then
+            echo
+            echo "$missing file(s) missing SPDX-License-Identifier."
+            exit 1
+          fi
+          echo "SPDX headers OK."
