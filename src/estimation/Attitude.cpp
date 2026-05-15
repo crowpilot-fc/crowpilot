@@ -218,4 +218,21 @@ Euler errorTo(const Quaternion& reference) {
   return e;
 }
 
+Euler errorToReference(float fader,
+                       float roll_setpoint_deg,
+                       float pitch_setpoint_deg) {
+  // Base orientation: pitched (fader * 90 degrees) nose-up from
+  // forward-flight level. At fader 1 this is the hover reference, at
+  // fader 0 it is identity.
+  const Quaternion base = fromEulerRad(0.0f, fader * 90.0f * kDegToRad,
+                                       0.0f);
+
+  // Pilot setpoints applied as a body-frame offset after the base.
+  const Quaternion offset = fromEulerRad(roll_setpoint_deg * kDegToRad,
+                                         pitch_setpoint_deg * kDegToRad,
+                                         0.0f);
+
+  return errorTo(mul(base, offset));
+}
+
 }  // namespace cp::estimation::attitude

@@ -425,4 +425,7 @@ constexpr float Ki_roll  = 0.0f;
 constexpr float Ki_pitch = 0.0f;
 constexpr float Ki_yaw   = 0.0f;
 
+// Anti-windup clamp on each axis integrator accumulator. Provisional.
+constexpr float PID_INTEGRAL_LIMIT = 50.0f;
+
 }  // namespace cp

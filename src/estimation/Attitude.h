@@ -92,7 +92,19 @@ Euler eulerHover();
 // the current estimate onto `reference`, as a small-angle body-frame
 // vector in degrees (roll about x, pitch about y, yaw about z). The
 // shortest rotation is always chosen. Continuous everywhere from hover
-// to forward flight. This is the stabilizer input per spec section 8.
+// to forward flight.
 Euler errorTo(const Quaternion& reference);
+
+// The attitude reference across the transition, per spec section 5.
+// Builds the orientation the airframe should hold, then returns the
+// errorTo() of it. The reference is the nose-up hover attitude rotated
+// toward forward-flight level by `fader` (1.0 hover to 0.0 forward),
+// with the pilot roll and pitch setpoints applied as body-frame
+// offsets. The roll and pitch components of the result drive the
+// stabilizer. The yaw component is informational, since yaw has no
+// absolute reference without a magnetometer and is rate-controlled.
+Euler errorToReference(float fader,
+                       float roll_setpoint_deg,
+                       float pitch_setpoint_deg);
 
 }  // namespace cp::estimation::attitude
