@@ -1,0 +1,32 @@
+; SPDX-License-Identifier: GPL-3.0-or-later
+; Copyright (C) 2026 Nitin Kumar
+;
+; PIO program for inverted UART receive at 100 kbaud, 8E2.
+;
+; The SBUS line idles LOW. Start bit is HIGH. Data and parity bits are
+; transmitted with inverted polarity relative to a standard UART. Stop bits
+; are two LOW bits. The RP2350 hardware UART cannot invert, so this PIO
+; program samples the line as-is and the firmware-side reader inverts the
+; nine captured bits (via XOR with 0x1FF) before feeding the frame parser.
+;
+; Per crowtalk decision 0001 PIO is the only documented SBUS-inversion path
+; for v1.
+;
+; State machine clock: 100 kbaud * 8 = 800 kHz. clkdiv = sys_clk / 800 kHz.
+;
+; ISR config: shift_right=true, autopush=false, threshold=9. Each iteration
+; captures b0 through b8 (LSB first) into ISR[31:23]; the firmware reads
+; the full 32-bit word and right-shifts by 23 then masks 9 bits.
+
+.program sbus_rx_inverted
+
+.wrap_target
+    wait 1 pin 0           ; Stall until the line goes high (inverted start bit).
+    set x, 8        [10]   ; x is the 9-bit counter (8 data + 1 parity). The [10]
+                           ; delay places the next sample at 1.5 bit periods past
+                           ; the start-bit edge (8x oversample: 1 + 11 = 12 cycles).
+bitloop:
+    in pins, 1             ; Sample one bit into ISR[31] (then ISR shifts right).
+    jmp x-- bitloop [6]    ; Loop 9 times. 8 cycles per iteration (1 + 1 + [6]).
+    push noblock           ; Push the 32-bit ISR to the RX FIFO and reset ISR.
+.wrap
