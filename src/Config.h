@@ -218,7 +218,7 @@ constexpr uint16_t FS_CH2_ROLL        = 1500;  // us. Centered.
 constexpr uint16_t FS_CH3_PITCH       = 1500;  // us. Centered.
 constexpr uint16_t FS_CH4_YAW         = 1500;  // us. Centered.
 constexpr uint16_t FS_CH5_ARM         = 1000;  // us. Armed position, descent stays powered.
-constexpr uint16_t FS_CH6_TRANSITION  = 1000;  // us. Hover end.
+constexpr uint16_t FS_CH6_TRANSITION  = 2000;  // us. Hover end (high pulse).
 
 // Link is considered lost when no fresh receiver frame arrives within
 // this window.

@@ -37,14 +37,14 @@ void init() {
 void update(const uint16_t* channels, float dt_s) {
   const uint16_t us = channels[CHANNEL_TRANSITION - 1];
 
-  // Map the channel to the transition command. The hover end is the low
-  // pulse, the forward end is the high pulse, so the fraction is
-  // inverted: a centered-down switch commands hover.
+  // Map the channel to the transition command. The hover end is the
+  // high pulse and the forward end is the low pulse, matching the
+  // transmitter setup the documentation describes.
   const float span = static_cast<float>(RC_MAX_US) -
                       static_cast<float>(RC_MIN_US);
   const float frac = (static_cast<float>(us) -
                       static_cast<float>(RC_MIN_US)) / span;
-  const float command = clamp01(1.0f - frac);
+  const float command = clamp01(frac);
 
   // Slew the fader toward the command at the bounded rate.
   const float max_step = TRANSITION_SLEW_RATE * dt_s;
