@@ -30,7 +30,7 @@ assert RECORD_SIZE == 109, f"record size mismatch: got {RECORD_SIZE} expected 10
 
 SUPPORTED_SCHEMA_VERSIONS = (0x01,)
 
-GYRO_LSB_PER_DPS = 131.0  # +-250 dps default range
+GYRO_LSB_PER_DPS = 16.4  # +-2000 dps (IMU_GYRO_RANGE = 3), matches decode_log.py
 
 # Status flag masks.
 FLAG_ARMED = 0x01
