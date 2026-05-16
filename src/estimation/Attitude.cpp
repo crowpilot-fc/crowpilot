@@ -23,12 +23,14 @@ constexpr float kPi        = 3.14159265358979323846f;
 constexpr float kDegToRad  = kPi / 180.0f;
 constexpr float kRadToDeg  = 180.0f / kPi;
 
-// Hover reference orientation: the airframe pitched 90 degrees nose-up
-// from forward-flight level, a rotation about the body y-axis. Used to
-// re-reference the estimate for the hover Euler view. cos(45 deg) and
-// sin(45 deg) are equal.
+// Hover reference orientation: the airframe nose-up, 90 degrees from
+// forward-flight level. The body frame is z-up (a level airframe reads
+// +1 g on z), so a nose-up pitch is a negative rotation about the body
+// y-axis. The quaternion is fromEuler(0, -90 deg, 0) = (cos45, 0,
+// -sin45, 0). Used to re-reference the estimate for the hover Euler
+// view.
 constexpr float kSqrtHalf  = 0.70710678118654752440f;
-constexpr Quaternion kHoverRef = {kSqrtHalf, 0.0f, kSqrtHalf, 0.0f};
+constexpr Quaternion kHoverRef = {kSqrtHalf, 0.0f, -kSqrtHalf, 0.0f};
 
 Quaternion s_q      = {1.0f, 0.0f, 0.0f, 0.0f};
 BodyRates  s_rates  = {0.0f, 0.0f, 0.0f};
@@ -221,10 +223,11 @@ Euler errorTo(const Quaternion& reference) {
 Euler errorToReference(float fader,
                        float roll_setpoint_deg,
                        float pitch_setpoint_deg) {
-  // Base orientation: pitched (fader * 90 degrees) nose-up from
-  // forward-flight level. At fader 1 this is the hover reference, at
-  // fader 0 it is identity.
-  const Quaternion base = fromEulerRad(0.0f, fader * 90.0f * kDegToRad,
+  // Base orientation: nose-up by (fader * 90 degrees) from forward-
+  // flight level. The body frame is z-up, so a nose-up pitch is a
+  // negative rotation about body y. At fader 1 this is the hover
+  // reference, at fader 0 it is identity.
+  const Quaternion base = fromEulerRad(0.0f, fader * -90.0f * kDegToRad,
                                        0.0f);
 
   // Pilot setpoints applied as a body-frame offset after the base.
