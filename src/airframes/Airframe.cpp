@@ -10,7 +10,8 @@
 // Geometry. Two motors on the wing, left and right of centerline,
 // separated along the body y-axis, thrust along body x. One elevon
 // behind each motor, in its propeller wash. Body frame: x out the
-// nose, y to the right, z through the belly.
+// nose, z up, y completing the right-handed triad, the same frame the
+// attitude estimator uses.
 //
 // Effector to body moment, fixed by that geometry and so the same in
 // both regimes:

@@ -15,11 +15,12 @@
 // so yaw drifts slowly. That is expected for v1.
 //
 // Body-frame convention. One fixed right-handed body frame is used
-// everywhere: x out the nose, y out the right wing, z completing the
-// triad so a level airframe at rest reads +1 g on the z accelerometer.
-// The gyroscope reports rates about these same axes. There is one
-// physical body frame regardless of flight regime, so the body-rate
-// signal needs no per-regime remapping.
+// everywhere: x out the nose, z pointing up so a level airframe at
+// rest reads +1 g on the z accelerometer, and y completing the
+// right-handed triad. With x out the nose and z up, that right-handed
+// y points out the left wing. The gyroscope reports rates about these
+// same axes. There is one physical body frame regardless of flight
+// regime, so the body-rate signal needs no per-regime remapping.
 //
 // The transition problem (spec section 5). A tailsitter flies at roughly
 // 0 degrees pitch in forward flight and roughly 90 degrees pitch in
