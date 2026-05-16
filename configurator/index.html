@@ -29,6 +29,7 @@
       <button id="tab-params" class="tab active">Parameters</button>
       <button id="tab-telemetry" class="tab">Telemetry</button>
       <button id="tab-log" class="tab">Log</button>
+      <button id="tab-firmware" class="tab">Firmware</button>
     </div>
 
     <div id="panel-params" class="panel">
@@ -109,6 +110,41 @@
       </section>
     </div>
 
+    <div id="panel-firmware" class="panel hidden">
+      <section class="group">
+        <h2>Flash firmware</h2>
+        <p class="hint">
+          Write a CrowPilot <code>.uf2</code> to the board over USB. The
+          board must be in BOOTSEL mode: click <strong>Reboot to
+          bootloader</strong> below while connected, or hold the BOOTSEL
+          button while plugging the board in.
+        </p>
+        <p class="hint">
+          A failed flash is recoverable. An RP2350 with no valid image
+          stays in BOOTSEL, so the firmware can always be re-flashed by
+          dragging the <code>.uf2</code> onto the board's USB drive.
+        </p>
+        <div class="logload">
+          <button id="fw-boot" class="secondary" disabled>
+            Reboot to bootloader
+          </button>
+        </div>
+        <div class="logload">
+          <input type="file" id="fw-file" accept=".uf2,.UF2">
+          <button id="fw-flash" disabled>Flash</button>
+        </div>
+        <p id="fw-info" class="hint hidden"></p>
+        <div id="fw-error" class="banner hidden"></div>
+      </section>
+      <section id="fw-progress-section" class="group hidden">
+        <h2>Progress</h2>
+        <p id="fw-status" class="lrow-value">--</p>
+        <div class="progress-track">
+          <div id="fw-bar" class="progress-fill"></div>
+        </div>
+      </section>
+    </div>
+
     <section class="logwrap">
       <h2>Protocol log</h2>
       <pre id="log" class="log"></pre>
@@ -117,6 +153,7 @@
 
   <script src="mock.js"></script>
   <script src="log.js"></script>
+  <script src="flash.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

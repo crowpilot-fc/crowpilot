@@ -135,6 +135,19 @@ void doStream() {
   }
 }
 
+void doBoot() {
+  // Reboot into the RP2350 BOOTSEL bootloader so the configurator can
+  // flash over USB. Rejected while armed: a reboot mid-flight drops the
+  // aircraft. flush() lets the reply reach the host before the reset.
+  if (cp::actuators::arm_state() == cp::actuators::ArmState::ARMED) {
+    reply("err armed");
+    return;
+  }
+  reply("ok boot");
+  Serial.flush();
+  rp2040.rebootToBootloader();
+}
+
 void handleLine(char* line) {
   const char* prefix = strtok(line, " ");
   if (prefix == nullptr || strcmp(prefix, "cp") != 0) {
@@ -156,6 +169,8 @@ void handleLine(char* line) {
     doDefaults();
   } else if (strcmp(verb, "stream") == 0) {
     doStream();
+  } else if (strcmp(verb, "boot") == 0) {
+    doBoot();
   } else {
     reply("err badcmd");
   }

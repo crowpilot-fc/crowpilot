@@ -17,6 +17,7 @@ const state = {
   connected: false,
   params: [],       // [{idx, key, value, def, min, max, persist}]
   pending: null,    // {isList, lines, resolve, reject, timer}
+  firmwareUf2: null,  // parsed .uf2 staged for flashing
 };
 
 const els = {
@@ -52,6 +53,16 @@ const els = {
   logSummary: document.getElementById('log-summary'),
   logTableSection: document.getElementById('log-table-section'),
   logTable: document.getElementById('log-table'),
+  tabFirmware: document.getElementById('tab-firmware'),
+  panelFirmware: document.getElementById('panel-firmware'),
+  fwBoot: document.getElementById('fw-boot'),
+  fwFile: document.getElementById('fw-file'),
+  fwFlash: document.getElementById('fw-flash'),
+  fwInfo: document.getElementById('fw-info'),
+  fwError: document.getElementById('fw-error'),
+  fwProgressSection: document.getElementById('fw-progress-section'),
+  fwStatus: document.getElementById('fw-status'),
+  fwBar: document.getElementById('fw-bar'),
 };
 
 // ---------------------------------------------------------------------------
@@ -102,6 +113,7 @@ async function onConnected() {
   await refreshParams();
   setToolbarEnabled(true);
   buildChannelRows();
+  els.fwBoot.disabled = false;
   showTab('params');
   // Start the live telemetry stream so the Telemetry tab has data.
   await sendCommand('cp stream on', false);
@@ -110,6 +122,7 @@ async function onConnected() {
 async function disconnect() {
   state.connected = false;
   setToolbarEnabled(false);
+  els.fwBoot.disabled = true;
   els.toolbar.classList.add('hidden');
   els.form.innerHTML = '';
   if (state.transport) {
@@ -525,11 +538,13 @@ function showTab(name) {
     params: els.panelParams,
     telemetry: els.panelTelemetry,
     log: els.panelLog,
+    firmware: els.panelFirmware,
   };
   const tabs = {
     params: els.tabParams,
     telemetry: els.tabTelemetry,
     log: els.tabLog,
+    firmware: els.tabFirmware,
   };
   for (const key of Object.keys(panels)) {
     panels[key].classList.toggle('hidden', key !== name);
@@ -649,6 +664,98 @@ function hideLogError() {
 }
 
 // ---------------------------------------------------------------------------
+// Firmware tab
+// ---------------------------------------------------------------------------
+
+// Parse a picked .uf2, show what it contains, and enable Flash. A bad
+// file leaves Flash disabled and shows the error.
+function loadFirmwareFile(buffer, name) {
+  state.firmwareUf2 = null;
+  els.fwFlash.disabled = true;
+  els.fwInfo.classList.add('hidden');
+  hideFwError();
+  try {
+    const uf2 = parseUf2(buffer);
+    state.firmwareUf2 = uf2;
+    showFirmwareInfo(uf2, name);
+    els.fwFlash.disabled = false;
+  } catch (err) {
+    showFwError(name + ': ' + err.message);
+  }
+}
+
+function showFirmwareInfo(uf2, name) {
+  const image = buildFlashImage(uf2);
+  const fams = [];
+  let rp2350 = false;
+  for (const f of uf2.families) {
+    fams.push(UF2_FAMILIES[f] || ('0x' + f.toString(16)));
+    if (UF2_RP2350_FAMILIES.includes(f)) {
+      rp2350 = true;
+    }
+  }
+  let text = name + ': ' + uf2.blocks.length + ' blocks, ' +
+      image.bytes.length + ' bytes from 0x' +
+      image.base.toString(16) + '. Family: ' +
+      (fams.join(', ') || 'unknown') + '.';
+  if (!rp2350) {
+    text += ' Warning: this is not an RP2350 image.';
+  }
+  els.fwInfo.textContent = text;
+  els.fwInfo.classList.remove('hidden');
+}
+
+async function flashFirmware() {
+  if (!state.firmwareUf2) {
+    return;
+  }
+  if (!('usb' in navigator)) {
+    showFwError('this browser does not support WebUSB. Use Chrome or Edge.');
+    return;
+  }
+  els.fwFlash.disabled = true;
+  els.fwBoot.disabled = true;
+  hideFwError();
+  els.fwProgressSection.classList.remove('hidden');
+  els.fwBar.style.width = '0%';
+  try {
+    await flashUf2(state.firmwareUf2, (msg, frac) => {
+      els.fwStatus.textContent = msg;
+      if (typeof frac === 'number') {
+        els.fwBar.style.width = (frac * 100).toFixed(0) + '%';
+      }
+    });
+    els.fwStatus.textContent = 'Flash complete. The board is rebooting.';
+    els.fwBar.style.width = '100%';
+  } catch (err) {
+    els.fwStatus.textContent = 'Flash failed.';
+    showFwError(err.message);
+  } finally {
+    els.fwFlash.disabled = state.firmwareUf2 === null;
+    els.fwBoot.disabled = !state.connected;
+  }
+}
+
+async function rebootToBootloader() {
+  try {
+    await sendCommand('cp boot', false);
+  } catch (err) {
+    // The board resets and the serial link drops. That is the expected
+    // outcome; the read loop handles the disconnect.
+  }
+  log('reboot to bootloader requested', 'info');
+}
+
+function showFwError(msg) {
+  els.fwError.textContent = msg;
+  els.fwError.classList.remove('hidden');
+}
+
+function hideFwError() {
+  els.fwError.classList.add('hidden');
+}
+
+// ---------------------------------------------------------------------------
 // UI helpers
 // ---------------------------------------------------------------------------
 
@@ -734,6 +841,24 @@ function main() {
   els.logSample.addEventListener('click', () => {
     loadLogBuffer(makeSampleLog(), 'sample.BIN');
   });
+
+  els.tabFirmware.addEventListener('click', () => showTab('firmware'));
+
+  els.fwFile.addEventListener('change', async () => {
+    const file = els.fwFile.files[0];
+    if (!file) {
+      return;
+    }
+    try {
+      const buffer = await file.arrayBuffer();
+      loadFirmwareFile(buffer, file.name);
+    } catch (err) {
+      showFwError('could not read file: ' + err.message);
+    }
+  });
+
+  els.fwFlash.addEventListener('click', flashFirmware);
+  els.fwBoot.addEventListener('click', rebootToBootloader);
 
   els.write.addEventListener('click', guarded(writeChanged));
   els.save.addEventListener('click', guarded(saveFlash));

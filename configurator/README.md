@@ -7,11 +7,10 @@ A browser-based setup tool for CrowPilot. Connect the flight controller
 over USB, edit the runtime parameters in a form, and write them back to
 the board.
 
-It has three tabs: Parameters (the PID gain editor), Telemetry (live
-attitude, receiver channels, arm and failsafe state, loop health), and
-Log (decode a `.BIN` telemetry log pulled from the SD card). It does not
-flash firmware. Flashing stays the standard RP2350 workflow (hold
-BOOTSEL, drag the `.uf2` onto the mass-storage drive).
+It has four tabs: Parameters (the PID gain editor), Telemetry (live
+attitude, receiver channels, arm and failsafe state, loop health), Log
+(decode a `.BIN` telemetry log pulled from the SD card), and Firmware
+(flash a `.uf2` to the board over USB).
 
 There is also a **Mock device** button. It connects to an in-browser
 stand-in that answers the same protocol, so the configurator can be
@@ -61,6 +60,21 @@ loop-period health, armed fraction, failsafe events, gyro RMS, flight
 mode) and a sampled record table. The decoder follows the same 109-byte
 record schema as `tools/log_analyzer/decode_features.py`.
 
+## The Firmware tab
+
+The **Firmware** tab flashes a `.uf2` to the board over USB, using the
+RP2350 bootrom PICOBOOT protocol through WebUSB.
+
+1. Put the board in BOOTSEL mode. While connected, click **Reboot to
+   bootloader** (this sends `cp boot`). Otherwise hold the BOOTSEL
+   button while plugging the board in.
+2. Pick the `.uf2` file. The tab shows its size, address, and family.
+3. Click **Flash** and select the board in the WebUSB prompt.
+
+A failed flash is recoverable: an RP2350 with no valid image stays in
+BOOTSEL, so the firmware can always be re-flashed by dragging the
+`.uf2` onto the board's USB drive, the standard fallback.
+
 ## The serial protocol
 
 The configurator speaks a line-oriented text protocol over the USB serial
@@ -75,6 +89,7 @@ port at 115200 baud. Every firmware reply is prefixed with `cp `.
 | `cp load` | Reload the registry from flash. |
 | `cp defaults` | Reset the registry to compile-time defaults. |
 | `cp stream on` / `cp stream off` | Start or stop live telemetry. |
+| `cp boot` | Reboot into the BOOTSEL bootloader. Rejected while armed. |
 
 While streaming is on, the board pushes a telemetry line about ten times
 a second:
