@@ -245,6 +245,40 @@ void debugOutput() {
     Serial.println("]");
   }
 #endif
+
+#if ENABLE_CONFIG_CLI
+  // Configurator live telemetry. Emitted only while the configurator has
+  // issued "cp stream on". The cp prefix keeps it distinct from the
+  // DEBUG_PRINT_* lines that may share the port. Fields, space-separated:
+  // roll pitch yaw armed failsafe mode loop_us ch1..ch6.
+  if (cp::cli::streaming() &&
+      (s_tick_count % DEBUG_STREAM_INTERVAL_TICKS) == 0) {
+    const cp::estimation::attitude::Euler att =
+        cp::estimation::attitude::eulerForwardFlight();
+    const cp::failsafe::State& fs = cp::failsafe::state();
+    const uint16_t*            ch = cp::failsafe::channels().ch_us;
+    Serial.print("cp tlm ");
+    Serial.print(att.roll_deg, 1);
+    Serial.print(' ');
+    Serial.print(att.pitch_deg, 1);
+    Serial.print(' ');
+    Serial.print(att.yaw_deg, 1);
+    Serial.print(' ');
+    Serial.print(cp::actuators::arm_state() == cp::actuators::ArmState::ARMED
+                     ? 1 : 0);
+    Serial.print(' ');
+    Serial.print(fs.active ? 1 : 0);
+    Serial.print(' ');
+    Serial.print(modeName(cp::modes::mode()));
+    Serial.print(' ');
+    Serial.print(s_loop_period_us);
+    for (uint8_t i = 0; i < 6; ++i) {
+      Serial.print(' ');
+      Serial.print(ch[i]);
+    }
+    Serial.println();
+  }
+#endif
 }
 
 }  // anonymous namespace

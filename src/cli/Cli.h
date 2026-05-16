@@ -20,4 +20,9 @@ void init();
 // command line. Non-blocking. Call once per loop tick.
 void poll();
 
+// True while live telemetry streaming is on (the configurator issued
+// "cp stream on"). The loop emits a cp tlm line each interval while this
+// holds. Always false when ENABLE_CONFIG_CLI is 0.
+bool streaming();
+
 }  // namespace cp::cli

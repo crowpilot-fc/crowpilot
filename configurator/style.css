@@ -180,6 +180,96 @@ main {
 .log .info { color: var(--on); }
 .log .err { color: var(--off); }
 
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.tab {
+  background: var(--panel);
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+
+.tab.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.readout {
+  display: grid;
+  grid-template-columns: 130px 100px auto;
+  align-items: baseline;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.rlabel {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.rval {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 15px;
+  text-align: right;
+}
+
+.runit {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.badge {
+  justify-self: start;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+.badge-ok    { background: rgba(62, 196, 109, 0.15); color: var(--on); }
+.badge-idle  { background: var(--line); color: var(--muted); }
+.badge-warn  { background: rgba(224, 162, 60, 0.18); color: var(--dirty); }
+.badge-alert { background: rgba(196, 80, 62, 0.18); color: var(--off); }
+
+.chan {
+  display: grid;
+  grid-template-columns: 56px 1fr 64px;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.chan-label {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.chan-track {
+  height: 10px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.chan-fill {
+  height: 100%;
+  width: 0;
+  background: var(--accent);
+  transition: width 0.1s linear;
+}
+
+.chan-val {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 13px;
+  text-align: right;
+}
+
 .hidden {
   display: none;
 }

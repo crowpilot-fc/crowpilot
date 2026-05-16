@@ -30,6 +30,7 @@ constexpr int kFloatDigits = 5;
 char    s_line[kLineMax] = {};
 uint8_t s_len            = 0;
 bool    s_overflow       = false;
+bool    s_stream         = false;
 
 void reply(const char* msg) {
   Serial.print("cp ");
@@ -117,6 +118,23 @@ void doDefaults() {
   reply("ok defaults");
 }
 
+void doStream() {
+  const char* arg = strtok(nullptr, " ");
+  if (arg == nullptr) {
+    reply("err noargs");
+    return;
+  }
+  if (strcmp(arg, "on") == 0) {
+    s_stream = true;
+    reply("ok stream on");
+  } else if (strcmp(arg, "off") == 0) {
+    s_stream = false;
+    reply("ok stream off");
+  } else {
+    reply("err badval");
+  }
+}
+
 void handleLine(char* line) {
   const char* prefix = strtok(line, " ");
   if (prefix == nullptr || strcmp(prefix, "cp") != 0) {
@@ -136,6 +154,8 @@ void handleLine(char* line) {
     doLoad();
   } else if (strcmp(verb, "defaults") == 0) {
     doDefaults();
+  } else if (strcmp(verb, "stream") == 0) {
+    doStream();
   } else {
     reply("err badcmd");
   }
@@ -149,6 +169,7 @@ void init() {
 #if ENABLE_CONFIG_CLI
   s_len      = 0;
   s_overflow = false;
+  s_stream   = false;
 #endif
 }
 
@@ -177,6 +198,14 @@ void poll() {
       s_overflow = true;
     }
   }
+#endif
+}
+
+bool streaming() {
+#if ENABLE_CONFIG_CLI
+  return s_stream;
+#else
+  return false;
 #endif
 }
 

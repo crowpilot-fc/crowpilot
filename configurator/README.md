@@ -7,9 +7,14 @@ A browser-based setup tool for CrowPilot. Connect the flight controller
 over USB, edit the runtime parameters in a form, and write them back to
 the board.
 
-This is the v0 milestone: the PID gain editor. It does not flash
-firmware. Flashing stays the standard RP2350 workflow (hold BOOTSEL, drag
-the `.uf2` onto the mass-storage drive).
+It has a Parameters tab (the PID gain editor) and a Telemetry tab (live
+attitude, receiver channels, arm and failsafe state, loop health). It
+does not flash firmware. Flashing stays the standard RP2350 workflow
+(hold BOOTSEL, drag the `.uf2` onto the mass-storage drive).
+
+There is also a **Mock device** button. It connects to an in-browser
+stand-in that answers the same protocol, so the configurator can be
+tried out and developed without any hardware.
 
 ## Requirements
 
@@ -39,8 +44,12 @@ then visit the printed URL.
 6. **Save to flash** persists them so they survive a reboot. This is
    rejected while the aircraft is armed.
 7. **Reload from flash** and **Reset to defaults** restore values.
+8. The **Telemetry** tab shows live attitude, receiver channels, arm and
+   failsafe state, and loop period. Streaming starts automatically on
+   connect.
 
-The protocol log at the bottom shows the raw exchange.
+The protocol log at the bottom shows the raw exchange. Telemetry lines
+are not logged, since they arrive continuously.
 
 ## The serial protocol
 
@@ -55,6 +64,14 @@ port at 115200 baud. Every firmware reply is prefixed with `cp `.
 | `cp save` | Persist the registry to flash. |
 | `cp load` | Reload the registry from flash. |
 | `cp defaults` | Reset the registry to compile-time defaults. |
+| `cp stream on` / `cp stream off` | Start or stop live telemetry. |
+
+While streaming is on, the board pushes a telemetry line about ten times
+a second:
+
+```
+cp tlm <roll> <pitch> <yaw> <armed> <failsafe> <mode> <loop_us> <ch1..ch6>
+```
 
 Because it is plain text, you can also drive the board from any serial
 terminal for debugging.

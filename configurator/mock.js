@@ -88,8 +88,43 @@ function createMockDevice() {
       params.forEach((p) => { p.value = p.def; });
       return ['cp ok defaults'];
     }
+    if (verb === 'stream') {
+      const arg = t[2];
+      if (arg === undefined) {
+        return ['cp err noargs'];
+      }
+      if (arg === 'on') {
+        return ['cp ok stream on'];
+      }
+      if (arg === 'off') {
+        return ['cp ok stream off'];
+      }
+      return ['cp err badval'];
+    }
     return ['cp err badcmd'];
   }
 
-  return { handle };
+  // One synthetic telemetry line in the firmware cp tlm format:
+  // roll pitch yaw armed failsafe mode loop_us ch1..ch6. The values
+  // gently animate so the Telemetry tab visibly updates.
+  let tlmPhase = 0;
+  function telemetry() {
+    tlmPhase += 0.12;
+    const roll = (Math.sin(tlmPhase) * 8).toFixed(1);
+    const pitch = (Math.sin(tlmPhase * 0.7) * 5).toFixed(1);
+    const yaw = ((tlmPhase * 9) % 360 - 180).toFixed(1);
+    const loop = 1000 + Math.floor(Math.random() * 7);
+    const ch = [
+      1500 + Math.round(Math.sin(tlmPhase) * 60),
+      1500 + Math.round(Math.sin(tlmPhase * 1.3) * 220),
+      1500 + Math.round(Math.cos(tlmPhase * 0.9) * 220),
+      1500 + Math.round(Math.sin(tlmPhase * 0.5) * 120),
+      1000,
+      1900,
+    ];
+    return 'cp tlm ' + roll + ' ' + pitch + ' ' + yaw +
+           ' 0 0 hover ' + loop + ' ' + ch.join(' ');
+  }
+
+  return { handle, telemetry };
 }

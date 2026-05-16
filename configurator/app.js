@@ -30,6 +30,19 @@ const els = {
   save: document.getElementById('save'),
   reload: document.getElementById('reload'),
   defaults: document.getElementById('defaults'),
+  tabs: document.getElementById('tabs'),
+  tabParams: document.getElementById('tab-params'),
+  tabTelemetry: document.getElementById('tab-telemetry'),
+  panelParams: document.getElementById('panel-params'),
+  panelTelemetry: document.getElementById('panel-telemetry'),
+  tRoll: document.getElementById('t-roll'),
+  tPitch: document.getElementById('t-pitch'),
+  tYaw: document.getElementById('t-yaw'),
+  tArmed: document.getElementById('t-armed'),
+  tFailsafe: document.getElementById('t-failsafe'),
+  tMode: document.getElementById('t-mode'),
+  tLoop: document.getElementById('t-loop'),
+  tChannels: document.getElementById('t-channels'),
 };
 
 // ---------------------------------------------------------------------------
@@ -79,12 +92,19 @@ async function onConnected() {
   await handshake();
   await refreshParams();
   setToolbarEnabled(true);
+  buildChannelRows();
+  els.tabs.classList.remove('hidden');
+  showTab('params');
+  // Start the live telemetry stream so the Telemetry tab has data.
+  await sendCommand('cp stream on', false);
 }
 
 async function disconnect() {
   state.connected = false;
   setToolbarEnabled(false);
   els.toolbar.classList.add('hidden');
+  els.tabs.classList.add('hidden');
+  showTab('params');
   els.form.innerHTML = '';
   if (state.transport) {
     try { await state.transport.close(); } catch (e) { /* ignore */ }
@@ -162,6 +182,15 @@ async function makeSerialTransport(onUnexpectedClose) {
 function makeMockTransport() {
   const device = createMockDevice();
   let open = true;
+  let streamTimer = null;
+
+  function stopStream() {
+    if (streamTimer !== null) {
+      clearInterval(streamTimer);
+      streamTimer = null;
+    }
+  }
+
   return {
     send(text) {
       if (!open) {
@@ -177,9 +206,22 @@ function makeMockTransport() {
           }
         });
       }
+      // The stream commands also start or stop the unsolicited telemetry
+      // the firmware would push once streaming is on.
+      const trimmed = text.trim();
+      if (trimmed === 'cp stream on' && streamTimer === null) {
+        streamTimer = setInterval(() => {
+          if (open) {
+            dispatchLine(device.telemetry());
+          }
+        }, 200);
+      } else if (trimmed === 'cp stream off') {
+        stopStream();
+      }
     },
     close() {
       open = false;
+      stopStream();
     },
   };
 }
@@ -189,6 +231,13 @@ function makeMockTransport() {
 function dispatchLine(line) {
   if (!line.startsWith('cp ')) {
     log(line, 'debug');
+    return;
+  }
+  // Telemetry is unsolicited and arrives continuously. It is never part
+  // of a command response, so it is routed out before the pending-command
+  // logic and is not written to the protocol log.
+  if (line.startsWith('cp tlm ')) {
+    handleTelemetry(line);
     return;
   }
   log(line, 'rx');
@@ -395,6 +444,85 @@ function renderParam(p) {
 }
 
 // ---------------------------------------------------------------------------
+// Telemetry tab
+// ---------------------------------------------------------------------------
+
+// "cp tlm <roll> <pitch> <yaw> <armed> <fs> <mode> <loop_us> <ch1..ch6>"
+function handleTelemetry(line) {
+  const t = line.split(/\s+/);
+  if (t.length !== 15) {
+    return;
+  }
+  els.tRoll.textContent = t[2];
+  els.tPitch.textContent = t[3];
+  els.tYaw.textContent = t[4];
+  const armed = t[5] === '1';
+  const failsafe = t[6] === '1';
+  setBadge(els.tArmed, armed ? 'ARMED' : 'disarmed',
+           armed ? 'badge-warn' : 'badge-idle');
+  setBadge(els.tFailsafe, failsafe ? 'FAILSAFE' : 'clear',
+           failsafe ? 'badge-alert' : 'badge-ok');
+  els.tMode.textContent = t[7];
+  els.tLoop.textContent = t[8];
+  for (let i = 0; i < 6; i++) {
+    updateChannel(i, parseInt(t[9 + i], 10));
+  }
+}
+
+function setBadge(el, text, cls) {
+  el.textContent = text;
+  el.className = 'badge ' + cls;
+}
+
+function buildChannelRows() {
+  els.tChannels.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const row = document.createElement('div');
+    row.className = 'chan';
+
+    const label = document.createElement('span');
+    label.className = 'chan-label';
+    label.textContent = 'Ch' + (i + 1);
+
+    const track = document.createElement('div');
+    track.className = 'chan-track';
+    const fill = document.createElement('div');
+    fill.className = 'chan-fill';
+    fill.id = 'chan-fill-' + i;
+    track.appendChild(fill);
+
+    const val = document.createElement('span');
+    val.className = 'chan-val';
+    val.id = 'chan-val-' + i;
+    val.textContent = '----';
+
+    row.appendChild(label);
+    row.appendChild(track);
+    row.appendChild(val);
+    els.tChannels.appendChild(row);
+  }
+}
+
+function updateChannel(i, us) {
+  const fill = document.getElementById('chan-fill-' + i);
+  const val = document.getElementById('chan-val-' + i);
+  if (!fill || !val || Number.isNaN(us)) {
+    return;
+  }
+  const frac = Math.min(1, Math.max(0, (us - 1000) / 1000));
+  fill.style.width = (frac * 100).toFixed(1) + '%';
+  val.textContent = us;
+}
+
+function showTab(name) {
+  const params = name === 'params';
+  els.panelParams.classList.toggle('hidden', !params);
+  els.panelTelemetry.classList.toggle('hidden', params);
+  els.tabParams.classList.toggle('active', params);
+  els.tabTelemetry.classList.toggle('active', !params);
+}
+
+// ---------------------------------------------------------------------------
 // UI helpers
 // ---------------------------------------------------------------------------
 
@@ -459,6 +587,9 @@ function main() {
     els.mock.disabled = true;
     await connectMock();
   });
+
+  els.tabParams.addEventListener('click', () => showTab('params'));
+  els.tabTelemetry.addEventListener('click', () => showTab('telemetry'));
 
   els.write.addEventListener('click', guarded(writeChanged));
   els.save.addEventListener('click', guarded(saveFlash));

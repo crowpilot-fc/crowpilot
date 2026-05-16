@@ -25,14 +25,65 @@
       device still works here for trying out the configurator.
     </div>
 
-    <div id="toolbar" class="toolbar hidden">
-      <button id="write" disabled>Write changes</button>
-      <button id="save" disabled>Save to flash</button>
-      <button id="reload" disabled>Reload from flash</button>
-      <button id="defaults" disabled>Reset to defaults</button>
+    <div id="tabs" class="tabs hidden">
+      <button id="tab-params" class="tab active">Parameters</button>
+      <button id="tab-telemetry" class="tab">Telemetry</button>
     </div>
 
-    <div id="form" class="form"></div>
+    <div id="panel-params" class="panel">
+      <div id="toolbar" class="toolbar hidden">
+        <button id="write" disabled>Write changes</button>
+        <button id="save" disabled>Save to flash</button>
+        <button id="reload" disabled>Reload from flash</button>
+        <button id="defaults" disabled>Reset to defaults</button>
+      </div>
+      <div id="form" class="form"></div>
+    </div>
+
+    <div id="panel-telemetry" class="panel hidden">
+      <section class="group">
+        <h2>Attitude</h2>
+        <div class="readout">
+          <span class="rlabel">Roll</span>
+          <span id="t-roll" class="rval">--</span>
+          <span class="runit">deg</span>
+        </div>
+        <div class="readout">
+          <span class="rlabel">Pitch</span>
+          <span id="t-pitch" class="rval">--</span>
+          <span class="runit">deg</span>
+        </div>
+        <div class="readout">
+          <span class="rlabel">Yaw</span>
+          <span id="t-yaw" class="rval">--</span>
+          <span class="runit">deg</span>
+        </div>
+      </section>
+      <section class="group">
+        <h2>Status</h2>
+        <div class="readout">
+          <span class="rlabel">Armed</span>
+          <span id="t-armed" class="badge">--</span>
+        </div>
+        <div class="readout">
+          <span class="rlabel">Failsafe</span>
+          <span id="t-failsafe" class="badge">--</span>
+        </div>
+        <div class="readout">
+          <span class="rlabel">Flight mode</span>
+          <span id="t-mode" class="rval">--</span>
+        </div>
+        <div class="readout">
+          <span class="rlabel">Loop period</span>
+          <span id="t-loop" class="rval">--</span>
+          <span class="runit">us</span>
+        </div>
+      </section>
+      <section class="group">
+        <h2>Receiver channels</h2>
+        <div id="t-channels"></div>
+      </section>
+    </div>
 
     <section class="logwrap">
       <h2>Protocol log</h2>
