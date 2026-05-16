@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-// Transition management, per TAILSITTER_CONTROL_SPEC.md section 6.
+// Transition management. See docs/developer-guide/algorithms.md.
 //
 // A pilot transmitter channel commands the move between hover and
 // forward flight. The raw channel maps to a normalized command, 1.0 at

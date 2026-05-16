@@ -12,7 +12,7 @@
 
 #include "airframes/Airframe.h"
 
-// Native actuator output, per TAILSITTER_CONTROL_SPEC.md section 10.
+// Native actuator output. See docs/developer-guide/algorithms.md.
 //
 // Motors are driven with the OneShot125 ESC protocol: a pulse of 125 to
 // 250 microseconds, repeated once per loop tick. Motor pulse widths are

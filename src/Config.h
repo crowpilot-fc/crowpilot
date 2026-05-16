@@ -21,8 +21,8 @@
 //
 // The tailsitter control-core tuning constants near the end are
 // provisional. They are placeholders sized from physical scale and
-// signal ranges, to be replaced by bench-tuned values per
-// TAILSITTER_CONTROL_SPEC.md section 12. Control-core modules that are
+// signal ranges, to be replaced by bench-tuned values per the tuning
+// guide, docs/user-guide/tuning.md. Control-core modules that are
 // implemented in later build phases add their own tuning constants to
 // the matching section as they land.
 
@@ -398,8 +398,8 @@ constexpr float MAX_YAW_RATE_DPS    = 120.0f;
 //
 // These are provisional values to be replaced by bench tuning. The
 // documented procedure is to tune the D term first, then P, then I, per
-// axis, hover before forward flight (TAILSITTER_CONTROL_SPEC.md
-// section 12). The params.def clamp bounds are P in [0, 4] and D and I
+// axis, hover before forward flight. See docs/user-guide/tuning.md.
+// The params.def clamp bounds are P in [0, 4] and D and I
 // in [0, 1]. The starting magnitudes here are sized small so the first
 // powered tests are gentle.
 

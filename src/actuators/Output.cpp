@@ -6,8 +6,8 @@
 #include "Config.h"
 #include "hal/Hal.h"
 
-// Actuator output stage and arm logic, per TAILSITTER_CONTROL_SPEC.md
-// section 10.
+// Actuator output stage and arm logic. See
+// docs/developer-guide/algorithms.md.
 //
 // Arming is a safety function. The boot state is NOT_ARMED. Disarm
 // takes effect unconditionally and immediately whenever the arm switch

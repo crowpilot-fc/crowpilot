@@ -5,8 +5,8 @@
 
 #include <stdint.h>
 
-// Attitude estimation for the tailsitter, per TAILSITTER_CONTROL_SPEC.md
-// sections 3 and 5.
+// Attitude estimation for the tailsitter. See
+// docs/developer-guide/algorithms.md.
 //
 // The estimator fuses the three-axis gyroscope and three-axis
 // accelerometer with a Madgwick gradient-descent orientation filter, the

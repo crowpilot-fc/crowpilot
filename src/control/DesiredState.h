@@ -5,8 +5,8 @@
 
 #include <stdint.h>
 
-// Pilot desired-state generation, per TAILSITTER_CONTROL_SPEC.md
-// section 7.
+// Pilot desired-state generation. See
+// docs/developer-guide/algorithms.md.
 //
 // Maps the pilot stick channels to control setpoints. Throttle becomes
 // a normalized thrust command. Roll and pitch sticks become attitude

@@ -3,7 +3,7 @@
 
 #pragma once
 
-// IMU bias calibration, per TAILSITTER_CONTROL_SPEC.md section 4.
+// IMU bias calibration. See docs/developer-guide/algorithms.md.
 //
 // A MEMS gyroscope and accelerometer each have a fixed zero offset. Left
 // uncorrected the gyro offset drifts the attitude estimate. This routine

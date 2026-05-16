@@ -3,7 +3,7 @@
 
 #include "airframes/Airframe.h"
 
-// Tailsitter bicopter mixer, per TAILSITTER_CONTROL_SPEC.md section 9.
+// Tailsitter bicopter mixer. See docs/developer-guide/algorithms.md.
 // One airframe compiles in at a time; this file is the mixer for the
 // tailsitter bicopter. The plane airframes have their own mixer files.
 //

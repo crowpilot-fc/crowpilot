@@ -5,7 +5,7 @@
 
 #include "estimation/Attitude.h"
 
-// Per-axis PID stabilizer, per TAILSITTER_CONTROL_SPEC.md section 8.
+// Per-axis PID stabilizer. See docs/developer-guide/algorithms.md.
 //
 // One controller per axis. Roll and pitch stabilize on the attitude
 // error from cp::estimation::attitude::errorToReference(). Yaw has no
