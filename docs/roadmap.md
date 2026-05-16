@@ -7,7 +7,7 @@ CrowPilot ships in versioned releases. Each release has a defined acceptance air
 
 This page tracks scope, not dates. Items in **complete** have landed on main. Items in **in progress** are actively under work. Items in **next** are queued for the current release. Items in **later** are scoped but unscheduled.
 
-## v1.0: Tailsitter bicopter (Eclipson Kraken reference)
+## v1.0: Tailsitter bicopter (Eclipson E-VTOL-1 reference)
 
 The first acceptance airframe is a 3D-printed tailsitter bicopter sized for two small brushless motors and two elevon servos.
 
@@ -31,7 +31,7 @@ The first acceptance airframe is a 3D-printed tailsitter bicopter sized for two 
 **In progress.**
 
 - Runtime parameter system with LittleFS persistence. Two TX channels scale Kp and Kd by ±50 percent in real time without reflashing.
-- Log analyzer tool (`tools/log_analyzer.py`).
+- Log analyzer tool (`tools/log_analyzer/`).
 
 **Next.**
 

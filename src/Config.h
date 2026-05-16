@@ -176,6 +176,9 @@ constexpr uint32_t I2C_BUS_HZ = 400000;  // 400 kHz fast mode on I2C0.
 
 #define RX_PROTOCOL RX_SBUS
 
+// v1 supports inverted SBUS only. The PIO program is fixed to the
+// inverted-SBUS line polarity; this flag only XORs the captured data
+// bits. Setting it to 0 does not make a non-inverted receiver decode.
 #define RX_SBUS_INVERTED 1
 
 // ===========================================================================

@@ -13,8 +13,10 @@ Pin assignments and wiring for the Waveshare RP2350-Tiny reference build. For th
 | I2C SCL | GP5 | I2C0. |
 | Motor 1 (right) | GP10 | OneShot125 ESC signal. Bit-banged. |
 | Motor 2 (left) | GP11 | OneShot125 ESC signal. |
-| Servo (left elevon) | GP12 | Standard 50 Hz servo PWM. |
-| Servo (right elevon) | GP13 | Standard 50 Hz servo PWM. |
+| Servo 1 | GP12 | Standard 50 Hz servo PWM. Left elevon on the tailsitter. |
+| Servo 2 | GP13 | Standard 50 Hz servo PWM. Right elevon on the tailsitter. |
+| Servo 3 | GP8 | Twin-cargo plane only. Unused on the tailsitter. |
+| Servo 4 | GP9 | Twin-cargo plane only. Unused on the tailsitter. |
 | SBUS receiver | GP1 | PIO inverted UART. Wire the receiver SBUS line directly. No external inverter. |
 | SD card MOSI | GP19 | SPI0 TX. |
 | SD card MISO | GP16 | SPI0 RX. |
@@ -42,7 +44,7 @@ The RP2350 hardware UART cannot invert the SBUS signal in silicon. CrowPilot han
 
 Wire the SBUS line from the receiver directly to GP1. Power the receiver from the 5 V UBEC rail and ground to the FC common ground.
 
-For ELRS receivers that output non-inverted SBUS, set `RX_SBUS_INVERTED = 0` in `src/Config.h`. The PIO program handles either polarity.
+CrowPilot v1 supports inverted SBUS only. The PIO program is fixed to the inverted-SBUS line polarity (idle low, start bit high), which is what FrSky and most SBUS receivers output. `RX_SBUS_INVERTED` only flips the captured data bits, not the start-bit detection, so a receiver that emits non-inverted SBUS will not decode. If your ELRS receiver outputs non-inverted SBUS, configure it for inverted SBUS output instead.
 
 ## I2C bus
 
@@ -62,6 +64,8 @@ The SD card must be FAT32 formatted. FAT16 and exFAT are not supported by the Ar
 ## Servos
 
 Servos go on GP12 (left elevon) and GP13 (right elevon) for the Eclipson-style tailsitter. Standard 1 ms to 2 ms pulse range at 50 Hz. The Pi Pico Arduino core's `Servo.h` handles the PWM hardware internally.
+
+A twin-cargo plane build uses four servos and additionally drives GP8 and GP9. On the tailsitter those two pins are unused and free for the user extension hook.
 
 Power servos from the 5 V UBEC rail. Servo current can spike during stall; size the UBEC for at least 3 A.
 

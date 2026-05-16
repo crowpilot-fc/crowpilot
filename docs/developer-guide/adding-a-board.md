@@ -17,7 +17,7 @@ Create `src/boards/<board_name>.h`. Copy the structure from `src/boards/waveshar
 |---|---|
 | `PIN_I2C_SDA`, `PIN_I2C_SCL` | I2C0 bus for IMU and barometer. |
 | `PIN_MOTOR_RIGHT`, `PIN_MOTOR_LEFT` | OneShot125 ESC signal pins. |
-| `PIN_SERVO_LEFT`, `PIN_SERVO_RIGHT` | Servo PWM pins. |
+| `PIN_SERVOS[4]` | Servo PWM pins. Indices follow the airframe `SERVO_*` constants. The tailsitter uses the first two; the twin-cargo plane uses all four. |
 | `PIN_SBUS_RX` | SBUS receive pin (PIO). |
 | `PIN_SD_MOSI`, `PIN_SD_MISO`, `PIN_SD_SCK`, `PIN_SD_CS` | SPI0 SD card. |
 | `PIN_LED_ONBOARD` | Boot indicator and panic blink. |

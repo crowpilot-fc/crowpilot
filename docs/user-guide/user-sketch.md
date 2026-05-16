@@ -25,22 +25,22 @@ void user_tick();
 ```
 
 - **`user_setup()`** runs once, after CrowPilot's flight stack has finished initializing. Configure your pins and initialize your state here.
-- **`user_tick()`** runs repeatedly during flight, once every `USER_HOOK_RATE_DIV` main loop iterations (default every 5th tick, so 200 Hz at the 1 kHz loop). It runs after CrowPilot has committed the actuator output for the tick, so your code sees the freshest state.
+- **`user_tick()`** runs repeatedly during flight, once every `USER_HOOK_RATE_DIV` main loop iterations (default every 20th tick, so 50 Hz at the 1 kHz loop). It runs after CrowPilot has committed the actuator output for the tick, so your code sees the freshest state.
 
 ## The time budget
 
 `user_tick()` runs inside the flight loop. It shares the loop's time. CrowPilot enforces a budget:
 
-- `USER_HOOK_BUDGET_US` (default 100 us) is the soft budget. Exceeding it logs an advisory warning.
+- `USER_HOOK_BUDGET_US` (default 150 us) is the soft budget. Exceeding it logs an advisory warning.
 - The hard limit (250 us) is the safety net. Three hard overruns and the hook is **disabled for the rest of the flight**. A reboot re-enables it.
 
 Keep `user_tick()` short. No `delay()`. No dynamic allocation. No blocking I/O. Watch the budget with `DEBUG_PRINT_USER_HOOK = 1`, which prints a 1 Hz line:
 
 ```
-user_hook enabled=1 calls=200 last_us=31 max_us=44 warns=0 strikes=0
+userhook calls=2500 last=31us max=44us strikes=0 warns=0 enabled=1
 ```
 
-Tune your code against `max_us` before you fly.
+Tune your code against `max` before you fly.
 
 ## Reading flight state
 
@@ -75,6 +75,8 @@ int reading = analogRead(26);
 ```
 
 CrowPilot guards the pins it uses itself (motors, servos, I2C, SD card, SBUS, LEDs). A write to one of those is ignored, and the first time it happens CrowPilot prints a one-time warning over serial. Reads always pass through.
+
+The guard only covers `pinMode`, `digitalWrite`, and `analogWrite`. It cannot intercept libraries that drive a pin through their own code path, such as `Servo`, `Wire`, `SPI`, or `tone`. Calling `Servo.attach()` on a firmware-claimed pin will fight the firmware with no warning. Restrict user code to the free pins listed below.
 
 The free pins depend on the airframe, because each airframe claims a different set of servo pins. Check [pin-maps.md](../reference/pin-maps.md) and the warning output for your build. On the Waveshare RP2350-Tiny the free pins are generally `GP2, GP3, GP6, GP7, GP15, GP22, GP26, GP27, GP28`, with `GP26` to `GP28` also usable as analog inputs. A twin-engine plane build additionally claims `GP8` and `GP9`.
 

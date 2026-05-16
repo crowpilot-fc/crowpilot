@@ -40,7 +40,7 @@ Paste the relevant sections of your `Config.h` if non-default.
 
 ## Logs
 
-If the crash was airborne, attach the binary log and the decoded CSV from `tools/log_to_csv.py`. If the failure was at bench, paste the serial output.
+If the crash was airborne, attach the binary log and the decoded CSV from `tools/decode_log.py`. If the failure was at bench, paste the serial output.
 
 ## Anything else
 

@@ -19,14 +19,16 @@ The mixer takes:
 
 It produces:
 
-- Motor pulse widths (OneShot125 microseconds) for each motor.
-- Servo pulse widths (standard PWM microseconds) for each control surface.
+- A normalized thrust command in `[0, 1]` for each motor.
+- A normalized deflection command in `[0, 1]` for each control surface.
+
+The HAL converts those normalized commands into OneShot125 motor pulses and standard servo PWM. The mixer never touches microseconds.
 
 The mixer must be pure arithmetic. No I/O, no blocking, no dynamic allocation. It runs every tick in the hot path. Clamp every output to its valid range before returning.
 
 ## Worked example: the tailsitter mixer
 
-`src/airframes/Tailsitter.cpp` is the reference. It runs two mixer blocks, a hover block and a forward block, and blends them by the fader. In hover, yaw is motor differential and pitch is shared motor thrust. In forward, the elevons carry pitch, roll, and yaw. The full math is in [algorithms.md](algorithms.md). Read it before writing a new mixer; it shows the expected structure.
+`src/airframes/Airframe.cpp` is the reference tailsitter mixer. It is not two separate blocks. The effector-to-moment map is fixed by geometry and is the same in both regimes: common motor thrust is body-x force, differential thrust is yaw, symmetric elevon is pitch, differential elevon is roll. The mixer computes one allocation. The only term that changes with regime is a direct-stick feedforward added to the elevons in forward flight, blended out toward hover by the fader. The full math is in [algorithms.md](algorithms.md). Read it before writing a new mixer; it shows the expected structure.
 
 ## Adding the build target
 

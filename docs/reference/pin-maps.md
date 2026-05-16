@@ -15,8 +15,10 @@ This is the primary v1 target. The pin layout was chosen to keep ESC and servo l
 | I2C SCL | GP5 | I2C0 | |
 | Motor 1 (right) | GP10 | GPIO bit-bang | OneShot125. |
 | Motor 2 (left) | GP11 | GPIO bit-bang | OneShot125. |
-| Servo (left elevon) | GP12 | PWM slice (Servo lib) | 50 Hz, 1 to 2 ms. |
-| Servo (right elevon) | GP13 | PWM slice (Servo lib) | |
+| Servo 1 | GP12 | PWM slice (Servo lib) | 50 Hz, 1 to 2 ms. Left elevon on the tailsitter. |
+| Servo 2 | GP13 | PWM slice (Servo lib) | Right elevon on the tailsitter. |
+| Servo 3 | GP8 | PWM slice (Servo lib) | Twin-cargo plane only. Free on the tailsitter. |
+| Servo 4 | GP9 | PWM slice (Servo lib) | Twin-cargo plane only. Free on the tailsitter. |
 | SBUS receiver | GP1 | PIO SM 0 | Inverted UART in PIO. No external inverter. |
 | SD MOSI | GP19 | SPI0 TX | |
 | SD MISO | GP16 | SPI0 RX | |
@@ -39,8 +41,10 @@ The WeAct RP2350A is functionally equivalent to the Waveshare RP2350-One and use
 | I2C SCL | GP5 | I2C0 | |
 | Motor 1 (right) | GP10 | GPIO bit-bang | OneShot125. |
 | Motor 2 (left) | GP11 | GPIO bit-bang | OneShot125. |
-| Servo (left elevon) | GP6 | PWM slice (Servo lib) | Different from Waveshare profile. |
-| Servo (right elevon) | GP7 | PWM slice (Servo lib) | |
+| Servo 1 | GP6 | PWM slice (Servo lib) | Different from Waveshare profile. Left elevon on the tailsitter. |
+| Servo 2 | GP7 | PWM slice (Servo lib) | Right elevon on the tailsitter. |
+| Servo 3 | GP8 | PWM slice (Servo lib) | Twin-cargo plane only. Free on the tailsitter. |
+| Servo 4 | GP9 | PWM slice (Servo lib) | Twin-cargo plane only. Free on the tailsitter. |
 | SBUS receiver | GP1 | PIO SM 0 | |
 | SD MOSI | GP19 | SPI0 TX | |
 | SD MISO | GP16 | SPI0 RX | |

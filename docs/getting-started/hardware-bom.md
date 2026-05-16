@@ -20,6 +20,8 @@ The flight-controller parts cost about USD 20 in total. Propulsion, airframe, se
 
 Total: roughly USD 20.
 
+Buy a genuine MPU-6500 or MPU-6050. The IMU driver gates initialization on the chip `WHO_AM_I` value (`0x70` for the MPU-6500, `0x68` for the MPU-6050) and refuses any other ID. Many cheap breakouts sold as "MPU-6500" carry a different die, such as an MPU-9250, ICM-20602, or an unmarked clone, and will fail init with `ERROR: IMU init failed`. The strict check is deliberate: an unverified chip can have a different register map or sensitivity scale, which would silently corrupt the attitude estimate.
+
 ## Alternate microcontroller boards
 
 | Board | Approximate cost | When to pick |

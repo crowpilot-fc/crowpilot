@@ -13,6 +13,11 @@
 // SensorApi.h macro-redirects pinMode, digitalWrite, and analogWrite in the
 // user-sketch translation unit to the guarded entry points below. Firmware
 // code under src/ never includes SensorApi.h and so is never redirected.
+//
+// The guard reaches only those three calls. A library that drives a pin
+// through its own path (Servo, Wire, SPI, tone) bypasses the macros, so a
+// user Servo.attach() on a claimed pin is not caught. The user-sketch docs
+// tell users to stay on the free pins for this reason.
 
 namespace cp::user_hook::pins {
 
