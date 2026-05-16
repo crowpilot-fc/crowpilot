@@ -1,0 +1,42 @@
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- Copyright (C) 2026 Nitin Kumar -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CrowPilot Configurator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>CrowPilot Configurator</h1>
+    <div class="conn">
+      <span id="status" class="status off">Disconnected</span>
+      <button id="connect">Connect</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="unsupported" class="banner hidden">
+      This browser does not support the Web Serial API. Use Chrome or Edge.
+    </div>
+
+    <div id="toolbar" class="toolbar hidden">
+      <button id="write" disabled>Write changes</button>
+      <button id="save" disabled>Save to flash</button>
+      <button id="reload" disabled>Reload from flash</button>
+      <button id="defaults" disabled>Reset to defaults</button>
+    </div>
+
+    <div id="form" class="form"></div>
+
+    <section class="logwrap">
+      <h2>Protocol log</h2>
+      <pre id="log" class="log"></pre>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

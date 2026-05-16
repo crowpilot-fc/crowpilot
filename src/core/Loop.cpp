@@ -9,6 +9,7 @@
 #include "src/actuators/EscCalibrate.h"
 #include "src/actuators/Output.h"
 #include "src/airframes/Airframe.h"
+#include "src/cli/Cli.h"
 #include "src/control/DesiredState.h"
 #include "src/control/Pid.h"
 #include "src/estimation/Attitude.h"
@@ -330,6 +331,9 @@ void init() {
     }
   }
   cp::user_hook::init();
+#if ENABLE_CONFIG_CLI
+  cp::cli::init();
+#endif
 #if AIRFRAME != AIRFRAME_TAILSITTER_BICOPTER
   cp::control::plane_stab::init();
 #endif
@@ -423,6 +427,10 @@ void tick() {
   cp::telemetry::tick();
 
   debugOutput();
+
+#if ENABLE_CONFIG_CLI
+  cp::cli::poll();
+#endif
 
   cp::hal::led_tick(tick_start_us);
   ++s_tick_count;

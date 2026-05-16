@@ -27,6 +27,13 @@
 // the matching section as they land.
 
 // ===========================================================================
+// Firmware identity
+// ===========================================================================
+// Reported by the configurator handshake. Bump on every release.
+
+#define CROWPILOT_VERSION "1.0.0-dev"
+
+// ===========================================================================
 // Board
 // ===========================================================================
 // Selects the pin map. Exactly one board header is included. Each board
@@ -253,9 +260,13 @@ constexpr uint32_t TELEMETRY_LOG_MAX_BYTES = 16u * 1024u * 1024u;  // 16 MiB.
 // Runtime parameter registry with optional flash persistence and
 // optional transmitter-channel live tuning. Live tuning reads two spare
 // channels to scale the active P and D gains within +/- LIVE_TUNE_RANGE.
+// ENABLE_CONFIG_CLI adds the serial command interface the browser-based
+// configurator speaks. It is a bench tool. A flight-only build can drop
+// it to save code space.
 
 #define ENABLE_PARAM_PERSIST 1
 #define ENABLE_LIVE_TUNE     1
+#define ENABLE_CONFIG_CLI    1
 
 namespace cp {
 
