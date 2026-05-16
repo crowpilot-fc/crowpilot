@@ -44,6 +44,172 @@ uint32_t s_last_tick_us   = 0;
 uint32_t s_loop_period_us = 0;
 uint32_t s_tick_count     = 0;
 
+// Loop-period statistics, accumulated for the 1 Hz DEV report.
+uint32_t s_period_sum   = 0;
+uint32_t s_period_max   = 0;
+uint32_t s_period_count = 0;
+
+const char* modeName(cp::modes::FlightMode m) {
+  switch (m) {
+    case cp::modes::FlightMode::HOVER:         return "hover";
+    case cp::modes::FlightMode::TRANSITIONING: return "transitioning";
+    case cp::modes::FlightMode::FORWARD:       return "forward";
+  }
+  return "?";
+}
+
+// Serial debug output. Each block is gated on a compile-time flag in
+// Config.h and on a live USB serial connection, and is rate-limited.
+// Called once per tick.
+void debugOutput() {
+  if (!Serial) {
+    return;
+  }
+
+#if DEBUG_PRINT_DEV
+  // Loop-period statistics, accumulated each tick, reported at 1 Hz.
+  s_period_sum += s_loop_period_us;
+  if (s_loop_period_us > s_period_max) {
+    s_period_max = s_loop_period_us;
+  }
+  ++s_period_count;
+  if (s_period_count >= DEBUG_LOOP_REPORT_TICKS) {
+    Serial.print("loop_period_us avg=");
+    Serial.print(s_period_sum / s_period_count);
+    Serial.print(" max=");
+    Serial.print(s_period_max);
+    Serial.print(" (over ");
+    Serial.print(s_period_count);
+    Serial.println(" iter)");
+    s_period_sum   = 0;
+    s_period_max   = 0;
+    s_period_count = 0;
+  }
+  if ((s_tick_count % DEBUG_DEV_INTERVAL_TICKS) == 0) {
+    const cp::estimation::attitude::Euler att =
+        cp::estimation::attitude::eulerForwardFlight();
+    const cp::control::pid::Output& pid = cp::control::pid::output();
+    Serial.print("DEV imu=");
+    Serial.print(cp::sensors::imu::is_healthy() ? "OK" : "FAULT");
+    Serial.print(" rpy=(");  Serial.print(att.roll_deg, 1);
+    Serial.print(",");       Serial.print(att.pitch_deg, 1);
+    Serial.print(",");       Serial.print(att.yaw_deg, 1);
+    Serial.print(") fs=");   Serial.print(cp::failsafe::state().active ? 1 : 0);
+    Serial.print(" fader="); Serial.print(cp::modes::fader(), 2);
+    Serial.print(" mode=");  Serial.print(modeName(cp::modes::mode()));
+    Serial.print(" armed=");
+    Serial.print(cp::actuators::arm_state() == cp::actuators::ArmState::ARMED
+                     ? 1 : 0);
+    Serial.print(" pid=(");  Serial.print(pid.roll, 2);
+    Serial.print(",");       Serial.print(pid.pitch, 2);
+    Serial.print(",");       Serial.print(pid.yaw, 2);
+    Serial.print(") baro=");
+    Serial.print(cp::sensors::baro::is_present() ? "OK" : "off");
+    Serial.print(" tlm=");
+    Serial.println(cp::telemetry::is_active()
+                       ? cp::telemetry::current_filename() : "off");
+  }
+#endif
+
+#if DEBUG_PRINT_IMU
+  if ((s_tick_count % DEBUG_STREAM_INTERVAL_TICKS) == 0) {
+    const cp::sensors::imu::Sample& s = cp::sensors::imu::latest();
+    Serial.print("imu a=("); Serial.print(s.ax_g, 2);
+    Serial.print(",");       Serial.print(s.ay_g, 2);
+    Serial.print(",");       Serial.print(s.az_g, 2);
+    Serial.print(")g g=(");  Serial.print(s.gx_dps, 1);
+    Serial.print(",");       Serial.print(s.gy_dps, 1);
+    Serial.print(",");       Serial.print(s.gz_dps, 1);
+    Serial.print(")dps T="); Serial.print(s.temp_c, 1);
+    Serial.println("C");
+  }
+#endif
+
+#if DEBUG_PRINT_RX
+  if ((s_tick_count % DEBUG_STREAM_INTERVAL_TICKS) == 0) {
+    const cp::radio::State& rx = cp::radio::state();
+    Serial.print("rx ch=[");
+    for (uint8_t i = 0; i < 6; ++i) {
+      Serial.print(rx.channel_us[i]);
+      if (i < 5) {
+        Serial.print(",");
+      }
+    }
+    Serial.print("] valid="); Serial.print(rx.channels_valid ? 1 : 0);
+    Serial.print(" fs=");     Serial.print(rx.failsafe_active ? 1 : 0);
+    Serial.print(" fl=");     Serial.print(rx.frame_lost_flag ? 1 : 0);
+    Serial.print(" lost=");   Serial.println(rx.lost_frames_count);
+  }
+#endif
+
+#if DEBUG_PRINT_FAILSAFE
+  if ((s_tick_count % DEBUG_STREAM_INTERVAL_TICKS) == 0) {
+    const cp::failsafe::State&    fs = cp::failsafe::state();
+    const cp::failsafe::Channels& ch = cp::failsafe::channels();
+    Serial.print("fs active=");  Serial.print(fs.active ? 1 : 0);
+    Serial.print(" link_to=");   Serial.print(fs.link_timeout ? 1 : 0);
+    Serial.print(" oor=");       Serial.print(fs.channel_out_of_range ? 1 : 0);
+    Serial.print(" rx_fs=");     Serial.print(fs.rx_protocol_failsafe ? 1 : 0);
+    Serial.print(" rx_fl=");     Serial.print(fs.rx_frame_lost ? 1 : 0);
+    Serial.print(" eff=[");
+    for (uint8_t i = 0; i < 6; ++i) {
+      Serial.print(ch.ch_us[i]);
+      if (i < 5) {
+        Serial.print(",");
+      }
+    }
+    Serial.println("]");
+  }
+#endif
+
+#if DEBUG_PRINT_ATTITUDE
+  if ((s_tick_count % DEBUG_STREAM_INTERVAL_TICKS) == 0) {
+    const cp::estimation::attitude::Euler att =
+        cp::estimation::attitude::eulerForwardFlight();
+    const cp::estimation::attitude::Quaternion& q =
+        cp::estimation::attitude::quaternion();
+    Serial.print("rpy=(");   Serial.print(att.roll_deg, 1);
+    Serial.print(",");       Serial.print(att.pitch_deg, 1);
+    Serial.print(",");       Serial.print(att.yaw_deg, 1);
+    Serial.print(")deg q=(");Serial.print(q.w, 4);
+    Serial.print(",");       Serial.print(q.x, 4);
+    Serial.print(",");       Serial.print(q.y, 4);
+    Serial.print(",");       Serial.print(q.z, 4);
+    Serial.println(")");
+  }
+#endif
+
+#if DEBUG_PRINT_MODE
+  if ((s_tick_count % DEBUG_STREAM_INTERVAL_TICKS) == 0) {
+    Serial.print("mode fader="); Serial.print(cp::modes::fader(), 2);
+    Serial.print(" mode=");      Serial.print(modeName(cp::modes::mode()));
+    Serial.print(" ch6=");
+    Serial.println(cp::failsafe::channels().ch_us[CHANNEL_TRANSITION - 1]);
+  }
+#endif
+
+#if DEBUG_PRINT_MIXER
+  if ((s_tick_count % DEBUG_STREAM_INTERVAL_TICKS) == 0) {
+    const cp::airframes::Output& mix = cp::airframes::output();
+    Serial.print("mix m=[");
+    for (uint8_t i = 0; i < cp::airframes::N_MOTORS; ++i) {
+      Serial.print(mix.motor[i], 2);
+      if (i + 1 < cp::airframes::N_MOTORS) {
+        Serial.print(",");
+      }
+    }
+    Serial.print("] s=[");
+    for (uint8_t i = 0; i < cp::airframes::N_SERVOS; ++i) {
+      Serial.print(mix.servo[i], 2);
+      if (i + 1 < cp::airframes::N_SERVOS) {
+        Serial.print(",");
+      }
+    }
+    Serial.println("]");
+  }
+#endif
+}
+
 }  // anonymous namespace
 
 void init() {
@@ -220,17 +386,7 @@ void tick() {
   cp::user_hook::tick();
   cp::telemetry::tick();
 
-#if ENABLE_DEBUG_PRINTS
-  if (Serial && (s_tick_count % DEBUG_PRINT_INTERVAL_TICKS) == 0) {
-    const cp::estimation::attitude::Euler att =
-        cp::estimation::attitude::eulerForwardFlight();
-    Serial.print("dt_us=");  Serial.print(s_loop_period_us);
-    Serial.print(" fader="); Serial.print(fader, 2);
-    Serial.print(" roll=");  Serial.print(att.roll_deg, 1);
-    Serial.print(" pitch="); Serial.print(att.pitch_deg, 1);
-    Serial.print(" armed="); Serial.println(armed ? 1 : 0);
-  }
-#endif
+  debugOutput();
 
   cp::hal::led_tick(tick_start_us);
   ++s_tick_count;

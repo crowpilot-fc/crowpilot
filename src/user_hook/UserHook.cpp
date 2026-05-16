@@ -49,6 +49,18 @@ void init() {
 void tick() {
 #if ENABLE_USER_HOOK
   ++s_tick_counter;
+
+#if DEBUG_PRINT_USER_HOOK
+  if (Serial && (s_tick_counter % LOOP_HZ) == 0) {
+    Serial.print("userhook calls=");  Serial.print(s_calls);
+    Serial.print(" last=");           Serial.print(s_last_us);
+    Serial.print("us max=");          Serial.print(s_max_us);
+    Serial.print("us strikes=");      Serial.print(s_strikes);
+    Serial.print(" warns=");          Serial.print(s_warnings);
+    Serial.print(" enabled=");        Serial.println(s_enabled ? 1 : 0);
+  }
+#endif
+
   if (!s_enabled) {
     return;
   }

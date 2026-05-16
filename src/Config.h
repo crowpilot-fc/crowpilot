@@ -459,16 +459,29 @@ constexpr float MOTOR_YAW_GAIN    = 0.3f;  // differential thrust per unit yaw d
 // ===========================================================================
 // Debug output
 // ===========================================================================
-// Compile-time gate for the main loop's serial debug prints. Off for
-// flight builds. When on, the loop prints a status line every
-// DEBUG_PRINT_INTERVAL_TICKS, still gated at runtime on a live USB
-// serial connection.
+// Compile-time gates for the main loop's serial debug prints. Each is
+// independent. DEBUG_PRINT_DEV is on by default and prints a one-line
+// status summary plus a loop-period report. The others are bench-
+// diagnostic streams, enabled one at a time while working through the
+// first-bench-test procedure. Every print is also gated at runtime on
+// a live USB serial connection.
 
-#define ENABLE_DEBUG_PRINTS 0
+#define DEBUG_PRINT_DEV        1
+#define DEBUG_PRINT_IMU        0
+#define DEBUG_PRINT_RX         0
+#define DEBUG_PRINT_FAILSAFE   0
+#define DEBUG_PRINT_ATTITUDE   0
+#define DEBUG_PRINT_MODE       0
+#define DEBUG_PRINT_MIXER      0
+#define DEBUG_PRINT_USER_HOOK  0
 
 namespace cp {
 
-// At LOOP_HZ a value of 200 prints roughly five lines per second.
-constexpr uint32_t DEBUG_PRINT_INTERVAL_TICKS = 200;
+// Print cadences in loop ticks. At LOOP_HZ = 1000: the DEV summary
+// every 200 ticks (5 Hz), the bench-diagnostic streams every 100 ticks
+// (10 Hz), the loop-period report every 1000 ticks (1 Hz).
+constexpr uint32_t DEBUG_DEV_INTERVAL_TICKS    = 200;
+constexpr uint32_t DEBUG_STREAM_INTERVAL_TICKS = 100;
+constexpr uint32_t DEBUG_LOOP_REPORT_TICKS     = 1000;
 
 }  // namespace cp

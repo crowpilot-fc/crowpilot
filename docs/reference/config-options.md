@@ -182,7 +182,21 @@ tailsitter.
 
 ## Debug
 
+Each `DEBUG_PRINT_*` flag is an independent compile-time gate. `DEV` is
+on by default; the rest are bench-diagnostic streams enabled one at a
+time. Every print is also gated at runtime on a live USB serial
+connection.
+
 | Option | Default | Meaning |
 |---|---|---|
-| `ENABLE_DEBUG_PRINTS` | `0` | Enables the main-loop serial status prints. |
-| `DEBUG_PRINT_INTERVAL_TICKS` | `200` | Loop ticks between debug lines. |
+| `DEBUG_PRINT_DEV` | `1` | One-line status summary and the loop-period report. |
+| `DEBUG_PRINT_IMU` | `0` | Accelerometer, gyro, and temperature stream. |
+| `DEBUG_PRINT_RX` | `0` | Receiver channel stream. |
+| `DEBUG_PRINT_FAILSAFE` | `0` | Failsafe state and effective channels. |
+| `DEBUG_PRINT_ATTITUDE` | `0` | Attitude estimate and quaternion. |
+| `DEBUG_PRINT_MODE` | `0` | Transition fader and flight mode. |
+| `DEBUG_PRINT_MIXER` | `0` | Mixer motor and servo output. |
+| `DEBUG_PRINT_USER_HOOK` | `0` | User-hook timing stats. |
+| `DEBUG_DEV_INTERVAL_TICKS` | `200` | Ticks between DEV summary lines. |
+| `DEBUG_STREAM_INTERVAL_TICKS` | `100` | Ticks between diagnostic stream lines. |
+| `DEBUG_LOOP_REPORT_TICKS` | `1000` | Ticks between loop-period reports. |
