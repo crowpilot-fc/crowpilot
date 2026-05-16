@@ -29,7 +29,7 @@
 
 #include <Servo.h>
 
-#include "user_hook/SensorApi.h"
+#include "src/user_hook/SensorApi.h"
 
 // --- Pin assignments (free GPIO on the Caribou airframe) -----------------
 

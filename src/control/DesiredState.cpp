@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "control/DesiredState.h"
+#include "src/control/DesiredState.h"
 
-#include "Config.h"
+#include "src/Config.h"
 
 namespace cp::control::desired {
 

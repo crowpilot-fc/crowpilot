@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-#include "radio/Receiver.h"
+#include "src/radio/Receiver.h"
 
 // Failsafe controlled-fall override per SPEC.md §5.11 and ALGORITHMS.md §9.
 // Reads the receiver state each tick, evaluates three trigger conditions,

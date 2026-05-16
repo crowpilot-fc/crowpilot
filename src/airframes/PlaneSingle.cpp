@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "airframes/PlaneSingle.h"
+#include "src/airframes/PlaneSingle.h"
 
-#include "Config.h"
+#include "src/Config.h"
 
 #if AIRFRAME == AIRFRAME_PLANE_SINGLE
 
@@ -11,7 +11,7 @@
   #error "AIRFRAME_PLANE_SINGLE requires ENABLE_PLANE_STAB = 1 in Config.h. The plane mixer is driven by the plane stabilizer."
 #endif
 
-#include "control/PlaneStab.h"
+#include "src/control/PlaneStab.h"
 
 namespace cp::airframes {
 

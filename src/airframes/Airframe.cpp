@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "airframes/Airframe.h"
+#include "src/airframes/Airframe.h"
 
 // Tailsitter bicopter mixer. See docs/developer-guide/algorithms.md.
 // One airframe compiles in at a time; this file is the mixer for the

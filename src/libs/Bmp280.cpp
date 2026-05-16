@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "libs/Bmp280.h"
+#include "src/libs/Bmp280.h"
 
 #include <Arduino.h>
 #include <Wire.h>

@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "sensors/Barometer.h"
+#include "src/sensors/Barometer.h"
 
 #include <Arduino.h>
 #include <math.h>
 #include <stdint.h>
 
-#include "Config.h"
-#include "hal/Hal.h"
+#include "src/Config.h"
+#include "src/hal/Hal.h"
 
 namespace cp::sensors::baro {
 

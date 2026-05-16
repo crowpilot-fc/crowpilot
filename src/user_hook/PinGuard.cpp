@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "user_hook/PinGuard.h"
+#include "src/user_hook/PinGuard.h"
 
 #include <Arduino.h>
 
-#include "Config.h"
-#include "airframes/Airframe.h"
+#include "src/Config.h"
+#include "src/airframes/Airframe.h"
 
 namespace cp::user_hook::pins {
 

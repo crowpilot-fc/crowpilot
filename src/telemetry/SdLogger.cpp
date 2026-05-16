@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "telemetry/SdLogger.h"
+#include "src/telemetry/SdLogger.h"
 
 #include <Arduino.h>
 #include <SD.h>
@@ -11,17 +11,17 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "Config.h"
-#include "actuators/Output.h"
-#include "control/DesiredState.h"
-#include "control/Pid.h"
-#include "core/Loop.h"
-#include "estimation/Attitude.h"
-#include "failsafe/Failsafe.h"
-#include "modes/FlightMode.h"
-#include "radio/Receiver.h"
-#include "sensors/Barometer.h"
-#include "sensors/Imu.h"
+#include "src/Config.h"
+#include "src/actuators/Output.h"
+#include "src/control/DesiredState.h"
+#include "src/control/Pid.h"
+#include "src/core/Loop.h"
+#include "src/estimation/Attitude.h"
+#include "src/failsafe/Failsafe.h"
+#include "src/modes/FlightMode.h"
+#include "src/radio/Receiver.h"
+#include "src/sensors/Barometer.h"
+#include "src/sensors/Imu.h"
 
 namespace cp::telemetry {
 

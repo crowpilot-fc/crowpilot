@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "hal/Hal.h"
+#include "src/hal/Hal.h"
 
-#include "Config.h"
+#include "src/Config.h"
 
 #if BUILD_TARGET == BUILD_TARGET_NATIVE
 
 #include <Arduino.h>
 
-#include "hal/I2c.h"
+#include "src/hal/I2c.h"
 
 #if   BARO_TYPE == BARO_BMP388
-  #include "libs/Bmp388.h"
+  #include "src/libs/Bmp388.h"
   namespace baro_chip = cp::libs::bmp388;
 #elif BARO_TYPE == BARO_BMP280
-  #include "libs/Bmp280.h"
+  #include "src/libs/Bmp280.h"
   namespace baro_chip = cp::libs::bmp280;
 #elif BARO_TYPE == BARO_NONE
   // No chip include. baro_present() returns false and reads always fail.

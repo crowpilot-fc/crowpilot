@@ -38,9 +38,9 @@
 #define BOARD BOARD_WAVESHARE_RP2350_TINY
 
 #if   BOARD == BOARD_WAVESHARE_RP2350_TINY
-  #include "boards/waveshare_rp2350_tiny.h"
+  #include "src/boards/waveshare_rp2350_tiny.h"
 #elif BOARD == BOARD_WEACT_RP2350A_V10
-  #include "boards/weact_rp2350a_v10.h"
+  #include "src/boards/weact_rp2350a_v10.h"
 #else
   #error "Unknown BOARD. Pick BOARD_WAVESHARE_RP2350_TINY or BOARD_WEACT_RP2350A_V10."
 #endif

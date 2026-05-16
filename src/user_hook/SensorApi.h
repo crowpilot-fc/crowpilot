@@ -5,14 +5,14 @@
 
 #include <stdint.h>
 
-#include "actuators/Output.h"
-#include "estimation/Attitude.h"
-#include "failsafe/Failsafe.h"
-#include "modes/FlightMode.h"
-#include "radio/Receiver.h"
-#include "sensors/Barometer.h"
-#include "sensors/Imu.h"
-#include "user_hook/PinGuard.h"
+#include "src/actuators/Output.h"
+#include "src/estimation/Attitude.h"
+#include "src/failsafe/Failsafe.h"
+#include "src/modes/FlightMode.h"
+#include "src/radio/Receiver.h"
+#include "src/sensors/Barometer.h"
+#include "src/sensors/Imu.h"
+#include "src/user_hook/PinGuard.h"
 
 // Read-only sensor and flight-state API for user-sketch.ino. Every accessor
 // returns a value or a small struct by copy; user code cannot reach into or

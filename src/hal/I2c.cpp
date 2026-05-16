@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "hal/I2c.h"
+#include "src/hal/I2c.h"
 
 #include <Arduino.h>
 #include <Wire.h>
 
-#include "Config.h"
+#include "src/Config.h"
 
 namespace cp::hal::i2c0 {
 

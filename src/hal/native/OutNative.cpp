@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "hal/Hal.h"
+#include "src/hal/Hal.h"
 
-#include "Config.h"
+#include "src/Config.h"
 
 #if BUILD_TARGET == BUILD_TARGET_NATIVE
 
 #include <Arduino.h>
 #include <Servo.h>
 
-#include "airframes/Airframe.h"
+#include "src/airframes/Airframe.h"
 
 // Native actuator output. See docs/developer-guide/algorithms.md.
 //

@@ -5,8 +5,8 @@
 
 #include <stdint.h>
 
-#include "control/DesiredState.h"
-#include "estimation/Attitude.h"
+#include "src/control/DesiredState.h"
+#include "src/estimation/Attitude.h"
 
 // Plane stabilization subsystem. A wing leveler, pitch-attitude hold, yaw
 // damper, and optional barometric altitude hold, shared by every fixed-wing

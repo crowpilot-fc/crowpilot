@@ -3,8 +3,8 @@
 
 #include <Arduino.h>
 
-#include "Config.h"
-#include "hal/Led.h"
+#include "src/Config.h"
+#include "src/hal/Led.h"
 
 namespace cp::hal {
 

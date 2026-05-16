@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "estimation/Attitude.h"
+#include "src/estimation/Attitude.h"
 
 // Per-axis PID stabilizer. See docs/developer-guide/algorithms.md.
 //

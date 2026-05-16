@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "user_hook/UserHook.h"
+#include "src/user_hook/UserHook.h"
 
 #include <Arduino.h>
 
-#include "Config.h"
-#include "user_hook/Budget.h"
+#include "src/Config.h"
+#include "src/user_hook/Budget.h"
 
 // User entry points. Defined in user-sketch.ino at the repo root, which the
 // Arduino IDE concatenates into the sketch. Declared here so the dispatcher

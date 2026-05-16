@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "storage/LittleFsStore.h"
+#include "src/storage/LittleFsStore.h"
 
 #include <Arduino.h>
 #include <LittleFS.h>

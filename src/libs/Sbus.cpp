@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "libs/Sbus.h"
+#include "src/libs/Sbus.h"
 
 namespace cp::libs::sbus {
 

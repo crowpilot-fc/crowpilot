@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "control/Pid.h"
+#include "src/control/Pid.h"
 
-#include "Config.h"
-#include "params/LiveTune.h"
-#include "params/Params.h"
+#include "src/Config.h"
+#include "src/params/LiveTune.h"
+#include "src/params/Params.h"
 
 namespace cp::control::pid {
 

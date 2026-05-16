@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "modes/FlightMode.h"
+#include "src/modes/FlightMode.h"
 
-#include "Config.h"
+#include "src/Config.h"
 
 namespace cp::modes {
 

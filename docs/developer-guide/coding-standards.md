@@ -27,8 +27,8 @@ Every source file is structured top to bottom:
 #include <stdint.h>          // C standard library first
 #include <Arduino.h>          // framework second
 
-#include "Config.h"           // local headers last, quoted
-#include "State.h"
+#include "src/Config.h"       // local headers last, quoted, sketch-root-relative
+#include "src/State.h"
 
 namespace cp::module_name {
 

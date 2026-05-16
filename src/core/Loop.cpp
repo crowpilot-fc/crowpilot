@@ -1,31 +1,31 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "core/Loop.h"
+#include "src/core/Loop.h"
 
 #include <Arduino.h>
 
-#include "Config.h"
-#include "actuators/EscCalibrate.h"
-#include "actuators/Output.h"
-#include "airframes/Airframe.h"
-#include "control/DesiredState.h"
-#include "control/Pid.h"
-#include "estimation/Attitude.h"
-#include "failsafe/Failsafe.h"
-#include "hal/Led.h"
-#include "modes/FlightMode.h"
-#include "params/LiveTune.h"
-#include "params/Params.h"
-#include "radio/Receiver.h"
-#include "sensors/Barometer.h"
-#include "sensors/Imu.h"
-#include "sensors/ImuCalibrate.h"
-#include "telemetry/SdLogger.h"
-#include "user_hook/UserHook.h"
+#include "src/Config.h"
+#include "src/actuators/EscCalibrate.h"
+#include "src/actuators/Output.h"
+#include "src/airframes/Airframe.h"
+#include "src/control/DesiredState.h"
+#include "src/control/Pid.h"
+#include "src/estimation/Attitude.h"
+#include "src/failsafe/Failsafe.h"
+#include "src/hal/Led.h"
+#include "src/modes/FlightMode.h"
+#include "src/params/LiveTune.h"
+#include "src/params/Params.h"
+#include "src/radio/Receiver.h"
+#include "src/sensors/Barometer.h"
+#include "src/sensors/Imu.h"
+#include "src/sensors/ImuCalibrate.h"
+#include "src/telemetry/SdLogger.h"
+#include "src/user_hook/UserHook.h"
 
 #if AIRFRAME != AIRFRAME_TAILSITTER_BICOPTER
-#include "control/PlaneStab.h"
+#include "src/control/PlaneStab.h"
 #endif
 
 // The 1 kHz cooperative super-loop, per PROJECT_OVERVIEW section 4.

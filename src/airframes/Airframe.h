@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-#include "Config.h"
+#include "src/Config.h"
 
 namespace cp::airframes {
 

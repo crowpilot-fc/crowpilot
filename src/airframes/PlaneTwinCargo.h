@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "airframes/Airframe.h"
+#include "src/airframes/Airframe.h"
 
 // Twin-engine cargo plane (Caribou) mixer. Two motors plus four control
 // surfaces: left and right ailerons, elevator, rudder. The cp::airframes

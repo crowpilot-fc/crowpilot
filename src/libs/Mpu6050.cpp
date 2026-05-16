@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "libs/Mpu6050.h"
+#include "src/libs/Mpu6050.h"
 
 #include <Arduino.h>
 #include <Wire.h>

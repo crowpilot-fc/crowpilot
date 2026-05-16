@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "airframes/Airframe.h"
+#include "src/airframes/Airframe.h"
 
 // Single-engine plane (Gee Bee) mixer. One engine plus four control
 // surfaces: left and right ailerons, elevator, rudder. Simpler than the

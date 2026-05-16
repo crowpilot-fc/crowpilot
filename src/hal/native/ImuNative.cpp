@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "hal/Hal.h"
+#include "src/hal/Hal.h"
 
-#include "Config.h"
+#include "src/Config.h"
 
 #if BUILD_TARGET == BUILD_TARGET_NATIVE
 
 #include <Arduino.h>
 
-#include "hal/I2c.h"
+#include "src/hal/I2c.h"
 
 #if   IMU_TYPE == IMU_MPU6500
-  #include "libs/Mpu6500.h"
+  #include "src/libs/Mpu6500.h"
   namespace imu_chip = cp::libs::mpu6500;
 #elif IMU_TYPE == IMU_MPU6050
-  #include "libs/Mpu6050.h"
+  #include "src/libs/Mpu6050.h"
   namespace imu_chip = cp::libs::mpu6050;
 #else
   #error "IMU_TYPE must be IMU_MPU6500 or IMU_MPU6050."

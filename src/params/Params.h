@@ -16,7 +16,7 @@ namespace cp::params {
 // trailing size marker.
 enum ParamId : uint8_t {
 #define CP_PARAM(id, key, def, lo, hi, persist) id,
-#include "params/params.def"
+#include "src/params/params.def"
 #undef CP_PARAM
   PARAM_COUNT
 };

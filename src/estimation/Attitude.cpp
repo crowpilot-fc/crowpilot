@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "estimation/Attitude.h"
+#include "src/estimation/Attitude.h"
 
 #include <math.h>
 
-#include "Config.h"
+#include "src/Config.h"
 
 // Madgwick AHRS, six-degree-of-freedom variant, implemented from
 // S. O. H. Madgwick, "An efficient orientation filter for inertial and

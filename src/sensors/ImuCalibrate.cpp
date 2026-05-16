@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "sensors/ImuCalibrate.h"
+#include "src/sensors/ImuCalibrate.h"
 
 #include <Arduino.h>
 
-#include "Config.h"
-#include "hal/Hal.h"
+#include "src/Config.h"
+#include "src/hal/Hal.h"
 
 namespace cp::sensors::imu_calibrate {
 

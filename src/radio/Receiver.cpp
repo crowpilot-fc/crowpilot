@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "radio/Receiver.h"
+#include "src/radio/Receiver.h"
 
 #include <Arduino.h>
 
-#include "Config.h"
-#include "hal/Hal.h"
+#include "src/Config.h"
+#include "src/hal/Hal.h"
 
 namespace cp::radio {
 

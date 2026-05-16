@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "failsafe/Failsafe.h"
+#include "src/failsafe/Failsafe.h"
 
 #include <Arduino.h>
 
-#include "Config.h"
-#include "radio/Receiver.h"
+#include "src/Config.h"
+#include "src/radio/Receiver.h"
 
 namespace cp::failsafe {
 

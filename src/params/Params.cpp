@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "params/Params.h"
+#include "src/params/Params.h"
 
 #include <Arduino.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "Config.h"
-#include "storage/LittleFsStore.h"
+#include "src/Config.h"
+#include "src/storage/LittleFsStore.h"
 
 namespace cp::params {
 
@@ -21,7 +21,7 @@ namespace {
 Param s_params[PARAM_COUNT] = {
 #define CP_PARAM(id, key, def, lo, hi, persist) \
   { key, (def), (def), (lo), (hi), (persist) != 0 },
-#include "params/params.def"
+#include "src/params/params.def"
 #undef CP_PARAM
 };
 

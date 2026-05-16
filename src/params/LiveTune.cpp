@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "params/LiveTune.h"
+#include "src/params/LiveTune.h"
 
 #include <Arduino.h>
 
-#include "Config.h"
-#include "params/Params.h"
-#include "radio/Receiver.h"
+#include "src/Config.h"
+#include "src/params/Params.h"
+#include "src/radio/Receiver.h"
 
 namespace cp::params::live {
 

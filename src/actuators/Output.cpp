@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "actuators/Output.h"
+#include "src/actuators/Output.h"
 
-#include "Config.h"
-#include "hal/Hal.h"
+#include "src/Config.h"
+#include "src/hal/Hal.h"
 
 // Actuator output stage and arm logic. See
 // docs/developer-guide/algorithms.md.

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "control/PlaneStab.h"
+#include "src/control/PlaneStab.h"
 
-#include "Config.h"
+#include "src/Config.h"
 
 namespace cp::control::plane_stab {
 

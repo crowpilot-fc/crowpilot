@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "hal/Hal.h"
+#include "src/hal/Hal.h"
 
-#include "Config.h"
+#include "src/Config.h"
 
 #if BUILD_TARGET == BUILD_TARGET_NATIVE
 
@@ -14,7 +14,7 @@
 #include <hardware/clocks.h>
 #include <hardware/pio.h>
 
-#include "libs/Sbus.h"
+#include "src/libs/Sbus.h"
 #include "sbus_rx.pio.h"
 
 namespace cp::hal {

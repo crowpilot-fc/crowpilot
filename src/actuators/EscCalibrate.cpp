@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include "actuators/EscCalibrate.h"
+#include "src/actuators/EscCalibrate.h"
 
 #include <Arduino.h>
 #include <stdint.h>
 
-#include "Config.h"
-#include "airframes/Airframe.h"
+#include "src/Config.h"
+#include "src/airframes/Airframe.h"
 
 namespace cp::actuators::esc_calibrate {
 

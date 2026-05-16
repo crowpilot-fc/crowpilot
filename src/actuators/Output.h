@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-#include "airframes/Airframe.h"
+#include "src/airframes/Airframe.h"
 
 // Actuator output stage. Reads the mixer's per-actuator commands, applies
 // the arm/throttle-cut state machine to the motor pulses, and drives
