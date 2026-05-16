@@ -27,11 +27,11 @@ assert RECORD_SIZE == 109, f"record size mismatch: got {RECORD_SIZE} expected 10
 
 SUPPORTED_SCHEMA_VERSIONS = (0x01,)
 
-# Sensitivity scales per TELEMETRY_FORMAT.md §4.1. Defaults assume the v1
-# firmware shipping with gyro = +-250 dps and accel = +-2 g. A future
+# Sensitivity scales per TELEMETRY_FORMAT.md §4.1. These match the v1
+# firmware shipping with gyro = +-2000 dps and accel = +-8 g. A future
 # revision will embed the active ranges in the log itself.
-GYRO_LSB_PER_DPS = 131.0
-ACCEL_LSB_PER_G = 16384.0
+GYRO_LSB_PER_DPS = 16.4
+ACCEL_LSB_PER_G = 4096.0
 
 # Status flag bit masks per TELEMETRY_FORMAT.md §4.3.
 FLAG_BITS = [

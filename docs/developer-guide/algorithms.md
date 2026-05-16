@@ -1,0 +1,148 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- Copyright (C) 2026 Nitin Kumar -->
+
+# Algorithms
+
+This page describes the control-core algorithms: attitude estimation, the
+transition reference, desired-state generation, stabilization, mixing, and
+the supporting calibration and output code. Every tuning constant named here
+is provisional and is set by bench tuning.
+
+## Attitude estimation
+
+The estimator fuses the three-axis gyroscope and three-axis accelerometer
+with a Madgwick gradient-descent orientation filter, the six-degree-of-freedom
+variant with no magnetometer. The state is a unit quaternion representing the
+rotation from the body frame to the world frame.
+
+Each step computes the quaternion rate of change from the gyroscope, then
+applies one gradient-descent correction toward the orientation that best
+explains the measured gravity direction, integrates, and renormalizes the
+quaternion. The filter has a single gain, `MADGWICK_BETA`. A higher beta
+tracks the accelerometer faster and is noisier. A lower beta trusts the gyro
+longer and drifts more.
+
+The first update seeds the quaternion from the accelerometer tilt, so the
+estimate starts level instead of converging over several seconds. A
+non-finite or degenerate quaternion norm resets the state to identity, which
+catches numerical drift.
+
+Without a magnetometer, absolute heading is not observable, so yaw drifts
+slowly. Gyro bias calibration bounds that drift.
+
+### Body frame
+
+One fixed right-handed body frame is used everywhere: x out the nose, y out
+the right wing, z completing the triad so a level airframe at rest reads one g
+on the z accelerometer. There is one physical body frame regardless of flight
+regime, so the body-rate signal needs no per-regime remapping.
+
+## The attitude reference across the transition
+
+A tailsitter flies at roughly zero degrees pitch in forward flight and roughly
+ninety degrees pitch in hover. Any single Euler-angle convention places a
+gimbal-lock singularity inside that envelope. The quaternion state is
+singularity-free, so the estimate itself is always well-conditioned.
+
+The stabilizer input is a quaternion attitude error. `errorToReference` builds
+the orientation the airframe should hold, the nose-up hover attitude rotated
+toward forward-flight level by the transition fader, with the pilot roll and
+pitch setpoints applied as body-frame offsets. It then returns the rotation
+from the current estimate to that reference as a small-angle body-frame vector
+in degrees. That signal is continuous everywhere from hover to forward flight.
+
+Two Euler views, `eulerForwardFlight` and `eulerHover`, are derived from the
+same quaternion for telemetry, display, and the fixed-wing subsystem. Each is
+singular in the opposite regime and is never used to close the tailsitter
+control loop.
+
+## Transition management
+
+A transmitter channel commands the transition. The raw channel maps to a
+normalized command, one at the hover end and zero at the forward end. The
+value the control core acts on, the fader, is rate-limited: it slews toward
+the command at `TRANSITION_SLEW_RATE` fader units per second. The airframe
+cannot rotate ninety degrees instantly, so an instantaneous reference change
+would command an impossible maneuver. The slew makes even a snapped switch
+produce a controllable transition.
+
+A flight-mode enumeration, hover, transitioning, or forward, is derived from
+the fader for telemetry and display. It does not feed back into the control
+law, which stays continuous in the fader value.
+
+## Desired-state generation
+
+The pilot stick channels map to control setpoints. Throttle becomes a
+normalized thrust command. The roll and pitch sticks become attitude
+setpoints scaled by `MAX_ROLL_ANGLE_DEG` and `MAX_PITCH_ANGLE_DEG`. The yaw
+stick becomes a yaw-rate setpoint scaled by `MAX_YAW_RATE_DPS`. The unshaped
+stick deflections are also exposed for the mixer feedforward. The mapping is
+the same in both regimes. The hover and forward dynamics difference is
+handled by the gain schedule, not by reshaping the setpoints.
+
+## Stabilization
+
+One PID controller per axis drives the errors toward zero. Roll and pitch
+stabilize on the quaternion attitude error. Yaw stabilizes on a rate error,
+the commanded yaw rate minus the measured yaw rate, because yaw has no
+absolute reference without a magnetometer.
+
+All three axes share one PID form:
+
+```
+demand = Kp * error + Ki * integral(error) - Kd * body_rate
+```
+
+The derivative term is taken from the measured body rate, not from the error,
+so a stepped setpoint does not produce a derivative kick.
+
+The gains are regime-scheduled. Hover and forward flight have substantially
+different dynamics, control authority from differential thrust and propeller
+wash versus from aerodynamic surfaces at airspeed. Each axis interpolates
+continuously between a hover gain set and a forward-flight gain set by the
+transition fader. The blended proportional and derivative gains are then
+scaled by the live-tune multipliers.
+
+The integrator is clamped to `PID_INTEGRAL_LIMIT` for anti-windup and is held
+at zero while the aircraft is not flying, so it does not wind up on the
+bench. Each axis demand is clamped to the normalized range from minus one to
+plus one.
+
+## Mixing
+
+The tailsitter mixer allocates throttle and the three stabilized axis demands
+to the two motors and two elevons. Two motors sit on the wing, separated along
+the body y-axis, with one elevon behind each motor in its propeller wash.
+
+From that geometry the effector-to-moment map is:
+
+- Common thrust gives the body x force, lift in hover and thrust in forward
+  flight.
+- Differential thrust gives the body z moment, yaw.
+- Symmetric elevon deflection gives the body y moment, pitch.
+- Differential elevon deflection gives the body x moment, roll.
+
+The map is geometric and the same in both regimes. The regime difference is
+in aerodynamic authority, handled by the gain schedule. The one allocation
+term that changes with regime is a direct-stick feedforward on the elevons,
+faded in toward forward flight. Every actuator output is clamped to its valid
+range before it leaves the mixer.
+
+## IMU bias calibration
+
+A MEMS gyroscope and accelerometer each have a fixed zero offset. The
+calibration routine, run at boot when `ENABLE_IMU_CALIBRATION` is set,
+averages `IMU_CALIB_SAMPLE_COUNT` raw samples with the airframe held
+stationary and level. The three gyro axes and the two horizontal
+accelerometer axes average to the bias directly. The vertical accelerometer
+axis carries one g of gravity, which is removed. The six values are printed
+for pasting into `Config.h`.
+
+## OneShot125 output
+
+The motors use the OneShot125 ESC protocol, a pulse of 125 to 250
+microseconds repeated once per loop tick. The output stage buffers the per
+motor pulse widths and emits them as one synchronous burst: all motor pins
+are raised together and each is lowered when its own pulse width has elapsed.
+When disarmed the motors emit a sub-valid pulse below 125 microseconds, so
+the ESCs see no signal and stay silent.
