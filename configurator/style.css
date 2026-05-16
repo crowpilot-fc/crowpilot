@@ -85,6 +85,17 @@ button:disabled {
   cursor: not-allowed;
 }
 
+button.secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--line);
+}
+
+button.secondary:disabled {
+  background: transparent;
+  color: var(--muted);
+}
+
 main {
   max-width: 720px;
   margin: 0 auto;

@@ -13,13 +13,16 @@
     <h1>CrowPilot Configurator</h1>
     <div class="conn">
       <span id="status" class="status off">Disconnected</span>
+      <button id="mock" class="secondary">Mock device</button>
       <button id="connect">Connect</button>
     </div>
   </header>
 
   <main>
     <div id="unsupported" class="banner hidden">
-      This browser does not support the Web Serial API. Use Chrome or Edge.
+      This browser does not support the Web Serial API, so it cannot
+      connect to real hardware. Use Chrome or Edge for that. The Mock
+      device still works here for trying out the configurator.
     </div>
 
     <div id="toolbar" class="toolbar hidden">
@@ -37,6 +40,7 @@
     </section>
   </main>
 
+  <script src="mock.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -11,10 +11,8 @@ const BAUD = 115200;
 const CMD_TIMEOUT_MS = 2500;
 
 const state = {
-  port: null,
-  reader: null,
-  writer: null,
-  readDone: null,   // promise that resolves when readLoop has fully exited
+  transport: null,  // {send(text), close()} -- serial or mock
+  mock: false,
   connected: false,
   params: [],       // [{idx, key, value, def, min, max, persist}]
   pending: null,    // {isList, lines, resolve, reject, timer}
@@ -22,6 +20,7 @@ const state = {
 
 const els = {
   connect: document.getElementById('connect'),
+  mock: document.getElementById('mock'),
   status: document.getElementById('status'),
   unsupported: document.getElementById('unsupported'),
   toolbar: document.getElementById('toolbar'),
@@ -51,23 +50,35 @@ function log(msg, cls) {
 // Serial connection
 // ---------------------------------------------------------------------------
 
-async function connect() {
+async function connectSerial() {
   try {
-    const port = await navigator.serial.requestPort();
-    await port.open({ baudRate: BAUD });
-    state.port = port;
-    state.writer = port.writable.getWriter();
-    state.connected = true;
-    setStatus('Connected', 'on');
-    els.connect.textContent = 'Disconnect';
-    state.readDone = readLoop();
-    await handshake();
-    await refreshParams();
-    setToolbarEnabled(true);
+    state.transport = await makeSerialTransport(() => setTimeout(disconnect, 0));
+    state.mock = false;
+    await onConnected();
   } catch (err) {
     log('connect failed: ' + err.message, 'err');
     await disconnect();
   }
+}
+
+async function connectMock() {
+  try {
+    state.transport = makeMockTransport();
+    state.mock = true;
+    await onConnected();
+  } catch (err) {
+    log('mock connect failed: ' + err.message, 'err');
+    await disconnect();
+  }
+}
+
+async function onConnected() {
+  state.connected = true;
+  setStatus('Connecting...', 'on');
+  syncConnButtons();
+  await handshake();
+  await refreshParams();
+  setToolbarEnabled(true);
 }
 
 async function disconnect() {
@@ -75,64 +86,102 @@ async function disconnect() {
   setToolbarEnabled(false);
   els.toolbar.classList.add('hidden');
   els.form.innerHTML = '';
-  // Cancel the reader, then wait for readLoop to release its stream lock
-  // before closing the port. Closing a port with a held lock rejects.
-  if (state.reader) {
-    try { await state.reader.cancel(); } catch (e) { /* ignore */ }
+  if (state.transport) {
+    try { await state.transport.close(); } catch (e) { /* ignore */ }
+    state.transport = null;
   }
-  if (state.readDone) {
-    try { await state.readDone; } catch (e) { /* ignore */ }
-    state.readDone = null;
-  }
-  if (state.writer) {
-    try { state.writer.releaseLock(); } catch (e) { /* ignore */ }
-    state.writer = null;
-  }
-  if (state.port) {
-    try { await state.port.close(); } catch (e) { /* ignore */ }
-    state.port = null;
-  }
+  state.mock = false;
   setStatus('Disconnected', 'off');
-  els.connect.textContent = 'Connect';
+  syncConnButtons();
 }
 
-async function readLoop() {
-  const decoder = new TextDecoder();
-  let buffer = '';
-  const reader = state.port.readable.getReader();
-  state.reader = reader;
-  let unexpected = false;
-  try {
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) {
-        break;
-      }
-      buffer += decoder.decode(value, { stream: true });
-      let nl;
-      while ((nl = buffer.indexOf('\n')) >= 0) {
-        const line = buffer.slice(0, nl).replace(/\r$/, '');
-        buffer = buffer.slice(nl + 1);
-        if (line.length > 0) {
-          dispatchLine(line);
+// Web Serial transport. Wraps a real port: writes go out the writer, and
+// a read loop feeds received lines to dispatchLine. close() cancels the
+// reader, waits for the loop to release its stream lock, then closes the
+// port -- closing while a lock is held rejects.
+async function makeSerialTransport(onUnexpectedClose) {
+  const port = await navigator.serial.requestPort();
+  await port.open({ baudRate: BAUD });
+  const writer = port.writable.getWriter();
+  let closing = false;
+  let reader = null;
+
+  const readDone = (async () => {
+    const decoder = new TextDecoder();
+    let buffer = '';
+    reader = port.readable.getReader();
+    let unexpected = false;
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) {
+          break;
+        }
+        buffer += decoder.decode(value, { stream: true });
+        let nl;
+        while ((nl = buffer.indexOf('\n')) >= 0) {
+          const line = buffer.slice(0, nl).replace(/\r$/, '');
+          buffer = buffer.slice(nl + 1);
+          if (line.length > 0) {
+            dispatchLine(line);
+          }
         }
       }
+    } catch (err) {
+      if (!closing) {
+        log('read error: ' + err.message, 'err');
+        unexpected = true;
+      }
+    } finally {
+      try { reader.releaseLock(); } catch (e) { /* ignore */ }
     }
-  } catch (err) {
-    if (state.connected) {
-      log('read error: ' + err.message, 'err');
-      unexpected = true;
+    if (unexpected) {
+      onUnexpectedClose();
     }
-  } finally {
-    try { reader.releaseLock(); } catch (e) { /* ignore */ }
-    state.reader = null;
-  }
-  // The device went away on its own (unplugged). Run the UI teardown
-  // after this function has returned, so disconnect's await on readDone
-  // resolves immediately rather than deadlocking on ourselves.
-  if (unexpected && state.connected) {
-    setTimeout(disconnect, 0);
-  }
+  })();
+
+  return {
+    send(text) {
+      return writer.write(new TextEncoder().encode(text + '\n'));
+    },
+    async close() {
+      closing = true;
+      if (reader) {
+        try { await reader.cancel(); } catch (e) { /* ignore */ }
+      }
+      try { await readDone; } catch (e) { /* ignore */ }
+      try { writer.releaseLock(); } catch (e) { /* ignore */ }
+      try { await port.close(); } catch (e) { /* ignore */ }
+    },
+  };
+}
+
+// Mock transport. No hardware: a createMockDevice() instance answers the
+// cp protocol, and its replies are delivered on a later tick to mimic the
+// asynchronous arrival of serial data.
+function makeMockTransport() {
+  const device = createMockDevice();
+  let open = true;
+  return {
+    send(text) {
+      if (!open) {
+        return;
+      }
+      const responses = device.handle(text);
+      // Deliver on microtasks: asynchronous, like real serial arrival,
+      // but without the setTimeout throttling a background tab imposes.
+      for (const line of responses) {
+        queueMicrotask(() => {
+          if (open) {
+            dispatchLine(line);
+          }
+        });
+      }
+    },
+    close() {
+      open = false;
+    },
+  };
 }
 
 // A received line. Protocol lines start with "cp "; everything else is
@@ -175,15 +224,28 @@ function sendCommand(text, isList) {
   if (state.pending) {
     return Promise.reject(new Error('a command is already in flight'));
   }
+  if (!state.transport) {
+    return Promise.reject(new Error('not connected'));
+  }
   log('> ' + text, 'tx');
-  const data = new TextEncoder().encode(text + '\n');
-  return state.writer.write(data).then(() => new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
-      state.pending = null;
+      if (state.pending && state.pending.timer === timer) {
+        state.pending = null;
+      }
       reject(new Error('timeout waiting for response to "' + text + '"'));
     }, CMD_TIMEOUT_MS);
     state.pending = { isList: !!isList, lines: [], resolve, reject, timer };
-  }));
+    // Send only after the pending slot is registered, so a transport that
+    // delivers its reply synchronously or on a microtask still finds it.
+    Promise.resolve(state.transport.send(text)).catch((err) => {
+      if (state.pending && state.pending.timer === timer) {
+        clearTimeout(timer);
+        state.pending = null;
+        reject(err);
+      }
+    });
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -194,7 +256,8 @@ async function handshake() {
   const reply = await sendCommand('cp', false);
   const tok = reply.split(/\s+/);
   if (tok[1] === 'fw') {
-    setStatus('Connected  fw ' + tok[2], 'on');
+    const label = state.mock ? 'Mock device' : 'Connected';
+    setStatus(label + '  fw ' + tok[2], 'on');
   }
 }
 
@@ -346,6 +409,14 @@ function setToolbarEnabled(on) {
   }
 }
 
+// Connect and Mock buttons reflect connection state. Disconnect always
+// goes through the Connect button, whichever transport is in use.
+function syncConnButtons() {
+  els.connect.disabled = !state.connected && !('serial' in navigator);
+  els.connect.textContent = state.connected ? 'Disconnect' : 'Connect';
+  els.mock.disabled = state.connected;
+}
+
 // Run an async handler with the toolbar locked, so two protocol commands
 // never overlap on the single shared port.
 function guarded(fn) {
@@ -367,19 +438,28 @@ function guarded(fn) {
 
 function main() {
   if (!('serial' in navigator)) {
+    // Web Serial is missing, but the mock device still works, so the
+    // page stays usable. The banner explains the real-hardware limit.
     els.unsupported.classList.remove('hidden');
-    els.connect.disabled = true;
-    return;
   }
+  syncConnButtons();
+
   els.connect.addEventListener('click', async () => {
     els.connect.disabled = true;
+    els.mock.disabled = true;
     if (state.connected) {
       await disconnect();
     } else {
-      await connect();
+      await connectSerial();
     }
-    els.connect.disabled = false;
   });
+
+  els.mock.addEventListener('click', async () => {
+    els.connect.disabled = true;
+    els.mock.disabled = true;
+    await connectMock();
+  });
+
   els.write.addEventListener('click', guarded(writeChanged));
   els.save.addEventListener('click', guarded(saveFlash));
   els.reload.addEventListener('click', guarded(reloadFlash));
