@@ -17,6 +17,9 @@ desktop.ini
 *.swo
 *~
 
+# Claude Code local state and worktrees
+.claude/
+
 # Arduino IDE build artifacts
 build/
 *.hex
