@@ -95,3 +95,16 @@ jobs:
             exit 1
           fi
           echo "SPDX headers OK."
+
+  doc-sync:
+    name: Doc mirror sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: SAFETY mirror in sync
+        run: diff SAFETY.md docs/safety.md
+      - name: DISCLAIMER mirror in sync
+        run: diff DISCLAIMER.md docs/disclaimer.md
+      - name: CHANGELOG mirror in sync
+        run: diff CHANGELOG.md docs/changelog.md

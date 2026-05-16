@@ -58,8 +58,10 @@ src/
   storage/        Flash persistence
   telemetry/      SD card binary logger
   user_hook/      User extension hook
-docs/             Documentation site (MkDocs)
+  cli/            Configurator serial command interface
+docs/             Documentation
 tools/            Host-side log decoder and analyzer
+configurator/     Browser-based setup tool (Web Serial)
 ```
 
 ## Airframes
@@ -74,7 +76,7 @@ The rest of the stack is shared.
 
 ## Documentation
 
-The documentation site is built from `docs/` with MkDocs. Start at
+The documentation lives in `docs/`. Start at
 [docs/index.md](docs/index.md). The developer guide covers the
 [architecture](docs/developer-guide/architecture.md) and the
 [algorithms](docs/developer-guide/algorithms.md).
