@@ -42,9 +42,14 @@ float schedule(float forward, float hover, float fader) {
 float axisStep(float error, float body_rate,
                float kp, float ki, float kd,
                bool flying, float dt_s, float& integral) {
-  if (flying) {
+  // Integrate only while flying, and only when the integral term is in
+  // use. Anti-windup bounds the integral-term contribution Ki*integral
+  // to +/- PID_INTEGRAL_LIMIT of the normalized output, so a saturated
+  // integrator cannot dominate the demand.
+  if (flying && ki > 1.0e-6f) {
     integral += error * dt_s;
-    integral = clampf(integral, -PID_INTEGRAL_LIMIT, PID_INTEGRAL_LIMIT);
+    const float integral_max = PID_INTEGRAL_LIMIT / ki;
+    integral = clampf(integral, -integral_max, integral_max);
   } else {
     integral = 0.0f;
   }

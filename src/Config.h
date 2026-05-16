@@ -426,8 +426,10 @@ constexpr float Ki_roll  = 0.0f;
 constexpr float Ki_pitch = 0.0f;
 constexpr float Ki_yaw   = 0.0f;
 
-// Anti-windup clamp on each axis integrator accumulator. Provisional.
-constexpr float PID_INTEGRAL_LIMIT = 50.0f;
+// Anti-windup limit: the maximum magnitude of the integral term, Ki
+// times the accumulated error, as a fraction of the normalized output
+// range. Provisional.
+constexpr float PID_INTEGRAL_LIMIT = 0.5f;
 
 }  // namespace cp
 
