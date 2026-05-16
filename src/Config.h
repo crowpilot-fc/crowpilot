@@ -213,7 +213,7 @@ constexpr uint16_t RC_MAX_US = 2000;
 
 namespace cp {
 
-constexpr uint16_t FS_CH1_THROTTLE    = 1350;  // us. Below hover, gentle sink.
+constexpr uint16_t FS_CH1_THROTTLE    = 1300;  // us. Below hover, gentle sink.
 constexpr uint16_t FS_CH2_ROLL        = 1500;  // us. Centered.
 constexpr uint16_t FS_CH3_PITCH       = 1500;  // us. Centered.
 constexpr uint16_t FS_CH4_YAW         = 1500;  // us. Centered.
@@ -380,7 +380,7 @@ constexpr float MADGWICK_BETA = 0.10f;
 
 namespace cp {
 
-constexpr float TRANSITION_SLEW_RATE = 0.5f;  // full transition in about 2 s.
+constexpr float TRANSITION_SLEW_RATE = 0.33f;  // full transition in about 3 s.
 
 constexpr float MAX_ROLL_ANGLE_DEG  = 35.0f;
 constexpr float MAX_PITCH_ANGLE_DEG = 35.0f;
