@@ -21,6 +21,11 @@ namespace {
 constexpr float kAltitudeScale = 44330.0f;
 constexpr float kAltitudeExp   = 1.0f / 5.255f;
 
+// Lowest plausible atmospheric pressure for a ground-level baseline.
+// 30 kPa is roughly 9000 m, well below any realistic launch site, so a
+// reading under it means the chip has not produced a real sample yet.
+constexpr float kMinValidPressurePa = 30000.0f;
+
 Sample   s_latest          = {};
 bool     s_healthy         = false;
 bool     s_have_baseline   = false;
@@ -61,7 +66,11 @@ bool read() {
     return false;
   }
 
-  if (!s_have_baseline) {
+  // Capture the ground-pressure baseline only from a plausible reading.
+  // The first read after init can land before the chip has finished a
+  // conversion and return a near-zero pressure. Taking that as the
+  // baseline would corrupt every later altitude.
+  if (!s_have_baseline && h.pressure_pa > kMinValidPressurePa) {
     s_ground_pressure = h.pressure_pa;
     s_have_baseline   = true;
   }
