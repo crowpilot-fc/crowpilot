@@ -270,6 +270,74 @@ main {
   text-align: right;
 }
 
+.hint {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0 0 10px;
+}
+
+code {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 0 4px;
+  font-size: 11px;
+}
+
+.logload {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.logload input[type="file"] {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.lrow {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.lrow-label {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.lrow-value {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 13px;
+}
+
+#log-table {
+  overflow-x: auto;
+}
+
+.ltable {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+
+.ltable th,
+.ltable td {
+  border: 1px solid var(--line);
+  padding: 3px 7px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.ltable th {
+  color: var(--muted);
+  font-weight: normal;
+  background: var(--bg);
+}
+
 .hidden {
   display: none;
 }

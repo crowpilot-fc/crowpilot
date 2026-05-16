@@ -25,9 +25,10 @@
       device still works here for trying out the configurator.
     </div>
 
-    <div id="tabs" class="tabs hidden">
+    <div id="tabs" class="tabs">
       <button id="tab-params" class="tab active">Parameters</button>
       <button id="tab-telemetry" class="tab">Telemetry</button>
+      <button id="tab-log" class="tab">Log</button>
     </div>
 
     <div id="panel-params" class="panel">
@@ -85,6 +86,29 @@
       </section>
     </div>
 
+    <div id="panel-log" class="panel hidden">
+      <section class="group">
+        <h2>Telemetry log</h2>
+        <p class="hint">
+          Load a <code>.BIN</code> log pulled from the SD card, or try a
+          generated sample. No device connection needed.
+        </p>
+        <div class="logload">
+          <input type="file" id="log-file" accept=".bin,.BIN">
+          <button id="log-sample" class="secondary">Load sample log</button>
+        </div>
+        <div id="log-error" class="banner hidden"></div>
+      </section>
+      <section id="log-summary-section" class="group hidden">
+        <h2>Summary</h2>
+        <div id="log-summary"></div>
+      </section>
+      <section id="log-table-section" class="group hidden">
+        <h2>Records</h2>
+        <div id="log-table"></div>
+      </section>
+    </div>
+
     <section class="logwrap">
       <h2>Protocol log</h2>
       <pre id="log" class="log"></pre>
@@ -92,6 +116,7 @@
   </main>
 
   <script src="mock.js"></script>
+  <script src="log.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

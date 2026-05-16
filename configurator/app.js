@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 //
-// CrowPilot Configurator v0. Talks the line-oriented "cp" text protocol
-// to the flight controller over the Web Serial API, renders the runtime
-// parameter registry as a form, and writes edited values back.
+// CrowPilot Configurator. Talks the line-oriented "cp" text protocol to
+// the flight controller over the Web Serial API: edits the runtime
+// parameter registry, shows live telemetry, and decodes binary logs. A
+// mock device stands in for hardware.
 
 'use strict';
 
@@ -30,11 +31,12 @@ const els = {
   save: document.getElementById('save'),
   reload: document.getElementById('reload'),
   defaults: document.getElementById('defaults'),
-  tabs: document.getElementById('tabs'),
   tabParams: document.getElementById('tab-params'),
   tabTelemetry: document.getElementById('tab-telemetry'),
+  tabLog: document.getElementById('tab-log'),
   panelParams: document.getElementById('panel-params'),
   panelTelemetry: document.getElementById('panel-telemetry'),
+  panelLog: document.getElementById('panel-log'),
   tRoll: document.getElementById('t-roll'),
   tPitch: document.getElementById('t-pitch'),
   tYaw: document.getElementById('t-yaw'),
@@ -43,6 +45,13 @@ const els = {
   tMode: document.getElementById('t-mode'),
   tLoop: document.getElementById('t-loop'),
   tChannels: document.getElementById('t-channels'),
+  logFile: document.getElementById('log-file'),
+  logSample: document.getElementById('log-sample'),
+  logError: document.getElementById('log-error'),
+  logSummarySection: document.getElementById('log-summary-section'),
+  logSummary: document.getElementById('log-summary'),
+  logTableSection: document.getElementById('log-table-section'),
+  logTable: document.getElementById('log-table'),
 };
 
 // ---------------------------------------------------------------------------
@@ -93,7 +102,6 @@ async function onConnected() {
   await refreshParams();
   setToolbarEnabled(true);
   buildChannelRows();
-  els.tabs.classList.remove('hidden');
   showTab('params');
   // Start the live telemetry stream so the Telemetry tab has data.
   await sendCommand('cp stream on', false);
@@ -103,8 +111,6 @@ async function disconnect() {
   state.connected = false;
   setToolbarEnabled(false);
   els.toolbar.classList.add('hidden');
-  els.tabs.classList.add('hidden');
-  showTab('params');
   els.form.innerHTML = '';
   if (state.transport) {
     try { await state.transport.close(); } catch (e) { /* ignore */ }
@@ -515,11 +521,131 @@ function updateChannel(i, us) {
 }
 
 function showTab(name) {
-  const params = name === 'params';
-  els.panelParams.classList.toggle('hidden', !params);
-  els.panelTelemetry.classList.toggle('hidden', params);
-  els.tabParams.classList.toggle('active', params);
-  els.tabTelemetry.classList.toggle('active', !params);
+  const panels = {
+    params: els.panelParams,
+    telemetry: els.panelTelemetry,
+    log: els.panelLog,
+  };
+  const tabs = {
+    params: els.tabParams,
+    telemetry: els.tabTelemetry,
+    log: els.tabLog,
+  };
+  for (const key of Object.keys(panels)) {
+    panels[key].classList.toggle('hidden', key !== name);
+    tabs[key].classList.toggle('active', key === name);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Log tab
+// ---------------------------------------------------------------------------
+
+// Decode a .BIN buffer, render its summary and a sampled record table,
+// or show an error if the buffer is not a valid log.
+function loadLogBuffer(buffer, name) {
+  try {
+    const records = decodeLog(buffer);
+    hideLogError();
+    renderLogSummary(summarizeLog(records), name);
+    renderLogTable(records);
+    els.logSummarySection.classList.remove('hidden');
+    els.logTableSection.classList.remove('hidden');
+  } catch (err) {
+    showLogError(name + ': ' + err.message);
+    els.logSummarySection.classList.add('hidden');
+    els.logTableSection.classList.add('hidden');
+  }
+}
+
+function renderLogSummary(s, name) {
+  const modeBits = [];
+  for (let m = 0; m < 3; m++) {
+    if (s.modeCounts[m] > 0) {
+      const pct = ((s.modeCounts[m] / s.records) * 100).toFixed(0);
+      modeBits.push(logModeName(m) + ' ' + pct + '%');
+    }
+  }
+  const rows = [
+    ['File', name],
+    ['Records', String(s.records)],
+    ['Duration', s.durationS.toFixed(1) + ' s'],
+    ['Loop period', 'mean ' + s.loopMeanUs.toFixed(0) +
+        ' us, max ' + s.loopMaxUs + ' us'],
+    ['Loop overruns',
+     s.overruns + ' (over ' + LOG_LOOP_OVERRUN_US + ' us)'],
+    ['Armed', (s.armedFraction * 100).toFixed(0) + '% of records'],
+    ['Failsafe events', String(s.failsafeEvents)],
+    ['Gyro RMS', s.gyroRms.map((g) => g.toFixed(1)).join(' / ') +
+        ' dps (roll/pitch/yaw)'],
+    ['Flight mode', modeBits.join(', ') || '--'],
+  ];
+  els.logSummary.innerHTML = '';
+  for (const [label, value] of rows) {
+    const row = document.createElement('div');
+    row.className = 'lrow';
+    const l = document.createElement('span');
+    l.className = 'lrow-label';
+    l.textContent = label;
+    const v = document.createElement('span');
+    v.className = 'lrow-value';
+    v.textContent = value;
+    row.appendChild(l);
+    row.appendChild(v);
+    els.logSummary.appendChild(row);
+  }
+}
+
+const LOG_TABLE_MAX_ROWS = 300;
+
+function renderLogTable(records) {
+  const step = Math.max(1, Math.ceil(records.length / LOG_TABLE_MAX_ROWS));
+  const t0 = records[0].t_us;
+  const head = ['t (s)', 'loop us', 'gyro x', 'gyro y', 'gyro z',
+                'pid r', 'pid p', 'pid y', 'm1 us', 'm2 us',
+                'mode', 'armed', 'fs'];
+  let html = '<table class="ltable"><thead><tr>';
+  for (const h of head) {
+    html += '<th>' + h + '</th>';
+  }
+  html += '</tr></thead><tbody>';
+  for (let i = 0; i < records.length; i += step) {
+    const r = records[i];
+    const cells = [
+      ((r.t_us - t0) / 1e6).toFixed(2),
+      r.loop_us,
+      r.gyro[0].toFixed(1), r.gyro[1].toFixed(1), r.gyro[2].toFixed(1),
+      r.pid[0].toFixed(2), r.pid[1].toFixed(2), r.pid[2].toFixed(2),
+      r.motor_us[0], r.motor_us[1],
+      logModeName(r.mode),
+      (r.flags & LOG_FLAG_ARMED) ? 1 : 0,
+      (r.flags & LOG_FLAG_FAILSAFE) ? 1 : 0,
+    ];
+    html += '<tr>';
+    for (const c of cells) {
+      html += '<td>' + c + '</td>';
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  els.logTable.innerHTML = html;
+  if (step > 1) {
+    const shown = Math.ceil(records.length / step);
+    const note = document.createElement('p');
+    note.className = 'hint';
+    note.textContent = 'Showing every ' + step + 'th record (' + shown +
+        ' of ' + records.length + ').';
+    els.logTable.appendChild(note);
+  }
+}
+
+function showLogError(msg) {
+  els.logError.textContent = msg;
+  els.logError.classList.remove('hidden');
+}
+
+function hideLogError() {
+  els.logError.classList.add('hidden');
 }
 
 // ---------------------------------------------------------------------------
@@ -590,6 +716,24 @@ function main() {
 
   els.tabParams.addEventListener('click', () => showTab('params'));
   els.tabTelemetry.addEventListener('click', () => showTab('telemetry'));
+  els.tabLog.addEventListener('click', () => showTab('log'));
+
+  els.logFile.addEventListener('change', async () => {
+    const file = els.logFile.files[0];
+    if (!file) {
+      return;
+    }
+    try {
+      const buffer = await file.arrayBuffer();
+      loadLogBuffer(buffer, file.name);
+    } catch (err) {
+      showLogError('could not read file: ' + err.message);
+    }
+  });
+
+  els.logSample.addEventListener('click', () => {
+    loadLogBuffer(makeSampleLog(), 'sample.BIN');
+  });
 
   els.write.addEventListener('click', guarded(writeChanged));
   els.save.addEventListener('click', guarded(saveFlash));

@@ -7,10 +7,11 @@ A browser-based setup tool for CrowPilot. Connect the flight controller
 over USB, edit the runtime parameters in a form, and write them back to
 the board.
 
-It has a Parameters tab (the PID gain editor) and a Telemetry tab (live
-attitude, receiver channels, arm and failsafe state, loop health). It
-does not flash firmware. Flashing stays the standard RP2350 workflow
-(hold BOOTSEL, drag the `.uf2` onto the mass-storage drive).
+It has three tabs: Parameters (the PID gain editor), Telemetry (live
+attitude, receiver channels, arm and failsafe state, loop health), and
+Log (decode a `.BIN` telemetry log pulled from the SD card). It does not
+flash firmware. Flashing stays the standard RP2350 workflow (hold
+BOOTSEL, drag the `.uf2` onto the mass-storage drive).
 
 There is also a **Mock device** button. It connects to an in-browser
 stand-in that answers the same protocol, so the configurator can be
@@ -50,6 +51,15 @@ then visit the printed URL.
 
 The protocol log at the bottom shows the raw exchange. Telemetry lines
 are not logged, since they arrive continuously.
+
+## The Log tab
+
+The **Log** tab decodes a binary telemetry log without a device
+connection. Pick a `.BIN` file pulled from the SD card, or click **Load
+sample log** to decode a generated sample. It shows a summary (duration,
+loop-period health, armed fraction, failsafe events, gyro RMS, flight
+mode) and a sampled record table. The decoder follows the same 109-byte
+record schema as `tools/log_analyzer/decode_features.py`.
 
 ## The serial protocol
 
