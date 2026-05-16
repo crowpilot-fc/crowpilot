@@ -22,7 +22,7 @@ A snapped switch is fine. The firmware does not act on the channel directly.
 The value the control core acts on is the fader: a normalized scalar, 1.0 at
 hover and 0.0 at forward flight. The fader slews toward the commanded value
 at a bounded rate, `TRANSITION_SLEW_RATE` fader units per second. The default
-rate completes a full transition in about two seconds.
+rate completes a full transition in about three seconds.
 
 The slew exists because the airframe cannot rotate ninety degrees instantly.
 An instantaneous attitude-reference change would command a maneuver the

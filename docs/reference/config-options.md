@@ -82,10 +82,10 @@ are `constexpr` constants in namespace `cp`.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `FS_CH1_THROTTLE` | `1350` | Failsafe throttle, below hover for a gentle descent. |
+| `FS_CH1_THROTTLE` | `1300` | Failsafe throttle, below hover for a gentle descent. |
 | `FS_CH2_ROLL` / `FS_CH3_PITCH` / `FS_CH4_YAW` | `1500` | Failsafe sticks, centered. |
 | `FS_CH5_ARM` | `1000` | Failsafe arm channel, armed so the descent stays powered. |
-| `FS_CH6_TRANSITION` | `1000` | Failsafe transition channel, hover end. |
+| `FS_CH6_TRANSITION` | `2000` | Failsafe transition channel, hover end (high pulse). |
 | `FS_LINK_TIMEOUT_US` | `100000` | Lost-link timeout in microseconds. |
 
 ## Telemetry
@@ -116,7 +116,7 @@ are `constexpr` constants in namespace `cp`.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `TRANSITION_SLEW_RATE` | `0.5` | Fader slew rate, fader units per second. |
+| `TRANSITION_SLEW_RATE` | `0.33` | Fader slew rate, fader units per second (about a 3 s transition). |
 | `MAX_ROLL_ANGLE_DEG` | `35.0` | Roll attitude setpoint at full stick. |
 | `MAX_PITCH_ANGLE_DEG` | `35.0` | Pitch attitude setpoint at full stick. |
 | `MAX_YAW_RATE_DPS` | `120.0` | Yaw-rate setpoint at full stick. |
@@ -130,10 +130,10 @@ integral set. All ship provisional.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `Kp_roll_hover` ... `Kd_yaw_hover` | `0.50` / `0.05` | Hover proportional and derivative gains. |
-| `Kp_roll_ff` ... `Kd_yaw_ff` | `0.40` / `0.04` | Forward-flight proportional and derivative gains. |
+| `Kp_*_hover` / `Kd_*_hover` | `Kp 0.030` roll-pitch, `0.008` yaw. `Kd 0.004` roll-pitch, `0.002` yaw. | Hover gains. Roll and pitch act on a degree error, yaw on a rate error. |
+| `Kp_*_ff` / `Kd_*_ff` | `Kp 0.025` roll-pitch, `0.006` yaw. `Kd 0.003` roll-pitch, `0.0015` yaw. | Forward-flight gains. |
 | `Ki_roll` / `Ki_pitch` / `Ki_yaw` | `0.0` | Integral gains. Tuned last. |
-| `PID_INTEGRAL_LIMIT` | `50.0` | Anti-windup clamp on each integrator. |
+| `PID_INTEGRAL_LIMIT` | `0.5` | Anti-windup limit on the integral term, as a fraction of the output range. |
 
 ## Tailsitter mixer
 
