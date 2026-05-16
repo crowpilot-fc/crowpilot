@@ -25,8 +25,22 @@ constexpr uint32_t kMaxConsecutiveFailures = 1000;
 // printed result is not lost.
 constexpr uint32_t kSerialWaitMs = 5000;
 
-void halt() {
-  for (;;) {
+// Busy-wait for the requested microseconds. The project standard
+// forbids delay() everywhere, init code included, so the calibration
+// pacing spins on micros() like the carried chip drivers do.
+void busyWaitUs(uint32_t us) {
+  const uint32_t t0 = micros();
+  while ((micros() - t0) < us) {
+    // spin
+  }
+}
+
+// Halt forever. The volatile counter keeps the side-effect-free loop
+// from being optimized away under the C++ forward-progress rule.
+[[noreturn]] void halt() {
+  volatile uint32_t spin = 0;
+  while (true) {
+    spin = spin + 1;
   }
 }
 
@@ -81,7 +95,7 @@ void run() {
     sum_gz += s.gz_dps;
     ++collected;
 
-    delay(1);  // Spread the batch over roughly two seconds.
+    busyWaitUs(1000);  // Spread the batch over roughly two seconds.
   }
 
   const float n = static_cast<float>(IMU_CALIB_SAMPLE_COUNT);
