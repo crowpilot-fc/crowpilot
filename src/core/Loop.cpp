@@ -28,6 +28,14 @@
 #include "src/control/PlaneStab.h"
 #endif
 
+// Only the native HAL exists. The SITL and HIL implementations under
+// src/hal/sim/ are not built yet, so a non-native build would leave
+// every cp::hal function undefined. Catch that here with a clear
+// message rather than an opaque linker error.
+#if BUILD_TARGET != BUILD_TARGET_NATIVE
+#error "CrowPilot v1 supports only BUILD_TARGET_NATIVE. The SITL/HIL HAL is not implemented."
+#endif
+
 // The 1 kHz cooperative super-loop, per PROJECT_OVERVIEW section 4.
 // init() brings every module up in dependency order and halts on a
 // fatal sensor failure before any motor output. tick() runs one
