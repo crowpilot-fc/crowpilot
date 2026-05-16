@@ -46,7 +46,7 @@ Connect the FC to USB only. No ESCs, no battery.
 With the FC level and stationary on the bench:
 
 1. Set `DEBUG_PRINT_DEV = 0` and `DEBUG_PRINT_IMU = 1` in `Config.h`. Reflash.
-2. Expected output: 10 Hz lines like `a=(+0.01, -0.02, +1.00)g g=(+0.10, -0.50, +0.30)dps T=24.5C`.
+2. Expected output: 10 Hz lines like `imu a=(+0.01, -0.02, +1.00)g g=(+0.10, -0.50, +0.30)dps T=24.5C`.
 3. Static accel reads close to `(0, 0, +1.00) g` for a level FC.
 4. Static gyro reads close to `(0, 0, 0) dps`, within a couple of dps.
 5. Temperature reads within a few degrees of room temperature.
@@ -114,7 +114,7 @@ With the transmitter on:
 This stage runs with motors connected to ESCs but NO PROPELLERS. ESC battery still disconnected.
 
 1. Set `DEBUG_PRINT_MODE = 0` and `DEBUG_PRINT_MIXER = 1`. Reflash.
-2. Power the FC by USB. NOT_ARMED state. Mixer output should show `m=[~throttle, ~throttle] s=[~0.50, ~0.50]` with throttle and servos at safe defaults.
+2. Power the FC by USB. NOT_ARMED state. Mixer output should show `mix m=[~throttle, ~throttle] s=[~0.50, ~0.50]` with throttle and servos at safe defaults.
 3. Power transmitter on, ch5 LOW (arm switch enabled), throttle stick at minimum. The FC should auto-arm.
 4. Verify mixer responses to stick deflections in hover and forward modes. No motor or servo movement at this stage (no battery).
 

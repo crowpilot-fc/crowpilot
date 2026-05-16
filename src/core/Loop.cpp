@@ -89,22 +89,50 @@ void debugOutput() {
     const cp::estimation::attitude::Euler att =
         cp::estimation::attitude::eulerForwardFlight();
     const cp::control::pid::Output& pid = cp::control::pid::output();
+    const cp::failsafe::State&      fs  = cp::failsafe::state();
+    const uint16_t*                 ch  = cp::failsafe::channels().ch_us;
+    const cp::airframes::Output&    mix = cp::airframes::output();
     Serial.print("DEV imu=");
     Serial.print(cp::sensors::imu::is_healthy() ? "OK" : "FAULT");
-    Serial.print(" rpy=(");  Serial.print(att.roll_deg, 1);
-    Serial.print(",");       Serial.print(att.pitch_deg, 1);
-    Serial.print(",");       Serial.print(att.yaw_deg, 1);
-    Serial.print(") fs=");   Serial.print(cp::failsafe::state().active ? 1 : 0);
-    Serial.print(" fader="); Serial.print(cp::modes::fader(), 2);
-    Serial.print(" mode=");  Serial.print(modeName(cp::modes::mode()));
+    Serial.print(" rpy=(");   Serial.print(att.roll_deg, 1);
+    Serial.print(",");        Serial.print(att.pitch_deg, 1);
+    Serial.print(",");        Serial.print(att.yaw_deg, 1);
+    Serial.print(") fs=");    Serial.print(fs.active ? 1 : 0);
+    Serial.print("/to=");     Serial.print(fs.link_timeout ? 1 : 0);
+    Serial.print("/rxfs=");   Serial.print(fs.rx_protocol_failsafe ? 1 : 0);
+    Serial.print(" ch=[");
+    for (uint8_t i = 0; i < 6; ++i) {
+      Serial.print(ch[i]);
+      if (i < 5) {
+        Serial.print(",");
+      }
+    }
+    Serial.print("] fader="); Serial.print(cp::modes::fader(), 2);
+    Serial.print(" mode=");   Serial.print(modeName(cp::modes::mode()));
     Serial.print(" armed=");
     Serial.print(cp::actuators::arm_state() == cp::actuators::ArmState::ARMED
                      ? 1 : 0);
-    Serial.print(" pid=(");  Serial.print(pid.roll, 2);
-    Serial.print(",");       Serial.print(pid.pitch, 2);
-    Serial.print(",");       Serial.print(pid.yaw, 2);
-    Serial.print(") baro=");
+    Serial.print(" pid=(");   Serial.print(pid.roll, 2);
+    Serial.print(",");        Serial.print(pid.pitch, 2);
+    Serial.print(",");        Serial.print(pid.yaw, 2);
+    Serial.print(") mix=[m");
+    for (uint8_t i = 0; i < cp::airframes::N_MOTORS; ++i) {
+      Serial.print(mix.motor[i], 2);
+      if (i + 1 < cp::airframes::N_MOTORS) {
+        Serial.print(",");
+      }
+    }
+    Serial.print("|s");
+    for (uint8_t i = 0; i < cp::airframes::N_SERVOS; ++i) {
+      Serial.print(mix.servo[i], 2);
+      if (i + 1 < cp::airframes::N_SERVOS) {
+        Serial.print(",");
+      }
+    }
+    Serial.print("] baro=");
     Serial.print(cp::sensors::baro::is_present() ? "OK" : "off");
+    Serial.print(" alt=");    Serial.print(cp::sensors::baro::latest().altitude_m, 1);
+    Serial.print(" lost=");   Serial.print(cp::radio::state().lost_frames_count);
     Serial.print(" tlm=");
     Serial.println(cp::telemetry::is_active()
                        ? cp::telemetry::current_filename() : "off");
