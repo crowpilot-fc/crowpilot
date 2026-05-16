@@ -46,7 +46,7 @@ It emits one CSV row per record. Column order follows the field table below, wit
 | 9 | 4 | `loop_period_us` | uint32 | Measured loop period this tick. Target 1000. |
 | 13 | 6 | `gyro_x/y/z` | int16 x3 | Raw gyro counts. Multiply by the gyro scale below. |
 | 19 | 6 | `accel_x/y/z` | int16 x3 | Raw accel counts. Multiply by the accel scale below. |
-| 25 | 2 | `imu_temp_raw` | int16 | Raw IMU temperature. `temp_c = raw / 340.0 + 36.53`. |
+| 25 | 2 | `imu_temp_raw` | int16 | Raw IMU temperature. MPU-6500: `temp_c = raw / 333.87 + 21.0`. MPU-6050: `temp_c = raw / 340.0 + 36.53`. |
 | 27 | 4 | `pressure_pa` | int32 | Barometric pressure in pascals. |
 | 31 | 4 | `baro_temp_cc` | int32 | Baro temperature in centidegrees Celsius (degrees C x 100). |
 | 35 | 4 | `altitude_cm` | int32 | Altitude in cm, relative to ground pressure captured at init. Positive up. |
@@ -85,7 +85,7 @@ The decoder applies the v1 default scales. If you change `IMU_GYRO_RANGE` or `IM
 | 3 | 0x08 | `IMU_FAULT` | IMU produced bad data this tick. |
 | 4 | 0x10 | `BARO_FAULT` | Baro produced bad data this tick. |
 | 5 | 0x20 | `RX_FAULT` | No RC frame in the last frame interval. |
-| 6 | 0x40 | `LOG_OVERFLOW` | Logger buffer overflowed; records may have been dropped. |
+| 6 | 0x40 | `LOG_OVERFLOW` | Reserved. Not set by v1; the logger rotates files rather than tracking buffer overflow. |
 | 7 | 0x80 | reserved | Always 0. |
 
 ## Schema versioning

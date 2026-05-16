@@ -10,8 +10,8 @@ The flight-controller parts cost about USD 20 in total. Propulsion, airframe, se
 | Item | Reference part | Approximate cost | Notes |
 |---|---|---|---|
 | Microcontroller board | Waveshare RP2350-Tiny | $6 | ~21 × 18 mm. USB-C via detachable adapter. RP2350A, dual M33 at 150 MHz with hardware FPU, 16 MB flash. |
-| IMU (preferred) | MPU-6500 breakout | $2 | I2C, ±2 g default. Lower gyro noise than the MPU-6050. |
-| IMU (budget alternate) | MPU-6050 (GY-521 breakout) | $1 | I2C, ±2 g default. Slightly noisier than MPU-6500. |
+| IMU (preferred) | MPU-6500 breakout | $2 | I2C, configured at ±8 g. Lower gyro noise than the MPU-6050. |
+| IMU (budget alternate) | MPU-6050 (GY-521 breakout) | $1 | I2C, configured at ±8 g. Slightly noisier than MPU-6500. |
 | Barometer (default) | BMP388 breakout | $3 | I2C, sub-Pa noise floor. Better for v1.1 altitude hold. |
 | Barometer (alternate) | BMP280 (GY-BMP280 breakout) | $2 | I2C, cheaper. |
 | SD card module | 6-pin micro-SD reader | $2 | SPI0. 3.3 V logic compatible without a level shifter on most modules. |

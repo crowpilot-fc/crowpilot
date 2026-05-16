@@ -30,7 +30,7 @@ build/
 .pioenvs/
 .piolibdeps/
 
-# CMake / host build for the SITL target (lands in Phase 12.7)
+# CMake / host build for the future SITL target
 cmake-build-*/
 CMakeCache.txt
 CMakeFiles/

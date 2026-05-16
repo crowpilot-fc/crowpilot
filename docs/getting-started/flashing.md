@@ -40,7 +40,7 @@ Edit `src/Config.h` and set `BOARD` to match your hardware:
 #define BOARD  BOARD_WEACT_RP2350A_V10
 ```
 
-You can also adjust `IMU_TYPE` (MPU-6500 or MPU-6050), `BARO_TYPE` (BMP388, BMP280, or BARO_NONE), and `LOOP_HZ` (500, 1000, or 2000). The defaults (MPU-6500 preferred, BMP388 default, 1000 Hz) match the v1 reference build.
+You can also adjust `IMU_TYPE` (MPU-6500 or MPU-6050) and `BARO_TYPE` (BMP388, BMP280, or BARO_NONE). `LOOP_HZ` is 1000 for v1 and should be left there: the IMU drivers configure the sensor for a 1 kHz internal sample rate to match it. The defaults (MPU-6500 preferred, BMP388 default) match the v1 reference build.
 
 ## Select the right board entry
 

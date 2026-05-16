@@ -19,6 +19,10 @@
 //   ch11  cargo bay door switch
 //   ch12  navigation lights switch
 //
+// Note: ch9 and ch10 are also the default live-tune channels
+// (LIVE_TUNE_CH_KP and LIVE_TUNE_CH_KD in Config.h). A build that runs
+// both this hook and live tuning should remap one side or the other.
+//
 // Pins. The Caribou airframe claims the motor, servo, I2C, SD, SBUS, LED,
 // and companion pins. The pins below are free on the Waveshare RP2350-Tiny
 // for this airframe. Writes to a claimed pin are ignored with a warning.
