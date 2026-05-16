@@ -104,6 +104,16 @@
         <h2>Summary</h2>
         <div id="log-summary"></div>
       </section>
+      <section id="log-charts-section" class="group hidden">
+        <h2>Charts</h2>
+        <p class="chart-label">Gyro, deg/s</p>
+        <canvas id="log-chart-gyro" class="chart"
+                width="640" height="180"></canvas>
+        <p class="chart-label">PID output, normalized</p>
+        <canvas id="log-chart-pid" class="chart"
+                width="640" height="180"></canvas>
+        <p id="log-chart-legend" class="hint"></p>
+      </section>
       <section id="log-table-section" class="group hidden">
         <h2>Records</h2>
         <div id="log-table"></div>

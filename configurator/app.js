@@ -53,6 +53,10 @@ const els = {
   logSummary: document.getElementById('log-summary'),
   logTableSection: document.getElementById('log-table-section'),
   logTable: document.getElementById('log-table'),
+  logChartsSection: document.getElementById('log-charts-section'),
+  logChartGyro: document.getElementById('log-chart-gyro'),
+  logChartPid: document.getElementById('log-chart-pid'),
+  logChartLegend: document.getElementById('log-chart-legend'),
   tabFirmware: document.getElementById('tab-firmware'),
   panelFirmware: document.getElementById('panel-firmware'),
   fwBoot: document.getElementById('fw-boot'),
@@ -563,12 +567,15 @@ function loadLogBuffer(buffer, name) {
     const records = decodeLog(buffer);
     hideLogError();
     renderLogSummary(summarizeLog(records), name);
+    renderLogCharts(records);
     renderLogTable(records);
     els.logSummarySection.classList.remove('hidden');
+    els.logChartsSection.classList.remove('hidden');
     els.logTableSection.classList.remove('hidden');
   } catch (err) {
     showLogError(name + ': ' + err.message);
     els.logSummarySection.classList.add('hidden');
+    els.logChartsSection.classList.add('hidden');
     els.logTableSection.classList.add('hidden');
   }
 }
@@ -593,6 +600,10 @@ function renderLogSummary(s, name) {
     ['Failsafe events', String(s.failsafeEvents)],
     ['Gyro RMS', s.gyroRms.map((g) => g.toFixed(1)).join(' / ') +
         ' dps (roll/pitch/yaw)'],
+    ['Sample rate', s.sampleRateHz.toFixed(0) + ' Hz (armed segment)'],
+    ['Dominant oscillation', s.oscillation.map((o, i) =>
+        ['roll', 'pitch', 'yaw'][i] + ' ' + o.freqHz.toFixed(1) +
+        ' Hz / ' + o.amplitudeDps.toFixed(1) + ' dps').join(', ')],
     ['Flight mode', modeBits.join(', ') || '--'],
   ];
   els.logSummary.innerHTML = '';
@@ -651,6 +662,95 @@ function renderLogTable(records) {
     note.textContent = 'Showing every ' + step + 'th record (' + shown +
         ' of ' + records.length + ').';
     els.logTable.appendChild(note);
+  }
+}
+
+// Series colours, shared by the charts and their legend.
+const CHART_COLORS = ['#4ea1ff', '#3ec46d', '#e0a23c'];
+
+function renderLogCharts(records) {
+  const MAX_POINTS = 640;
+  const step = Math.max(1, Math.ceil(records.length / MAX_POINTS));
+  const gyro = [[], [], []];
+  const pid = [[], [], []];
+  for (let i = 0; i < records.length; i += step) {
+    const r = records[i];
+    for (let a = 0; a < 3; a++) {
+      gyro[a].push(r.gyro[a]);
+      pid[a].push(r.pid[a]);
+    }
+  }
+  drawChart(els.logChartGyro, gyro.map((v, a) =>
+      ({ color: CHART_COLORS[a], values: v })));
+  drawChart(els.logChartPid, pid.map((v, a) =>
+      ({ color: CHART_COLORS[a], values: v })));
+  els.logChartLegend.textContent =
+      'Blue: roll / x.   Green: pitch / y.   Orange: yaw / z.';
+}
+
+// Draw overlaid line series on a canvas. Every series shares one x-axis
+// (sample index) and one auto-scaled y-axis.
+function drawChart(canvas, series) {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+  const pad = { l: 46, r: 8, t: 8, b: 14 };
+  ctx.fillStyle = '#0f1012';
+  ctx.fillRect(0, 0, w, h);
+  if (series.length === 0 || series[0].values.length === 0) {
+    return;
+  }
+
+  const n = series[0].values.length;
+  let min = Infinity;
+  let max = -Infinity;
+  for (const s of series) {
+    for (const v of s.values) {
+      if (v < min) {
+        min = v;
+      }
+      if (v > max) {
+        max = v;
+      }
+    }
+  }
+  if (min === max) {
+    min -= 1;
+    max += 1;
+  }
+  const plotW = w - pad.l - pad.r;
+  const plotH = h - pad.t - pad.b;
+  const xAt = (i) => pad.l + (n > 1 ? (i / (n - 1)) * plotW : 0);
+  const yAt = (v) => pad.t + (1 - (v - min) / (max - min)) * plotH;
+
+  ctx.strokeStyle = '#383c43';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(pad.l, pad.t, plotW, plotH);
+  if (min < 0 && max > 0) {
+    const y0 = yAt(0);
+    ctx.beginPath();
+    ctx.moveTo(pad.l, y0);
+    ctx.lineTo(w - pad.r, y0);
+    ctx.stroke();
+  }
+  ctx.fillStyle = '#8b919b';
+  ctx.font = '10px ui-monospace, Menlo, monospace';
+  ctx.fillText(max.toFixed(1), 4, pad.t + 9);
+  ctx.fillText(min.toFixed(1), 4, h - pad.b);
+
+  for (const s of series) {
+    ctx.strokeStyle = s.color;
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const x = xAt(i);
+      const y = yAt(s.values[i]);
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.stroke();
   }
 }
 

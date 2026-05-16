@@ -62,6 +62,54 @@ function decodeLog(buffer) {
   return records;
 }
 
+// Oscillation scan band, in Hz. Matches decode_features.py: tuning
+// oscillation on a small airframe sits between a slow wobble and a fast
+// buzz, so 1 to 40 Hz at a fine step covers it without a full FFT.
+const OSC_SCAN_LO_HZ = 1.0;
+const OSC_SCAN_HI_HZ = 40.0;
+const OSC_SCAN_STEP_HZ = 0.5;
+
+// Single-frequency power via the Goertzel algorithm.
+function goertzelPower(samples, freqHz, sampleRateHz) {
+  const omega = (2 * Math.PI * freqHz) / sampleRateHz;
+  const coeff = 2 * Math.cos(omega);
+  let sPrev = 0;
+  let sPrev2 = 0;
+  for (let i = 0; i < samples.length; i++) {
+    const s = samples[i] + coeff * sPrev - sPrev2;
+    sPrev2 = sPrev;
+    sPrev = s;
+  }
+  return sPrev2 * sPrev2 + sPrev * sPrev - coeff * sPrev * sPrev2;
+}
+
+// Scan the oscillation band, return {freqHz, amplitudeDps} for the
+// strongest tone. A detrend removes the DC term first.
+function dominantOscillation(samples, sampleRateHz) {
+  if (samples.length < 32) {
+    return { freqHz: 0, amplitudeDps: 0 };
+  }
+  let mean = 0;
+  for (const x of samples) {
+    mean += x;
+  }
+  mean /= samples.length;
+  const detrended = samples.map((x) => x - mean);
+  let bestFreq = 0;
+  let bestPower = 0;
+  for (let f = OSC_SCAN_LO_HZ; f <= OSC_SCAN_HI_HZ; f += OSC_SCAN_STEP_HZ) {
+    if (f < sampleRateHz / 2) {
+      const p = goertzelPower(detrended, f, sampleRateHz);
+      if (p > bestPower) {
+        bestPower = p;
+        bestFreq = f;
+      }
+    }
+  }
+  const amplitudeDps = (2 * Math.sqrt(bestPower)) / samples.length;
+  return { freqHz: bestFreq, amplitudeDps: amplitudeDps };
+}
+
 // Reduce decoded records to the summary the Log tab displays.
 function summarizeLog(records) {
   const n = records.length;
@@ -75,7 +123,9 @@ function summarizeLog(records) {
   let failsafeEvents = 0;
   let prevFs = false;
   const modeCounts = [0, 0, 0];
-  const sq = [0, 0, 0];
+  const armedGyro = [[], [], []];
+  let armedFirstT = 0;
+  let armedLastT = 0;
 
   for (const rec of records) {
     loopSum += rec.loop_us;
@@ -85,9 +135,6 @@ function summarizeLog(records) {
     if (rec.loop_us > LOG_LOOP_OVERRUN_US) {
       overruns++;
     }
-    if (rec.flags & LOG_FLAG_ARMED) {
-      armed++;
-    }
     const fs = (rec.flags & LOG_FLAG_FAILSAFE) !== 0;
     if (fs && !prevFs) {
       failsafeEvents++;
@@ -96,10 +143,34 @@ function summarizeLog(records) {
     if (modeCounts[rec.mode] !== undefined) {
       modeCounts[rec.mode]++;
     }
-    for (let a = 0; a < 3; a++) {
-      sq[a] += rec.gyro[a] * rec.gyro[a];
+    if (rec.flags & LOG_FLAG_ARMED) {
+      if (armed === 0) {
+        armedFirstT = rec.t_us;
+      }
+      armedLastT = rec.t_us;
+      armed++;
+      for (let a = 0; a < 3; a++) {
+        armedGyro[a].push(rec.gyro[a]);
+      }
     }
   }
+
+  // Gyro RMS and the oscillation scan are taken over the armed segment:
+  // idle motors-off records would only dilute them.
+  let sampleRateHz = 100;
+  if (armed > 1 && armedLastT > armedFirstT) {
+    sampleRateHz = (armed - 1) / ((armedLastT - armedFirstT) / 1e6);
+  }
+  const rms = (xs) => {
+    if (xs.length === 0) {
+      return 0;
+    }
+    let s = 0;
+    for (const x of xs) {
+      s += x * x;
+    }
+    return Math.sqrt(s / xs.length);
+  };
 
   return {
     records: n,
@@ -109,7 +180,10 @@ function summarizeLog(records) {
     overruns: overruns,
     armedFraction: n ? armed / n : 0,
     failsafeEvents: failsafeEvents,
-    gyroRms: sq.map((s) => (n ? Math.sqrt(s / n) : 0)),
+    gyroRms: armedGyro.map(rms),
+    oscillation: armedGyro.map((axis) =>
+        dominantOscillation(axis, sampleRateHz)),
+    sampleRateHz: sampleRateHz,
     modeCounts: modeCounts,
   };
 }
@@ -130,8 +204,11 @@ function makeSampleLog() {
     const loop =
         1000 + (r % 137 === 0 ? 250 : Math.floor(Math.random() * 20));
     view.setUint32(o + 9, loop, true);
-    view.setInt16(o + 13,
-        Math.round(Math.sin(ph) * 12 * LOG_GYRO_LSB_PER_DPS), true);
+    // Roll carries a 17 Hz tone on top of the slow sweep, so the
+    // oscillation scan has something in-band to find.
+    view.setInt16(o + 13, Math.round(
+        (Math.sin(ph) * 12 + Math.sin(r * 2 * Math.PI * 17 / 100) * 5) *
+        LOG_GYRO_LSB_PER_DPS), true);
     view.setInt16(o + 15,
         Math.round(Math.sin(ph * 1.3) * 8 * LOG_GYRO_LSB_PER_DPS), true);
     view.setInt16(o + 17,

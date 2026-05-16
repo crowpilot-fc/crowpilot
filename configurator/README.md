@@ -55,10 +55,16 @@ are not logged, since they arrive continuously.
 
 The **Log** tab decodes a binary telemetry log without a device
 connection. Pick a `.BIN` file pulled from the SD card, or click **Load
-sample log** to decode a generated sample. It shows a summary (duration,
-loop-period health, armed fraction, failsafe events, gyro RMS, flight
-mode) and a sampled record table. The decoder follows the same 109-byte
-record schema as `tools/log_analyzer/decode_features.py`.
+sample log** to decode a generated sample. It shows:
+
+- A summary: duration, loop-period health, armed fraction, failsafe
+  events, gyro RMS, the dominant oscillation frequency per axis, and the
+  flight-mode breakdown.
+- Charts of the gyro and PID-output traces across the flight.
+- A sampled record table.
+
+The decoder and the Goertzel oscillation scan follow the 109-byte record
+schema and analysis in `tools/log_analyzer/decode_features.py`.
 
 ## The Firmware tab
 

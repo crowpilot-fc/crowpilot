@@ -354,6 +354,19 @@ code {
   transition: width 0.2s linear;
 }
 
+.chart {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 4px;
+}
+
+.chart-label {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 10px 0 4px;
+}
+
 .hidden {
   display: none;
 }
