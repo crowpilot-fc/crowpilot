@@ -405,21 +405,27 @@ constexpr float MAX_YAW_RATE_DPS    = 120.0f;
 
 namespace cp {
 
+// Roll and pitch stabilize on an attitude error in degrees. Yaw
+// stabilizes on a rate error in degrees per second, a larger-numbered
+// signal, so its gains are correspondingly smaller. The magnitudes
+// below are deliberately low so the controller responds gently on the
+// first powered tests and is tuned up from there.
+
 // Hover gain set.
-constexpr float Kp_roll_hover  = 0.50f;
-constexpr float Kd_roll_hover  = 0.05f;
-constexpr float Kp_pitch_hover = 0.50f;
-constexpr float Kd_pitch_hover = 0.05f;
-constexpr float Kp_yaw_hover   = 0.50f;
-constexpr float Kd_yaw_hover   = 0.05f;
+constexpr float Kp_roll_hover  = 0.030f;
+constexpr float Kd_roll_hover  = 0.004f;
+constexpr float Kp_pitch_hover = 0.030f;
+constexpr float Kd_pitch_hover = 0.004f;
+constexpr float Kp_yaw_hover   = 0.008f;
+constexpr float Kd_yaw_hover   = 0.002f;
 
 // Forward-flight gain set.
-constexpr float Kp_roll_ff  = 0.40f;
-constexpr float Kd_roll_ff  = 0.04f;
-constexpr float Kp_pitch_ff = 0.40f;
-constexpr float Kd_pitch_ff = 0.04f;
-constexpr float Kp_yaw_ff   = 0.30f;
-constexpr float Kd_yaw_ff   = 0.03f;
+constexpr float Kp_roll_ff  = 0.025f;
+constexpr float Kd_roll_ff  = 0.003f;
+constexpr float Kp_pitch_ff = 0.025f;
+constexpr float Kd_pitch_ff = 0.003f;
+constexpr float Kp_yaw_ff   = 0.006f;
+constexpr float Kd_yaw_ff   = 0.0015f;
 
 // Integral gains, shared across regimes. Start at zero and tune last.
 constexpr float Ki_roll  = 0.0f;
