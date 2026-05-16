@@ -50,33 +50,52 @@ void init() {
   Serial.begin(115200);
   cp::hal::led_init();
 
+  if (Serial) {
+    Serial.print("CrowPilot boot. LOOP_HZ=");
+    Serial.print(LOOP_HZ);
+    Serial.print(", period_us=");
+    Serial.println(kLoopPeriodUs);
+  }
+
   // The parameter registry seeds the control gains, so it comes up
   // before any control module reads a gain.
   cp::params::init();
-
-  if (!cp::radio::init()) {
-    if (Serial) {
-      Serial.println("Receiver init failed: the PIO program could not load.");
-    }
-    cp::hal::haltWithFastBlink();
-  }
-  cp::failsafe::init();
 
   // The IMU is mandatory. A missing IMU halts here, with a fast LED
   // blink, before any motor output is possible.
   if (!cp::sensors::imu::init()) {
     if (Serial) {
-      Serial.println("IMU init failed. Halting before motor output.");
+      Serial.println("ERROR: IMU init failed. Halting before motor output.");
     }
     cp::hal::haltWithFastBlink();
   }
+  if (Serial) {
+    Serial.println("IMU OK");
+  }
+
+  // The receiver is mandatory.
+  if (!cp::radio::init()) {
+    if (Serial) {
+      Serial.println("ERROR: Receiver init failed (PIO program could not load).");
+    }
+    cp::hal::haltWithFastBlink();
+  }
+  if (Serial) {
+    Serial.println("Receiver OK (PIO SM 0 active)");
+  }
+
+  cp::failsafe::init();
 
   // The barometer is optional. A BARO_NONE build or a chip failure
   // leaves the firmware running without altitude.
   if (!cp::sensors::baro::init()) {
     if (Serial) {
-      Serial.println("Barometer not present or init failed. Continuing.");
+      Serial.println("WARN: Barometer init failed. Continuing without altitude.");
     }
+  } else if (Serial) {
+    Serial.println(cp::sensors::baro::is_present()
+                       ? "Barometer OK"
+                       : "Barometer disabled (BARO_NONE)");
   }
 
   cp::estimation::attitude::init();
@@ -84,6 +103,9 @@ void init() {
   cp::control::pid::init();
   cp::airframes::init();
   cp::actuators::init();
+  if (Serial) {
+    Serial.println("Actuators OK (NOT_ARMED)");
+  }
 
   // One-shot bench routines. Each does not return. The actuator stage
   // is up before ESC calibration so the motor pins are configured.
@@ -97,6 +119,14 @@ void init() {
   cp::modes::init();
   cp::params::live::init();
   cp::telemetry::init();
+  if (Serial) {
+    if (cp::telemetry::is_active()) {
+      Serial.print("Logger OK -> ");
+      Serial.println(cp::telemetry::current_filename());
+    } else {
+      Serial.println("Logger inactive (no SD card, init failed, or disabled).");
+    }
+  }
   cp::user_hook::init();
 #if AIRFRAME != AIRFRAME_TAILSITTER_BICOPTER
   cp::control::plane_stab::init();
