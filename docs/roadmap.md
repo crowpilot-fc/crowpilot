@@ -39,6 +39,27 @@ The first acceptance airframe is a 3D-printed tailsitter bicopter sized for two 
 - SITL hover validation, then HIL hover validation. Both depend on the SCRC protocol being finalized in the cross-project coordination repo.
 - Tethered hover (v1.0 acceptance flight).
 
+**Later.**
+
+Control-core refinements, scoped for after v1.0 bench verification and
+added one at a time against a proven baseline. Each is standard
+practice, derived from public control-theory and signal-processing
+references.
+
+- A low-pass or biquad filter on the PID derivative path, so gyro noise
+  is not amplified into the actuators. Reference: Astrom and Murray,
+  Feedback Systems.
+- Back-calculation, or tracking, anti-windup in place of the present
+  integral-term clamp, for better behavior at the saturation limit.
+  Reference: Astrom and Hagglund, PID Controllers (1995).
+- Setpoint weighting on the proportional term, to trade setpoint
+  tracking against disturbance rejection independently. Reference:
+  Astrom and Hagglund, PID Controllers (1995).
+- A gyro notch filter at the airframe's dominant propeller and motor
+  vibration frequency, identified from flight-log FFT analysis.
+  Reference: Bristow-Johnson, Audio EQ Cookbook, or Oppenheim and
+  Schafer, Discrete-Time Signal Processing.
+
 ## v1.1: Caribou cargo plane
 
 A two-engine cargo plane based on the open-source Caribou STL set.
