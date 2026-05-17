@@ -38,4 +38,11 @@ is provisional.
 - The fixed-wing stabilization subsystem and the twin-engine and
   single-engine plane mixers.
 - The user extension hook.
-- The documentation site.
+- The CrowPilot Configurator, a browser-based setup tool that edits the
+  parameter registry, shows live telemetry, decodes binary flight logs,
+  and flashes firmware over WebUSB.
+- The cp serial command interface that the configurator speaks, with a
+  live telemetry stream and a reboot-to-bootloader command.
+- The SITL build target: the firmware logic compiled as a host
+  executable against a simulated HAL.
+- The documentation set under docs/.

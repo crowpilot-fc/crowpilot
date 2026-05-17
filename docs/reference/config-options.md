@@ -23,7 +23,7 @@ are `constexpr` constants in namespace `cp`.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `BUILD_TARGET` | `BUILD_TARGET_NATIVE` | Selects the HAL. `BUILD_TARGET_HIL` and `BUILD_TARGET_SITL` are scaffolded and not yet implemented. |
+| `BUILD_TARGET` | `BUILD_TARGET_NATIVE` | Selects the HAL. `BUILD_TARGET_SITL` builds the firmware as a host executable against the simulated HAL (see `sitl/`). `BUILD_TARGET_HIL` is scaffolded and not yet implemented. The SITL host build sets this on the compiler command line; the Arduino build keeps the native default. |
 
 ## Airframe
 
@@ -102,6 +102,7 @@ are `constexpr` constants in namespace `cp`.
 |---|---|---|
 | `ENABLE_PARAM_PERSIST` | `1` | Enables flash persistence of the parameter registry. |
 | `ENABLE_LIVE_TUNE` | `1` | Enables transmitter-channel live tuning. |
+| `ENABLE_CONFIG_CLI` | `1` | Enables the `cp` serial command interface the browser-based configurator speaks. A bench tool; a flight-only build can drop it. |
 | `LIVE_TUNE_CH_KP` | `9` | Channel for the live P-gain knob. |
 | `LIVE_TUNE_CH_KD` | `10` | Channel for the live D-gain knob. |
 | `LIVE_TUNE_RANGE` | `0.5` | Fractional tuning range, plus or minus. |

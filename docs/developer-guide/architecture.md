@@ -36,6 +36,7 @@ actuator update
 user hook
 telemetry tick
 debug prints
+configurator poll
 LED tick
 regulate to the loop period
 ```
@@ -66,6 +67,7 @@ src/telemetry/         SD card logger
 src/params/            parameter registry and live tuning
 src/storage/           flash persistence
 src/user_hook/         user extension hook
+src/cli/               configurator serial command interface
 src/hal/               hardware abstraction layer
 src/libs/              datasheet-derived chip and protocol drivers
 src/boards/            per-board pin maps
@@ -79,8 +81,9 @@ through per-module accessor functions rather than shared globals.
 The hardware abstraction layer separates the firmware logic from per-target
 input and output. `src/hal/Hal.h` is a transport-agnostic API. The native
 implementation under `src/hal/native/` drives real hardware: the I2C bus, the
-PIO state machine for SBUS, the OneShot125 emit, and the servo PWM. A second
-implementation for a simulation target is scaffolded but not yet built. The
+PIO state machine for SBUS, the OneShot125 emit, and the servo PWM. A simulated
+implementation under `src/hal/sim/` backs the SITL build target, which compiles
+the firmware logic as a host executable. That host build lives in `sitl/`. The
 build target is a compile-time selector in `Config.h`.
 
 The chip drivers in `src/libs/` are written from datasheets. The sensor

@@ -36,6 +36,16 @@ Hardware selection and every tunable constant live in
 [`src/Config.h`](src/Config.h). See
 [docs/reference/config-options.md](docs/reference/config-options.md).
 
+## Companion tools
+
+- **Configurator.** A browser-based setup tool in `configurator/`. Over
+  USB it edits the parameter registry, shows live telemetry, decodes
+  binary flight logs, and flashes firmware. See
+  [configurator/README.md](configurator/README.md).
+- **SITL host build.** The firmware logic compiles and runs as a native
+  host executable against a simulated HAL, for development and testing
+  off the hardware. See [sitl/README.md](sitl/README.md).
+
 ## Repository layout
 
 ```
@@ -62,6 +72,7 @@ src/
 docs/             Documentation
 tools/            Host-side log decoder and analyzer
 configurator/     Browser-based setup tool (Web Serial)
+sitl/             Host build of the firmware (SITL target)
 ```
 
 ## Airframes

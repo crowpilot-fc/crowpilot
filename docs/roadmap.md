@@ -25,8 +25,10 @@ The first acceptance airframe is a 3D-printed tailsitter bicopter sized for two 
 - Tailsitter bicopter mixer.
 - OneShot125 ESC bit-bang, 50 Hz servo PWM, arm logic, throttle cut, ESC calibration.
 - SD card binary telemetry logger plus host-side CSV decoder (`tools/decode_log.py`).
-- HAL boundary (native and sim placeholders for SITL/HIL).
+- HAL boundary with a native implementation and a simulated implementation for the SITL build.
 - Public documentation pass (`docs/` tree).
+- The CrowPilot Configurator, a browser-based setup tool (parameter editor, live telemetry, log viewer, firmware flashing) and the `cp` serial command interface it speaks.
+- SITL host build: the firmware logic compiled and run as a host executable against the simulated HAL.
 
 **In progress.**
 
@@ -36,7 +38,7 @@ The first acceptance airframe is a 3D-printed tailsitter bicopter sized for two 
 **Next.**
 
 - Bench verification (one-shot, all phases) on the reference build per [docs/getting-started/first-bench-test.md](getting-started/first-bench-test.md).
-- SITL hover validation, then HIL hover validation. Both depend on the SCRC protocol being finalized in the cross-project coordination repo.
+- Closed-loop SITL hover validation. The SITL host build exists. What remains is a physics model driving the simulated HAL, so the control law can be exercised before flight. HIL validation depends on the SCRC protocol and the external host runtime.
 - Tethered hover (v1.0 acceptance flight).
 
 **Later.**
