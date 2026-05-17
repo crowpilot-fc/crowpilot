@@ -55,15 +55,19 @@
 // ===========================================================================
 // Build target
 // ===========================================================================
-// Selects the HAL implementation. NATIVE drives real hardware. HIL and
-// SITL are scaffolded for a future simulation path and are not yet
-// implemented.
+// Selects the HAL implementation. NATIVE drives real hardware. SITL
+// builds the firmware as a host binary against the simulated HAL in
+// src/hal/sim/. HIL is scaffolded and not yet implemented.
 
 #define BUILD_TARGET_NATIVE 0
 #define BUILD_TARGET_HIL    1
 #define BUILD_TARGET_SITL   2
 
+// The host SITL build sets BUILD_TARGET on the compiler command line.
+// The Arduino build leaves it undefined and gets the native default.
+#ifndef BUILD_TARGET
 #define BUILD_TARGET BUILD_TARGET_NATIVE
+#endif
 
 // ===========================================================================
 // Airframe

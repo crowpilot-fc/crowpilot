@@ -1,35 +1,38 @@
 <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
 <!-- Copyright (C) 2026 Nitin Kumar -->
 
-# Sim HAL implementations (placeholder)
+# Sim HAL implementations
 
-This directory will host the SITL and HIL implementations of the
-`cp::hal::*` API declared in `src/hal/Hal.h`. They are scaffolded but
-empty as of the Phase 12.5 HAL boundary refactor.
+The simulated implementations of the `cp::hal::*` API declared in
+`src/hal/Hal.h` and `src/hal/Led.h`. They are selected when
+`BUILD_TARGET` is `BUILD_TARGET_SITL` (or `BUILD_TARGET_HIL`); the
+native-hardware implementations in `src/hal/native/` are selected for
+`BUILD_TARGET_NATIVE`.
 
-The native-target implementations live in `src/hal/native/` and provide
-the same API surface against real hardware (Wire for I2C, Servo for
-PWM, PIO for SBUS receive, bit-banged OneShot125 for motor pulses).
+Each file wraps its body in
+`#if BUILD_TARGET == BUILD_TARGET_HIL || BUILD_TARGET == BUILD_TARGET_SITL`,
+so the normal Arduino build compiles them to nothing.
 
-Sim implementations land in Phase 12.7 per `internal-docs/DEVELOPMENT_PLAN.md`.
-Files planned:
+Files:
 
-- `ImuSim.cpp`. Reads SCRC `SENSOR_FRAME` and converts SI units (rad/s,
-  m/s²) to firmware-internal units (deg/s, g).
-- `BaroSim.cpp`. Reads SCRC `SENSOR_FRAME` and pulls pressure (Pa) and
-  temperature (°C).
-- `RxSim.cpp`. Reads SCRC `SENSOR_FRAME`'s RC channel values plus the
-  rc-loss flag (per `crowtalk/decisions/0004-rc-loss-flag-v2.md`).
-- `OutSim.cpp`. Accumulates motor and servo widths into an
-  `ACTUATOR_FRAME` sent back to Scarecrow each tick.
+- `ImuSim.cpp`. Scripted IMU sample.
+- `BaroSim.cpp`. Scripted barometer sample.
+- `RxSim.cpp`. Scripted receiver channels.
+- `OutSim.cpp`. Discards the actuator output.
+- `LedSim.cpp`. No-op status LED; a fatal init failure exits the process.
 
-Protocol authority is `Scarecrow's docs/protocol.md`; the mirror in
-`crowtalk/reference/PROTOCOL.md` is kept current by the Scarecrow side.
-See `internal-docs/SITL_INTEGRATION.md` for the CrowPilot-side spec.
+The host build that compiles these into a runnable executable lives in
+`sitl/`. See `sitl/README.md`.
 
-Build-target dispatch happens via `BUILD_TARGET` in `Config.h`. The
-native `.cpp` files wrap their bodies in
-`#if BUILD_TARGET == BUILD_TARGET_NATIVE`; the sim files (when they
-land) will wrap in `#if BUILD_TARGET == BUILD_TARGET_HIL ||
-BUILD_TARGET == BUILD_TARGET_SITL` so only one implementation links per
-build.
+## Current scope and the SCRC path
+
+These files presently feed **scripted, static sensor data** so the
+firmware can be compiled and run on a host. They do not yet model
+airframe dynamics.
+
+The originally planned design exchanged SCRC protocol frames over UDP
+with the external Scarecrow simulator. That path depends on the SCRC
+protocol spec and the Scarecrow runtime, which are not part of this
+repository. The self-contained host build was implemented instead. A
+physics model, and later the SCRC transport, can be added behind the
+same HAL API without touching the firmware logic.
