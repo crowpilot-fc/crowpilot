@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 //
-// Simulated receiver HAL for the SITL host build. Scripts a steady,
-// disarmed, level stick input. A later physics phase will script stick
-// sequences (arm, throttle up, transition) to exercise the controller.
+// Simulated receiver HAL for closed-loop SITL. Scripts a pilot that
+// holds level sticks, lets the estimator settle disarmed, auto-arms at
+// throttle minimum, then steps to hover throttle. The controller is
+// then on its own to correct the attitude offset SimPhysics starts in.
 
 #include "src/hal/Hal.h"
 
@@ -15,18 +16,36 @@
 
 namespace cp::hal {
 
+namespace {
+uint32_t s_tick = 0;
+}  // anonymous namespace
+
 bool rx_init() {
+  s_tick = 0;
   return true;
 }
 
 void rx_poll(RxState& out) {
+  ++s_tick;
   out = {};
   for (uint8_t i = 0; i < 16; ++i) {
-    out.channel_us[i] = 1500;
+    out.channel_us[i] = 1500;  // roll, pitch, yaw sticks centred
   }
-  out.channel_us[0] = 1000;  // throttle stick at minimum
-  out.channel_us[4] = 2000;  // ch5 high: throttle cut, aircraft disarmed
-  out.channel_us[5] = 2000;  // ch6 high: hover end of the transition
+  out.channel_us[5] = 2000;  // ch6 high: hover
+
+  const uint32_t arm_tick   = LOOP_HZ / 2;  // 0.5 s: settle disarmed
+  const uint32_t hover_tick = LOOP_HZ;      // 1.0 s: step to hover
+  if (s_tick < arm_tick) {
+    out.channel_us[0] = 1000;  // throttle minimum
+    out.channel_us[4] = 2000;  // ch5 high: disarmed
+  } else if (s_tick < hover_tick) {
+    out.channel_us[0] = 1000;  // throttle still minimum, so auto-arm runs
+    out.channel_us[4] = 1000;  // ch5 low: arm
+  } else {
+    out.channel_us[0] = 1500;  // hover throttle
+    out.channel_us[4] = 1000;  // armed
+  }
+
   out.channels_valid = true;
   out.last_frame_us  = micros();
 }

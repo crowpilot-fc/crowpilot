@@ -14,15 +14,26 @@ host shim in `arduino_shim/`.
 
 ## Status
 
-This is the **host-build checkpoint**. The firmware compiles and runs on
-the host, the 1 kHz superloop ticks, every module initialises and runs,
-and the attitude estimator converges. The simulated HAL feeds **scripted
-sensor data**: a static aircraft in the nose-up hover attitude, sticks
-disarmed and centred.
+The SITL build is **closed-loop**. A rigid-body model (`SimPhysics`)
+integrates the tailsitter's rotational dynamics from the controller's
+actuator output and feeds the resulting motion back as IMU samples, so
+the firmware flies a simulated aircraft.
 
-It is not yet a closed-loop simulation. A physics model that integrates
-the airframe dynamics from the controller's actuator output, and feeds
-the result back as sensor data, is the next step.
+The scripted scenario arms the aircraft at hover throttle with a 15
+degree pitch tilt. The controller rights it: the tilt converges to level
+within one to two seconds and holds there, with the body rates settling
+to zero. Each simulated second the run prints a `SIM` line with the
+model's ground-truth tilt and body rates.
+
+What it does and does not show. The model demonstrates that the control
+loop is structurally sound and stabilizes a plausible plant: the
+estimator tracks, the PID responds without saturating, and the loop
+converges. It does **not** validate the tuning against the real
+aircraft. The inertia and actuator-effectiveness constants in
+`SimPhysics` are plausible estimates for a 1 kg tailsitter, not measured
+values, and the actuator sign conventions were set empirically to close
+the loop. The model covers rotational dynamics only, not translation or
+altitude.
 
 ## Building and running
 
@@ -51,6 +62,7 @@ sitl/
 src/hal/sim/
   ImuSim.cpp BaroSim.cpp RxSim.cpp OutSim.cpp LedSim.cpp
                       The simulated HAL, selected by BUILD_TARGET_SITL
+  SimPhysics.cpp      Rigid-body model the sim HAL closes the loop through
 ```
 
 The build is selected by `-DBUILD_TARGET=BUILD_TARGET_SITL`, which

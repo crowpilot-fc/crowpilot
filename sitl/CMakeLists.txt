@@ -24,12 +24,13 @@ add_executable(crowpilot_sitl
   ${CMAKE_CURRENT_SOURCE_DIR}/SimStorage.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/SimTelemetry.cpp
 
-  # Simulated HAL.
+  # Simulated HAL and the rigid-body model behind it.
   ${REPO_ROOT}/src/hal/sim/ImuSim.cpp
   ${REPO_ROOT}/src/hal/sim/BaroSim.cpp
   ${REPO_ROOT}/src/hal/sim/RxSim.cpp
   ${REPO_ROOT}/src/hal/sim/OutSim.cpp
   ${REPO_ROOT}/src/hal/sim/LedSim.cpp
+  ${REPO_ROOT}/src/hal/sim/SimPhysics.cpp
 
   # Firmware logic, identical to the Arduino build.
   ${REPO_ROOT}/src/core/Loop.cpp

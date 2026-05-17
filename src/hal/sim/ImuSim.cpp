@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 //
-// Simulated IMU HAL for the SITL host build. The host-build checkpoint
-// scripts a level, static aircraft. A later physics phase will replace
-// the scripted sample with one derived from the simulated dynamics.
+// Simulated IMU HAL for closed-loop SITL. The gyro and accelerometer
+// samples are read back from the rigid-body model in SimPhysics, which
+// OutSim drives from the controller's actuator output. The loop closes
+// here: controller -> mixer -> OutSim -> physics -> ImuSim -> estimator.
 
 #include "src/hal/Hal.h"
 
@@ -11,25 +12,21 @@
 
 #if BUILD_TARGET == BUILD_TARGET_HIL || BUILD_TARGET == BUILD_TARGET_SITL
 
+#include "src/hal/sim/SimPhysics.h"
+
 namespace cp::hal {
 
 bool imu_init() {
+  cp::sim::physics_init();
   return true;
 }
 
 bool imu_read(ImuSample& out) {
-  // Static, in the nose-up hover attitude a tailsitter rests in. Gravity
-  // reaction acts along the body x-axis, which points up in hover, so
-  // accel reads +1 g on x and the gyro reads zero. The raw register
-  // fields stay zero; the SITL build does not run the telemetry logger,
-  // their only consumer.
+  // The raw register fields stay zero; the SITL build does not run the
+  // telemetry logger, their only consumer.
   out = {};
-  out.ax_g   = 1.0f;
-  out.ay_g   = 0.0f;
-  out.az_g   = 0.0f;
-  out.gx_dps = 0.0f;
-  out.gy_dps = 0.0f;
-  out.gz_dps = 0.0f;
+  cp::sim::physics_accel_g(out.ax_g, out.ay_g, out.az_g);
+  cp::sim::physics_gyro_dps(out.gx_dps, out.gy_dps, out.gz_dps);
   out.temp_c = 25.0f;
   return true;
 }

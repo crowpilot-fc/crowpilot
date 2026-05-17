@@ -15,24 +15,28 @@ so the normal Arduino build compiles them to nothing.
 
 Files:
 
-- `ImuSim.cpp`. Scripted IMU sample.
-- `BaroSim.cpp`. Scripted barometer sample.
-- `RxSim.cpp`. Scripted receiver channels.
-- `OutSim.cpp`. Discards the actuator output.
-- `LedSim.cpp`. No-op status LED; a fatal init failure exits the process.
+- `ImuSim.cpp`. IMU sample read back from the rigid-body model.
+- `BaroSim.cpp`. Fixed sea-level barometer sample.
+- `RxSim.cpp`. Scripted receiver channels: arm and hold hover.
+- `OutSim.cpp`. Feeds the actuator commands to the model and steps it.
+- `LedSim.cpp`. No-op status LED. A fatal init failure exits the process.
+- `SimPhysics.cpp`. Rotational rigid-body model of the tailsitter.
 
 The host build that compiles these into a runnable executable lives in
 `sitl/`. See `sitl/README.md`.
 
 ## Current scope and the SCRC path
 
-These files presently feed **scripted, static sensor data** so the
-firmware can be compiled and run on a host. They do not yet model
-airframe dynamics.
+The sim HAL is closed-loop. `OutSim` feeds the controller's actuator
+output into `SimPhysics`, which integrates the tailsitter's rotational
+dynamics, and `ImuSim` reads the resulting attitude back, so the
+firmware flies a simulated aircraft. `SimPhysics` models attitude
+dynamics only, with plausible-estimate airframe constants. See
+`sitl/README.md` for what the model does and does not validate.
 
 The originally planned design exchanged SCRC protocol frames over UDP
 with the external Scarecrow simulator. That path depends on the SCRC
 protocol spec and the Scarecrow runtime, which are not part of this
-repository. The self-contained host build was implemented instead. A
-physics model, and later the SCRC transport, can be added behind the
-same HAL API without touching the firmware logic.
+repository. The self-contained host build was implemented instead. The
+SCRC transport can later be added behind the same HAL API without
+touching the firmware logic.
