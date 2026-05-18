@@ -106,10 +106,22 @@ void doSave() {
 }
 
 void doLoad() {
+  // Reloading flash params swaps every control gain at once. Rejected
+  // while armed, like cp save and cp boot.
+  if (cp::actuators::arm_state() == cp::actuators::ArmState::ARMED) {
+    reply("err armed");
+    return;
+  }
   reply(cp::params::load() ? "ok loaded" : "err persist");
 }
 
 void doDefaults() {
+  // Resetting to defaults swaps every control gain at once. Rejected
+  // while armed.
+  if (cp::actuators::arm_state() == cp::actuators::ArmState::ARMED) {
+    reply("err armed");
+    return;
+  }
   const int count = static_cast<int>(cp::params::PARAM_COUNT);
   for (int i = 0; i < count; ++i) {
     const cp::params::ParamId pid = static_cast<cp::params::ParamId>(i);
