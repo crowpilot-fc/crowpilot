@@ -37,6 +37,12 @@ constexpr float kArmThrottleMaxNorm =
 ArmState     s_arm    = ArmState::NOT_ARMED;
 LatestPulses s_pulses = {};
 
+// True once the arm switch has been seen in the disarm position since
+// boot. Arming is refused until then, so a board powered up with the
+// switch already in the arm position cannot arm without a deliberate
+// disarm-to-arm transition by the pilot.
+bool s_arm_ready = false;
+
 float clampf(float v, float lo, float hi) {
   if (v < lo) {
     return lo;
@@ -53,7 +59,7 @@ uint16_t motorPulseUs(float command) {
   const float c = clampf(command, 0.0f, 1.0f);
   const float span = static_cast<float>(ESC_MAX_PULSE_US - ESC_IDLE_PULSE_US);
   return static_cast<uint16_t>(static_cast<float>(ESC_IDLE_PULSE_US) +
-                               c * span);
+                               c * span + 0.5f);
 }
 
 // Normalized servo command [0, 1] to a servo PWM pulse width.
@@ -61,14 +67,15 @@ uint16_t servoPulseUs(float command) {
   const float c = clampf(command, 0.0f, 1.0f);
   const float span = static_cast<float>(SERVO_MAX_US - SERVO_MIN_US);
   return static_cast<uint16_t>(static_cast<float>(SERVO_MIN_US) +
-                               c * span);
+                               c * span + 0.5f);
 }
 
 }  // anonymous namespace
 
 void init() {
-  s_arm    = ArmState::NOT_ARMED;
-  s_pulses = LatestPulses{};
+  s_arm       = ArmState::NOT_ARMED;
+  s_arm_ready = false;
+  s_pulses    = LatestPulses{};
   cp::hal::out_init();
 }
 
@@ -76,12 +83,15 @@ void update(const cp::airframes::Output& mix,
             float throttle_norm,
             uint16_t ch5_us) {
   // Arm state machine. Disarm is unconditional. Arming needs the switch
-  // in the arm position, the aircraft currently disarmed, and the
-  // throttle at idle.
+  // in the arm position, the aircraft currently disarmed, the throttle
+  // at idle, and the switch to have been seen in the disarm position at
+  // least once since boot, so a power-up with the switch already armed
+  // cannot arm without a deliberate switch transition.
   const bool switch_in_arm_position = ch5_us < kArmSwitchThresholdUs;
   if (!switch_in_arm_position) {
-    s_arm = ArmState::NOT_ARMED;
-  } else if (s_arm == ArmState::NOT_ARMED &&
+    s_arm       = ArmState::NOT_ARMED;
+    s_arm_ready = true;
+  } else if (s_arm == ArmState::NOT_ARMED && s_arm_ready &&
              throttle_norm <= kArmThrottleMaxNorm) {
     s_arm = ArmState::ARMED;
   }

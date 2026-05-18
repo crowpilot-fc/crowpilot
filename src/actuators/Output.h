@@ -14,9 +14,10 @@
 //
 // Safety. The boot state is NOT_ARMED and motor pulses go out at
 // `ESC_DISARM_PULSE_US`, the motor-stopped width, so the motors do not
-// spin. Arming requires both ch5 LOW (< 1500 us) AND the
-// throttle stick at idle (raw <= ARM_THROTTLE_MAX_US, default 1050 us).
-// ch5 HIGH always disarms regardless of throttle.
+// spin. Arming requires ch5 LOW (< 1500 us), the throttle stick at idle
+// (<= ARM_THROTTLE_MAX_US, default 1050 us), and the arm switch to have
+// been seen in the disarm position at least once since boot. ch5 HIGH
+// always disarms regardless of throttle.
 //
 // See SPEC.md §5.12 and ALGORITHMS.md §7, §10.
 
