@@ -3,7 +3,7 @@
 
 # CrowPilot
 
-An open-source flight controller firmware for the Raspberry Pi RP2350. It flies a 3D-printed tailsitter VTOL bicopter today, and is built to grow into fixed-wing planes and GPS-aware flight.
+An open-source flight controller firmware for the Raspberry Pi RP2350. It supports a 3D-printed tailsitter VTOL bicopter and fixed-wing planes, with the DHC-4 Caribou twin-engine plane as the current first-flight bring-up airframe. It is built to grow into GPS-aware flight.
 
 ## Status
 

@@ -7,6 +7,8 @@ CrowPilot ships in versioned releases. Each release has a defined acceptance air
 
 This page tracks scope, not dates. Items in **complete** have landed on main. Items in **in progress** are actively under work. Items in **next** are queued for the current release. Items in **later** are scoped but unscheduled.
 
+**Note (May 2026).** The DHC-4 Caribou twin-engine plane is the active first-flight bring-up airframe, and the firmware currently ships configured for it. The version milestones below predate that decision; the airframe sequencing will be revisited once the Caribou has flown.
+
 ## v1.0: Tailsitter bicopter (Eclipson E-VTOL-1 reference)
 
 The first acceptance airframe is a 3D-printed tailsitter bicopter sized for two small brushless motors and two elevon servos.

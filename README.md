@@ -4,9 +4,9 @@
 # CrowPilot
 
 CrowPilot is an open-source flight controller firmware for the Raspberry Pi
-RP2350 microcontroller. It is a single Arduino sketch. The reference aircraft
-is a 3D-printed tailsitter VTOL bicopter. The firmware also targets fixed-wing
-planes.
+RP2350 microcontroller. It is a single Arduino sketch. It supports a 3D-printed
+tailsitter VTOL bicopter and fixed-wing planes, selected at compile time. The
+current first-flight bring-up airframe is the DHC-4 Caribou twin-engine plane.
 
 ## Status
 
@@ -23,7 +23,8 @@ can cause serious injury.
 - Reference board: Waveshare RP2350-Tiny. Alternate: WeAct RP2350A_V10.
 - Sensors: MPU-6500 or MPU-6050 IMU, optional BMP388 or BMP280 barometer, all
   on I2C0. SBUS receiver decoded by an RP2350 PIO state machine.
-- Actuators: OneShot125 ESCs and standard servo PWM. SD card telemetry.
+- Actuators: ESCs driven by OneShot125 or standard 1000-2000 us PWM
+  (selectable via `MOTOR_PROTOCOL`), and standard servo PWM. SD card telemetry.
 
 ## Building
 
@@ -80,10 +81,11 @@ sitl/             Host build of the firmware (SITL target)
 The airframe is a compile-time selector. The mixer is the per-airframe piece.
 The rest of the stack is shared.
 
-- Tailsitter bicopter. Two motors, two elevons. Hovers nose-up and
-  transitions to forward flight. This is the v1.0 reference airframe.
 - Twin-engine cargo plane and single-engine plane, driven by the fixed-wing
-  stabilization subsystem.
+  stabilization subsystem. The DHC-4 Caribou twin-engine plane is the current
+  first-flight bring-up airframe.
+- Tailsitter bicopter. Two motors, two elevons. Hovers nose-up and
+  transitions to forward flight.
 
 ## Documentation
 
