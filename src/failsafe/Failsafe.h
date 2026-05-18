@@ -12,15 +12,15 @@
 // and exposes a per-channel snapshot that downstream consumers read instead
 // of the raw receiver channels:
 //
-//   1. Any RC channel outside [800, 2200] us.
+//   1. Any RC channel outside [880, 2159] us, the valid SBUS decode range.
 //   2. The SBUS protocol-level failsafe flag is set.
 //   3. No fresh frame seen for more than 100 ms.
 //
 // When any trigger is true the module sets active, records the entry time,
-// and replaces the channel snapshot with Config.h defaults that drive a
-// gentle nose-up descent on the tailsitter (low throttle, centered sticks,
-// hover-mode fader). When all triggers clear the module exits failsafe and
-// the raw receiver channels pass through.
+// and replaces the channel snapshot with the Config.h FS_CH* defaults that
+// drive a gentle descent: low throttle and centered control sticks. When
+// all triggers clear the module exits failsafe and the raw receiver
+// channels pass through.
 
 namespace cp::failsafe {
 

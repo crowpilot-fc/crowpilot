@@ -24,8 +24,9 @@
 // both this hook and live tuning should remap one side or the other.
 //
 // Pins. The Caribou airframe claims the motor, servo, I2C, SD, SBUS, LED,
-// and companion pins. The pins below are free on the Waveshare RP2350-Tiny
-// for this airframe. Writes to a claimed pin are ignored with a warning.
+// and companion pins. The pins below are free for this airframe on both
+// supported boards (Waveshare RP2350-Tiny and WeAct RP2350A_V10). Writes
+// to a claimed pin are ignored with a warning.
 
 #include <Servo.h>
 

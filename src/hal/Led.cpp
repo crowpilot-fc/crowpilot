@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Nitin Kumar
 
-#include <Arduino.h>
-
 #include "src/Config.h"
 #include "src/hal/Led.h"
+
+#if BUILD_TARGET == BUILD_TARGET_NATIVE
+
+#include <Arduino.h>
 
 namespace cp::hal {
 
@@ -50,3 +52,5 @@ void led_tick(uint32_t t_now_us) {
 }
 
 }  // namespace cp::hal
+
+#endif  // BUILD_TARGET == BUILD_TARGET_NATIVE
