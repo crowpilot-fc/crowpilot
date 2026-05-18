@@ -32,13 +32,26 @@ bool     s_have_baseline   = false;
 float    s_ground_pressure = 0.0f;
 uint32_t s_tick_count      = 0;
 
+// Baseline settling. The BMP IIR filter takes several samples to
+// converge after power-up, so the first plausible reading is still
+// drifting. Discard the first reads, then average a few, before locking
+// the ground-pressure reference.
+constexpr uint8_t kBaselineSkip    = 8;
+constexpr uint8_t kBaselineSamples = 8;
+uint8_t  s_baseline_skipped = 0;
+uint8_t  s_baseline_count   = 0;
+float    s_baseline_accum   = 0.0f;
+
 }  // anonymous namespace
 
 bool init() {
-  s_latest        = {};
-  s_healthy       = false;
-  s_have_baseline = false;
-  s_tick_count    = 0;
+  s_latest           = {};
+  s_healthy          = false;
+  s_have_baseline    = false;
+  s_tick_count       = 0;
+  s_baseline_skipped = 0;
+  s_baseline_count   = 0;
+  s_baseline_accum   = 0.0f;
 
   if (!cp::hal::baro_init()) {
     return false;
@@ -66,13 +79,21 @@ bool read() {
     return false;
   }
 
-  // Capture the ground-pressure baseline only from a plausible reading.
-  // The first read after init can land before the chip has finished a
-  // conversion and return a near-zero pressure. Taking that as the
-  // baseline would corrupt every later altitude.
+  // Capture the ground-pressure baseline. Only plausible readings count:
+  // a sub-30 kPa value means the chip has not produced a real sample
+  // yet. The first plausible reads are still settling through the IIR
+  // filter, so they are skipped and the next few are averaged.
   if (!s_have_baseline && h.pressure_pa > kMinValidPressurePa) {
-    s_ground_pressure = h.pressure_pa;
-    s_have_baseline   = true;
+    if (s_baseline_skipped < kBaselineSkip) {
+      ++s_baseline_skipped;
+    } else {
+      s_baseline_accum += h.pressure_pa;
+      if (++s_baseline_count >= kBaselineSamples) {
+        s_ground_pressure =
+            s_baseline_accum / static_cast<float>(kBaselineSamples);
+        s_have_baseline = true;
+      }
+    }
   }
 
   float altitude_m = 0.0f;

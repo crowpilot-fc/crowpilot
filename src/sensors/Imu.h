@@ -46,8 +46,8 @@ bool read();
 // last seen.
 const Sample& latest();
 
-// True once init has succeeded and read has not seen a transient failure
-// since.
+// True once init has succeeded. A single failed read does not clear it;
+// health drops only after several consecutive read failures.
 bool is_healthy();
 
 }  // namespace cp::sensors::imu

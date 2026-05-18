@@ -15,6 +15,11 @@ namespace {
 Sample s_latest  = {};
 bool   s_healthy = false;
 
+// A single transient I2C NAK should not flip the IMU unhealthy. Health
+// drops only after this many consecutive failed reads.
+constexpr uint8_t kMaxConsecFailures = 3;
+uint8_t s_consec_failures = 0;
+
 }  // anonymous namespace
 
 bool init() {
@@ -22,8 +27,9 @@ bool init() {
     s_healthy = false;
     return false;
   }
-  s_latest  = {};
-  s_healthy = true;
+  s_latest          = {};
+  s_healthy         = true;
+  s_consec_failures = 0;
   return true;
 }
 
@@ -31,7 +37,12 @@ bool read() {
   cp::hal::ImuSample h;
   if (!cp::hal::imu_read(h)) {
     s_latest.valid = false;
-    s_healthy      = false;
+    if (s_consec_failures < kMaxConsecFailures) {
+      ++s_consec_failures;
+    }
+    if (s_consec_failures >= kMaxConsecFailures) {
+      s_healthy = false;
+    }
     return false;
   }
 
@@ -60,6 +71,7 @@ bool read() {
   s_latest.timestamp_us = micros();
   s_latest.valid        = true;
   s_healthy             = true;
+  s_consec_failures     = 0;
   return true;
 }
 
