@@ -9,7 +9,6 @@ namespace {
 
 constexpr uint8_t kFrameSize  = 25;
 constexpr uint8_t kHeaderByte = 0x0F;
-constexpr uint8_t kFooterByte = 0x00;
 
 uint8_t  s_buffer[kFrameSize];
 uint8_t  s_buffer_len      = 0;
@@ -95,7 +94,13 @@ bool feed(uint8_t byte, DecodedFrame& out) {
   }
 
   s_buffer_len = 0;
-  if (s_buffer[kFrameSize - 1] != kFooterByte) {
+  // End byte. A standard SBUS1 frame ends in 0x00. SBUS2 receivers send
+  // a non-zero end byte (0x04, 0x14, 0x24, 0x34, low nibble 0x4) to
+  // carry telemetry-slot information. Accept both, otherwise an SBUS2
+  // receiver looks like an unbroken run of lost frames and trips the
+  // link-loss failsafe.
+  const uint8_t end_byte = s_buffer[kFrameSize - 1];
+  if (end_byte != 0x00 && (end_byte & 0x0F) != 0x04) {
     ++s_lost_frame_count;
     return false;
   }
