@@ -4,6 +4,7 @@
 #include "src/core/Loop.h"
 
 #include <Arduino.h>
+#include <stdio.h>
 
 #include "src/Config.h"
 #include "src/actuators/EscCalibrate.h"
@@ -252,9 +253,9 @@ void debugOutput() {
 #endif
 
 #if ENABLE_CONFIG_CLI
-  // Configurator live telemetry. Emitted only while the configurator has
-  // issued "cp stream on". The cp prefix keeps it distinct from the
-  // DEBUG_PRINT_* lines that may share the port. Fields, space-separated:
+  // Configurator live telemetry. Emitted only while a channel has issued
+  // "cp stream on", and sent to whichever channel asked (USB or the
+  // companion UART). Fields, space-separated:
   // roll pitch yaw armed failsafe mode loop_us ch1..ch6.
   if (cp::cli::streaming() &&
       (s_tick_count % DEBUG_STREAM_INTERVAL_TICKS) == 0) {
@@ -262,26 +263,20 @@ void debugOutput() {
         cp::estimation::attitude::eulerForwardFlight();
     const cp::failsafe::State& fs = cp::failsafe::state();
     const uint16_t*            ch = cp::failsafe::channels().ch_us;
-    Serial.print("cp tlm ");
-    Serial.print(att.roll_deg, 1);
-    Serial.print(' ');
-    Serial.print(att.pitch_deg, 1);
-    Serial.print(' ');
-    Serial.print(att.yaw_deg, 1);
-    Serial.print(' ');
-    Serial.print(cp::actuators::arm_state() == cp::actuators::ArmState::ARMED
-                     ? 1 : 0);
-    Serial.print(' ');
-    Serial.print(fs.active ? 1 : 0);
-    Serial.print(' ');
-    Serial.print(modeName(cp::modes::mode()));
-    Serial.print(' ');
-    Serial.print(s_loop_period_us);
-    for (uint8_t i = 0; i < 6; ++i) {
-      Serial.print(' ');
-      Serial.print(ch[i]);
-    }
-    Serial.println();
+    const bool armed =
+        cp::actuators::arm_state() == cp::actuators::ArmState::ARMED;
+    char roll[12], pitch[12], yaw[12];
+    dtostrf(att.roll_deg,  0, 1, roll);
+    dtostrf(att.pitch_deg, 0, 1, pitch);
+    dtostrf(att.yaw_deg,   0, 1, yaw);
+    char line[128];
+    snprintf(line, sizeof(line),
+             "cp tlm %s %s %s %d %d %s %lu %d %d %d %d %d %d",
+             roll, pitch, yaw, armed ? 1 : 0, fs.active ? 1 : 0,
+             modeName(cp::modes::mode()),
+             static_cast<unsigned long>(s_loop_period_us),
+             ch[0], ch[1], ch[2], ch[3], ch[4], ch[5]);
+    cp::cli::emit_telemetry(line);
   }
 #endif
 }

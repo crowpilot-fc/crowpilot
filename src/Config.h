@@ -267,10 +267,15 @@ constexpr uint32_t TELEMETRY_LOG_MAX_BYTES = 16u * 1024u * 1024u;  // 16 MiB.
 // ENABLE_CONFIG_CLI adds the serial command interface the browser-based
 // configurator speaks. It is a bench tool. A flight-only build can drop
 // it to save code space.
+//
+// ENABLE_COMPANION_CLI also runs that interface on the companion UART
+// (PIN_COMPANION_TX / PIN_COMPANION_RX), so an ESP WiFi module can bridge
+// it to a phone. Native builds only; shares the UART with a future GPS.
 
 #define ENABLE_PARAM_PERSIST 1
 #define ENABLE_LIVE_TUNE     1
 #define ENABLE_CONFIG_CLI    1
+#define ENABLE_COMPANION_CLI 1
 
 namespace cp {
 
