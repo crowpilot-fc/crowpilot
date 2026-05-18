@@ -49,8 +49,12 @@ namespace {
 constexpr uint32_t kLoopPeriodUs = 1000000UL / LOOP_HZ;
 
 uint32_t s_last_tick_us   = 0;
-uint32_t s_loop_period_us = 0;
+uint32_t s_loop_period_us = kLoopPeriodUs;
 uint32_t s_tick_count     = 0;
+
+// Count of ticks whose work exceeded the loop period, so the regulator
+// could not pad them to the nominal rate.
+uint32_t s_overrun_count = 0;
 
 // Loop-period statistics, accumulated for the 1 Hz DEV report.
 uint32_t s_period_sum   = 0;
@@ -86,6 +90,8 @@ void debugOutput() {
     Serial.print(s_period_sum / s_period_count);
     Serial.print(" max=");
     Serial.print(s_period_max);
+    Serial.print(" overruns=");
+    Serial.print(s_overrun_count);
     Serial.print(" (over ");
     Serial.print(s_period_count);
     Serial.println(" iter)");
@@ -375,8 +381,8 @@ void init() {
 void tick() {
   const uint32_t tick_start_us = micros();
 
-  // Measure the loop period: the interval since the previous tick.
-  // Zero on the first tick, before a delta has been captured.
+  // Measure the loop period: the interval since the previous tick. The
+  // first tick keeps the nominal seed value, before a delta exists.
   if (s_last_tick_us != 0) {
     s_loop_period_us = tick_start_us - s_last_tick_us;
   }
@@ -468,8 +474,12 @@ void tick() {
   cp::hal::led_tick(tick_start_us);
   ++s_tick_count;
 
-  // Regulate to the loop period. An overrun simply starts the next
-  // tick late; the period measurement records it.
+  // Regulate to the loop period. If the tick's work already exceeded the
+  // period the regulator cannot pad it: count the overrun, and the next
+  // tick simply starts late.
+  if ((micros() - tick_start_us) >= kLoopPeriodUs) {
+    ++s_overrun_count;
+  }
   while ((micros() - tick_start_us) < kLoopPeriodUs) {
     // Spin until the next tick is due.
   }
@@ -477,6 +487,10 @@ void tick() {
 
 uint32_t last_loop_period_us() {
   return s_loop_period_us;
+}
+
+uint32_t loop_overrun_count() {
+  return s_overrun_count;
 }
 
 }  // namespace cp::core

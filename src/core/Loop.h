@@ -21,4 +21,8 @@ void tick();
 // carries the per-iteration period rather than the 1-second average.
 uint32_t last_loop_period_us();
 
+// Count of ticks since boot whose work exceeded the loop period. A
+// nonzero and growing value means the 1 kHz control rate is degraded.
+uint32_t loop_overrun_count();
+
 }  // namespace cp::core
