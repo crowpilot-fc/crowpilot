@@ -32,9 +32,11 @@ int main(int argc, char** argv) {
       float gy = 0.0f;
       float gz = 0.0f;
       cp::sim::physics_gyro_dps(gx, gy, gz);
-      printf("SIM  t=%lus  tilt=%.1f deg  rates=(%.1f,%.1f,%.1f) dps\n",
+      printf("SIM  t=%lus  roll=%.1f pitch=%.1f deg  "
+             "rates=(%.1f,%.1f,%.1f) dps\n",
              (i + 1) / 1000,
-             static_cast<double>(cp::sim::physics_tilt_deg()),
+             static_cast<double>(cp::sim::physics_roll_deg()),
+             static_cast<double>(cp::sim::physics_pitch_deg()),
              static_cast<double>(gx), static_cast<double>(gy),
              static_cast<double>(gz));
     }

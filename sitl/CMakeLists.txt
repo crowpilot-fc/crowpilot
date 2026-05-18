@@ -30,7 +30,8 @@ add_executable(crowpilot_sitl
   ${REPO_ROOT}/src/hal/sim/RxSim.cpp
   ${REPO_ROOT}/src/hal/sim/OutSim.cpp
   ${REPO_ROOT}/src/hal/sim/LedSim.cpp
-  ${REPO_ROOT}/src/hal/sim/SimPhysics.cpp
+  ${REPO_ROOT}/src/hal/sim/SimPhysicsTailsitter.cpp
+  ${REPO_ROOT}/src/hal/sim/SimPhysicsPlane.cpp
 
   # Firmware logic, identical to the Arduino build.
   ${REPO_ROOT}/src/core/Loop.cpp

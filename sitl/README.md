@@ -14,26 +14,28 @@ host shim in `arduino_shim/`.
 
 ## Status
 
-The SITL build is **closed-loop**. A rigid-body model (`SimPhysics`)
-integrates the tailsitter's rotational dynamics from the controller's
-actuator output and feeds the resulting motion back as IMU samples, so
-the firmware flies a simulated aircraft.
+The SITL build is **closed-loop**. A rigid-body model integrates the
+aircraft's rotational dynamics from the controller's actuator output and
+feeds the resulting motion back as IMU samples, so the firmware flies a
+simulated aircraft. Two models satisfy the same interface, selected by
+`AIRFRAME`: `SimPhysicsPlane` for the fixed-wing airframes and
+`SimPhysicsTailsitter` for the tailsitter.
 
-The scripted scenario arms the aircraft at hover throttle with a 15
-degree pitch tilt. The controller rights it: the tilt converges to level
-within one to two seconds and holds there, with the body rates settling
-to zero. Each simulated second the run prints a `SIM` line with the
-model's ground-truth tilt and body rates.
+The live build targets the **DHC-4 Caribou twin-engine plane**, the
+project's first-flight airframe. The scripted scenario arms the plane at
+cruise throttle in an upset attitude, banked 20 degrees and pitched up
+12 degrees. The plane stabilizer rights it: roll and pitch converge to
+level within about one second and hold there, body rates settling to
+zero. Each simulated second the run prints a `SIM` line with the model's
+ground-truth roll, pitch, and body rates.
 
 What it does and does not show. The model demonstrates that the control
 loop is structurally sound and stabilizes a plausible plant: the
-estimator tracks, the PID responds without saturating, and the loop
-converges. It does **not** validate the tuning against the real
-aircraft. The inertia and actuator-effectiveness constants in
-`SimPhysics` are plausible estimates for a 1 kg tailsitter, not measured
-values, and the actuator sign conventions were set empirically to close
-the loop. The model covers rotational dynamics only, not translation or
-altitude.
+estimator tracks, the stabilizer responds, and the loop converges
+without oscillation. It does **not** validate the tuning against the
+real aircraft. The inertia and effectiveness constants are plausible
+estimates, not measured values, and the model covers rotational
+dynamics only, not translation, airspeed, or altitude.
 
 ## Building and running
 
@@ -47,7 +49,8 @@ cmake --build build
 ```
 
 `tick_count` defaults to 3000 (three seconds at the 1 kHz loop rate).
-The firmware's boot banner and `DEV` debug lines print to stdout.
+The firmware's boot banner and `DEV` debug lines print to stdout,
+interleaved with the `SIM` ground-truth line each simulated second.
 
 ## Layout
 
@@ -62,7 +65,8 @@ sitl/
 src/hal/sim/
   ImuSim.cpp BaroSim.cpp RxSim.cpp OutSim.cpp LedSim.cpp
                       The simulated HAL, selected by BUILD_TARGET_SITL
-  SimPhysics.cpp      Rigid-body model the sim HAL closes the loop through
+  SimPhysicsPlane.cpp       Fixed-wing rigid-body model
+  SimPhysicsTailsitter.cpp  Tailsitter rigid-body model
 ```
 
 The build is selected by `-DBUILD_TARGET=BUILD_TARGET_SITL`, which

@@ -8,13 +8,13 @@
 #include "src/airframes/Airframe.h"
 
 // Actuator output stage. Reads the mixer's per-actuator commands, applies
-// the arm/throttle-cut state machine to the motor pulses, and drives
-// OneShot125 ESC pulses on the motor pins plus standard 1000-2000 us
+// the arm/throttle-cut state machine to the motor pulses, and drives the
+// motor pins via the configured MOTOR_PROTOCOL plus standard 1000-2000 us
 // servo PWM on the servo pins.
 //
-// Safety. The boot state is NOT_ARMED and motor pulses go out at the
-// sub-valid `ESC_DISARM_PULSE_US` (120 us) so ESCs see "no signal" and
-// stay silent. Arming requires both ch5 LOW (< 1500 us) AND the
+// Safety. The boot state is NOT_ARMED and motor pulses go out at
+// `ESC_DISARM_PULSE_US`, the motor-stopped width, so the motors do not
+// spin. Arming requires both ch5 LOW (< 1500 us) AND the
 // throttle stick at idle (raw <= ARM_THROTTLE_MAX_US, default 1050 us).
 // ch5 HIGH always disarms regardless of throttle.
 //
@@ -42,10 +42,9 @@ void init();
 
 // One actuator step. Updates the arm-state machine from ch5 and the
 // throttle stick, computes the motor and servo pulse widths from the
-// mixer output, emits a synchronous OneShot125 burst (all motor pins
-// HIGH together, each falls at its scheduled time) and writes the
-// servo microsecond values. Motors emit the sub-valid disarm pulse
-// when NOT_ARMED. Servos respond regardless of arm state.
+// mixer output, emits the motor pulses via the configured protocol, and
+// writes the servo microsecond values. Motors emit the motor-stopped
+// disarm pulse when NOT_ARMED. Servos respond regardless of arm state.
 //
 // throttle_norm is from cp::control::desired::current().throttle.
 // ch5_us is the failsafe-effective ch5 microseconds.

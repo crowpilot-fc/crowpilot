@@ -7,18 +7,21 @@
 
 #if BUILD_TARGET == BUILD_TARGET_HIL || BUILD_TARGET == BUILD_TARGET_SITL
 
-// Rotational rigid-body model of the tailsitter, for closed-loop SITL.
-// The sim HAL drives it: OutSim feeds the actuator commands and steps it,
-// ImuSim reads the resulting attitude back as gyro and accelerometer
-// samples. It models attitude dynamics only, enough to exercise the
-// attitude control law. Translational motion and altitude are not
-// modelled. The airframe constants are plausible estimates for a 1 kg
-// tailsitter, not measured values.
+// Rigid-body model behind the closed-loop SITL. The sim HAL drives it:
+// OutSim feeds the actuator commands and steps it, ImuSim reads the
+// resulting attitude back as gyro and accelerometer samples. It models
+// rotational dynamics only, enough to exercise the attitude control law.
+// Translation and altitude are not modelled.
+//
+// Two implementations satisfy this API, selected by AIRFRAME:
+// SimPhysicsTailsitter.cpp for the tailsitter, SimPhysicsPlane.cpp for
+// the fixed-wing airframes. The airframe constants in each are plausible
+// estimates, not measured values.
 
 namespace cp::sim {
 
-// Reset the model to a near-hover attitude with a small offset, so the
-// controller has a disturbance to correct once it is armed.
+// Reset the model to its reference attitude with a small disturbance, so
+// the controller has something to correct once it is armed.
 void physics_init();
 
 // Latch one actuator's normalised command. Motor thrust is 0..1, servo
@@ -37,10 +40,11 @@ void physics_gyro_dps(float& gx, float& gy, float& gz);
 // is the gravity-up direction expressed in body axes, magnitude 1.
 void physics_accel_g(float& ax, float& ay, float& az);
 
-// Tilt of the body x-axis from world-up, degrees. Zero in true hover.
-// Ground truth for judging the controller: a converging loop drives the
-// tilt and the body rates toward zero.
-float physics_tilt_deg();
+// Ground-truth attitude for judging the controller: roll and pitch from
+// the reference attitude, degrees. A converging loop drives both, and
+// the body rates, toward zero.
+float physics_roll_deg();
+float physics_pitch_deg();
 
 }  // namespace cp::sim
 

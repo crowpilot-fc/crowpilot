@@ -42,7 +42,7 @@
 #define BOARD_WAVESHARE_RP2350_TINY 0
 #define BOARD_WEACT_RP2350A_V10     1
 
-#define BOARD BOARD_WAVESHARE_RP2350_TINY
+#define BOARD BOARD_WEACT_RP2350A_V10
 
 #if   BOARD == BOARD_WAVESHARE_RP2350_TINY
   #include "src/boards/waveshare_rp2350_tiny.h"
@@ -84,7 +84,7 @@
 #define AIRFRAME_TRICOPTER           5
 #define AIRFRAME_TAILSITTER_QUAD     6
 
-#define AIRFRAME AIRFRAME_TAILSITTER_BICOPTER
+#define AIRFRAME AIRFRAME_PLANE_TWIN_CARGO
 
 // ===========================================================================
 // IMU
@@ -290,7 +290,7 @@ constexpr float LIVE_TUNE_RANGE = 0.5f;
 // code compiles. Selecting a plane airframe requires ENABLE_PLANE_STAB
 // to be 1.
 
-#define ENABLE_PLANE_STAB      0
+#define ENABLE_PLANE_STAB      1
 #define ENABLE_ALT_HOLD        0
 #define ENABLE_DIFF_THRUST_YAW 0
 
@@ -328,20 +328,32 @@ constexpr float DIFF_THRUST_GAIN = 0.20f;
 // ===========================================================================
 // ESC, servo, and arming
 // ===========================================================================
-// Motors run the OneShot125 protocol: 125 us idle, 250 us full. The
-// disarm pulse sits below the valid range so a disarmed ESC sees no
-// signal and stays silent. Servos take standard 1000 to 2000 us hobby
-// PWM. Arming requires the throttle stick at or below
+// MOTOR_PROTOCOL selects how the motor pins are driven. ONESHOT125 is a
+// 125 to 250 us synchronous pulse, bit-banged once per loop tick. PWM is
+// standard 1000 to 2000 us hobby PWM at 50 Hz, the same signal a servo
+// takes, for ESCs that do not support OneShot. Servos always take
+// standard PWM. Arming requires the throttle stick at or below
 // ARM_THROTTLE_MAX_US. ESC calibration is a one-shot bench routine,
 // kept off for flight builds.
+
+#define MOTOR_PROTOCOL_ONESHOT125 0
+#define MOTOR_PROTOCOL_PWM        1
+
+#define MOTOR_PROTOCOL MOTOR_PROTOCOL_PWM
 
 #define ENABLE_ESC_CALIBRATION 0
 
 namespace cp {
 
+#if MOTOR_PROTOCOL == MOTOR_PROTOCOL_PWM
+constexpr uint16_t ESC_MAX_PULSE_US    = 2000; // Standard PWM full throttle.
+constexpr uint16_t ESC_IDLE_PULSE_US   = 1000; // Standard PWM zero throttle.
+constexpr uint16_t ESC_DISARM_PULSE_US = 1000; // Motor stopped when disarmed.
+#else
 constexpr uint16_t ESC_MAX_PULSE_US    = 250;  // OneShot125 full throttle.
 constexpr uint16_t ESC_IDLE_PULSE_US   = 125;  // OneShot125 zero throttle.
 constexpr uint16_t ESC_DISARM_PULSE_US = 120;  // Below valid range: no signal.
+#endif
 constexpr uint16_t ARM_THROTTLE_MAX_US = 1050; // Throttle-idle gate for arming.
 
 constexpr uint16_t SERVO_MIN_US = 1000;        // Servo PWM at command 0.

@@ -149,9 +149,10 @@ integral set. All ship provisional.
 
 | Option | Default | Meaning |
 |---|---|---|
+| `MOTOR_PROTOCOL` | `MOTOR_PROTOCOL_PWM` | Motor signal protocol. `MOTOR_PROTOCOL_ONESHOT125` is the 125-250 us synchronous burst. `MOTOR_PROTOCOL_PWM` is standard 1000-2000 us hobby PWM, for ESCs that do not support OneShot. |
 | `ENABLE_ESC_CALIBRATION` | `0` | When `1`, the boot ESC calibration routine runs and halts. |
-| `ESC_MAX_PULSE_US` / `ESC_IDLE_PULSE_US` | `250` / `125` | OneShot125 full and zero throttle. |
-| `ESC_DISARM_PULSE_US` | `120` | Disarmed motor pulse, below the valid range. |
+| `ESC_MAX_PULSE_US` / `ESC_IDLE_PULSE_US` | `2000` / `1000` | Motor full and zero throttle. Values depend on `MOTOR_PROTOCOL` (`250` / `125` for OneShot125). |
+| `ESC_DISARM_PULSE_US` | `1000` | Disarmed motor pulse. The motor-stopped width (`120` for OneShot125, below the valid range). |
 | `ARM_THROTTLE_MAX_US` | `1050` | Throttle-idle gate for arming. |
 | `SERVO_MIN_US` / `SERVO_MAX_US` | `1000` / `2000` | Servo PWM endpoints. |
 

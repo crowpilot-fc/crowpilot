@@ -18,10 +18,14 @@ namespace cp::hal {
 
 namespace {
 
-// OneShot125 motor pulse: 125 us is zero thrust, 250 us is full. The
-// sub-125 us disarm pulse clamps to zero.
+// Motor pulse to normalised thrust, using the configured ESC pulse
+// range so it tracks MOTOR_PROTOCOL. Idle is zero thrust, max is full.
+// A sub-idle disarm pulse clamps to zero.
 float motorNorm(uint16_t pulse_us) {
-  const float n = (static_cast<float>(pulse_us) - 125.0f) / 125.0f;
+  const float span =
+      static_cast<float>(ESC_MAX_PULSE_US - ESC_IDLE_PULSE_US);
+  const float n =
+      (static_cast<float>(pulse_us) - ESC_IDLE_PULSE_US) / span;
   return n < 0.0f ? 0.0f : (n > 1.0f ? 1.0f : n);
 }
 

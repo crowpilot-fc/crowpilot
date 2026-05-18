@@ -10,7 +10,8 @@
 
 #include "src/hal/sim/SimPhysics.h"
 
-#if BUILD_TARGET == BUILD_TARGET_HIL || BUILD_TARGET == BUILD_TARGET_SITL
+#if (BUILD_TARGET == BUILD_TARGET_HIL || BUILD_TARGET == BUILD_TARGET_SITL) && \
+    AIRFRAME == AIRFRAME_TAILSITTER_BICOPTER
 
 #include <math.h>
 
@@ -162,19 +163,35 @@ void physics_accel_g(float& ax, float& ay, float& az) {
   az = 1.0f - 2.0f * (x * x + y * y);
 }
 
-float physics_tilt_deg() {
-  // Angle of the body x-axis from world-up. Zero in true hover. This is
-  // the "is it falling over" metric, independent of heading.
-  float c = 2.0f * (s_q[1] * s_q[3] - s_q[0] * s_q[2]);
-  if (c > 1.0f) {
-    c = 1.0f;
+namespace {
+
+// Small-angle roll and pitch error from the hover reference, via the
+// error quaternion conj(q_hover) (x) q.
+void hoverError(float out[4]) {
+  const float qh_conj[4] = {kQHover[0], -kQHover[1], -kQHover[2],
+                            -kQHover[3]};
+  quatMul(qh_conj, s_q, out);
+  if (out[0] < 0.0f) {  // shortest-rotation sense
+    for (int i = 0; i < 4; ++i) {
+      out[i] = -out[i];
+    }
   }
-  if (c < -1.0f) {
-    c = -1.0f;
-  }
-  return acosf(c) * kRadToDeg;
+}
+
+}  // anonymous namespace
+
+float physics_roll_deg() {
+  float e[4];
+  hoverError(e);
+  return 2.0f * e[1] * kRadToDeg;
+}
+
+float physics_pitch_deg() {
+  float e[4];
+  hoverError(e);
+  return 2.0f * e[2] * kRadToDeg;
 }
 
 }  // namespace cp::sim
 
-#endif  // SITL or HIL
+#endif  // SITL or HIL, tailsitter

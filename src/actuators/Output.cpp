@@ -16,8 +16,8 @@
 // throttle stick is at idle, so the aircraft cannot arm straight into
 // a spun-up throttle command.
 //
-// When disarmed the motor pulses go out at the sub-valid disarm width,
-// so the ESCs treat them as no signal and stay silent. Servos respond
+// When disarmed the motor pulses go out at ESC_DISARM_PULSE_US, the
+// motor-stopped width, so the motors do not spin. Servos respond
 // regardless of arm state.
 
 namespace cp::actuators {
@@ -47,7 +47,8 @@ float clampf(float v, float lo, float hi) {
   return v;
 }
 
-// Normalized motor command [0, 1] to a OneShot125 pulse width.
+// Normalized motor command [0, 1] to a motor pulse width, in the
+// configured ESC pulse range (OneShot125 or standard PWM).
 uint16_t motorPulseUs(float command) {
   const float c = clampf(command, 0.0f, 1.0f);
   const float span = static_cast<float>(ESC_MAX_PULSE_US - ESC_IDLE_PULSE_US);
@@ -86,7 +87,7 @@ void update(const cp::airframes::Output& mix,
   }
 
   // Motors. Armed motors follow the mixer. Disarmed motors emit the
-  // sub-valid disarm pulse so the ESCs stay silent.
+  // motor-stopped disarm pulse so the motors do not spin.
   for (uint8_t i = 0; i < cp::airframes::N_MOTORS; ++i) {
     const uint16_t pulse = (s_arm == ArmState::ARMED)
                                ? motorPulseUs(mix.motor[i])
@@ -102,7 +103,8 @@ void update(const cp::airframes::Output& mix,
     cp::hal::out_set_servo_us(i, pulse);
   }
 
-  // Emit the synchronous OneShot125 burst on the motor pins.
+  // Commit the motor pulses: a synchronous OneShot125 burst, or a no-op
+  // under standard PWM where the Servo schedule already drives the pins.
   cp::hal::out_commit_motors();
 }
 
