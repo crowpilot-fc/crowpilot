@@ -8,7 +8,7 @@
 
 #include "src/Config.h"
 
-namespace cp::hal::i2c0 {
+namespace cp::hal::i2c {
 
 namespace {
 
@@ -29,4 +29,4 @@ void ensureInit() {
   s_initialized = true;
 }
 
-}  // namespace cp::hal::i2c0
+}  // namespace cp::hal::i2c

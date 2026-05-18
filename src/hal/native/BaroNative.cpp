@@ -36,7 +36,7 @@ bool baro_init() {
   s_present = false;
   return true;
 #else
-  cp::hal::i2c0::ensureInit();
+  cp::hal::i2c::ensureInit();
   if (!baro_chip::init(BARO_I2C_ADDR)) {
     s_present = false;
     return false;

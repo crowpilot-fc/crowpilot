@@ -21,7 +21,8 @@ namespace cp::hal {
 
 namespace {
 
-constexpr PIO  s_pio = pio0;
+// pio0 expands to a reinterpret_cast, so this is const, not constexpr.
+const PIO      s_pio = pio0;
 constexpr uint s_sm  = 0;
 
 uint     s_offset = 0;

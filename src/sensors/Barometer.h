@@ -21,7 +21,7 @@ struct Sample {
   bool     valid;
 };
 
-// Bring up the I2C0 bus (via cp::hal::i2c0::ensureInit) and probe the
+// Bring up the I2C0 bus (via cp::hal::i2c::ensureInit) and probe the
 // configured baro chip. When `BARO_TYPE = BARO_NONE` this returns true
 // immediately without touching the bus or claiming a present chip;
 // downstream code can call `is_present` to distinguish.

@@ -31,7 +31,7 @@ float s_inv_accel_sens = 0.0f;
 }  // anonymous namespace
 
 bool imu_init() {
-  cp::hal::i2c0::ensureInit();
+  cp::hal::i2c::ensureInit();
   if (!imu_chip::init(IMU_I2C_ADDR, IMU_GYRO_RANGE, IMU_ACCEL_RANGE)) {
     return false;
   }
