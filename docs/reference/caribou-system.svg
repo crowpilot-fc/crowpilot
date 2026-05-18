@@ -1,0 +1,248 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="1545" viewBox="0 0 1320 1545" font-family="Helvetica,Arial,sans-serif">
+<rect width="1320" height="1545" fill="#ffffff"/>
+<defs><marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#475569"/></marker></defs>
+<text x="40" y="34" font-size="15" font-weight="bold" fill="#0f172a">1.  Power distribution</text>
+<line x1="40" y1="42" x2="1280" y2="42" stroke="#cbd5e1" stroke-width="1.5"/>
+<rect x="550" y="56" width="220" height="56" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+<text x="660.0" y="78" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">6S LiPo 3200 mAh</text>
+<text x="564" y="98" font-size="12" fill="#374151">22.2 V nominal,  ~25.2 V full</text>
+<rect x="190" y="170" width="175" height="46" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5"/>
+<text x="277.5" y="192" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">XT60  -  right wing</text>
+<rect x="955" y="170" width="175" height="46" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5"/>
+<text x="1042.5" y="192" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">XT60  -  left wing</text>
+<rect x="150" y="258" width="215" height="72" rx="8" fill="#ffedd5" stroke="#f97316" stroke-width="1.5"/>
+<text x="257.5" y="280" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">ESC #1   80 A bidirectional</text>
+<text x="164" y="300" font-size="12" fill="#374151">drives Motor RIGHT</text>
+<text x="164" y="317" font-size="12" fill="#374151">5 A UBEC  -&gt;  Rail A</text>
+<rect x="905" y="258" width="215" height="72" rx="8" fill="#ffedd5" stroke="#f97316" stroke-width="1.5"/>
+<text x="1012.5" y="280" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">ESC #2   80 A bidirectional</text>
+<text x="919" y="300" font-size="12" fill="#374151">drives Motor LEFT</text>
+<text x="919" y="317" font-size="12" fill="#374151">5 A UBEC  -&gt;  Rail B</text>
+<rect x="40" y="386" width="150" height="50" rx="8" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+<text x="115.0" y="408" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">Motor RIGHT</text>
+<text x="54" y="428" font-size="12" fill="#374151">XRotor 3115 900kv</text>
+<rect x="1130" y="386" width="150" height="50" rx="8" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+<text x="1205.0" y="408" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">Motor LEFT</text>
+<text x="1144" y="428" font-size="12" fill="#374151">XRotor 3115 900kv</text>
+<rect x="205" y="388" width="150" height="30" rx="6" fill="#dc2626"/><text x="280" y="408" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">RAIL A  5V</text>
+<rect x="915" y="388" width="150" height="30" rx="6" fill="#dc2626"/><text x="990" y="408" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">RAIL B  5V</text>
+<rect x="95" y="446" width="375" height="118" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5"/>
+<text x="282.5" y="468" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">Rail A 5V powers</text>
+<text x="109" y="488" font-size="12" fill="#374151">RP2350 FC  -&gt;  VSYS (pin 39)</text>
+<text x="109" y="505" font-size="12" fill="#374151">SBUS receiver</text>
+<text x="109" y="522" font-size="12" fill="#374151">right wing servos (aileron, flaps, retract)</text>
+<text x="109" y="539" font-size="12" fill="#374151">right wingtip LED</text>
+<text x="109" y="556" font-size="12" fill="#374151">FC 3V3 reg  -&gt;  IMU, baro, microSD</text>
+<rect x="850" y="446" width="375" height="118" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5"/>
+<text x="1037.5" y="468" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">Rail B 5V powers</text>
+<text x="864" y="488" font-size="12" fill="#374151">left wing servos (aileron, flaps, retract)</text>
+<text x="864" y="505" font-size="12" fill="#374151">elevator servo x2,  rudder servo</text>
+<text x="864" y="522" font-size="12" fill="#374151">cargo bay door servo x2</text>
+<text x="864" y="539" font-size="12" fill="#374151">nose gear retract + nose wheel steering</text>
+<text x="864" y="556" font-size="12" fill="#374151">left wingtip LED</text>
+<rect x="500" y="452" width="320" height="56" rx="8" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="660" y="474" font-size="12" font-weight="bold" text-anchor="middle" fill="#92400e">5V rails A and B: ISOLATED</text>
+<text x="660" y="494" font-size="11.5" text-anchor="middle" fill="#92400e">All grounds COMMON (shared signal return)</text>
+<polyline points="660,112 660,140 277,140 277,170" fill="none" stroke="#dc2626" stroke-width="2.5" marker-end="url(#a)"/>
+<polyline points="660,140 1042,140 1042,170" fill="none" stroke="#dc2626" stroke-width="2.5" marker-end="url(#a)"/>
+<polyline points="277,216 277,258" fill="none" stroke="#dc2626" stroke-width="2.5" marker-end="url(#a)"/>
+<polyline points="1042,216 1042,258" fill="none" stroke="#dc2626" stroke-width="2.5" marker-end="url(#a)"/>
+<polyline points="150,300 115,300 115,386" fill="none" stroke="#1f2937" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="104.4" y="333.0" width="56.199999999999996" height="16" rx="3" fill="#ffffff" stroke="#1f2937"/>
+<text x="132.5" y="345.0" font-size="10.5" text-anchor="middle" fill="#1f2937">3-phase</text>
+<polyline points="1120,300 1205,300 1205,386" fill="none" stroke="#1f2937" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="1134.4" y="333.0" width="56.199999999999996" height="16" rx="3" fill="#ffffff" stroke="#1f2937"/>
+<text x="1162.5" y="345.0" font-size="10.5" text-anchor="middle" fill="#1f2937">3-phase</text>
+<polyline points="280,330 280,388" fill="none" stroke="#dc2626" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="255.2" y="349.0" width="49.599999999999994" height="16" rx="3" fill="#ffffff" stroke="#dc2626"/>
+<text x="280.0" y="361.0" font-size="10.5" text-anchor="middle" fill="#dc2626">BEC 5V</text>
+<polyline points="1012,330 990,388" fill="none" stroke="#dc2626" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="976.2" y="349.0" width="49.599999999999994" height="16" rx="3" fill="#ffffff" stroke="#dc2626"/>
+<text x="1001.0" y="361.0" font-size="10.5" text-anchor="middle" fill="#dc2626">BEC 5V</text>
+<polyline points="280,418 280,446" fill="none" stroke="#dc2626" stroke-width="2.5" marker-end="url(#a)"/>
+<polyline points="990,418 1037,446" fill="none" stroke="#dc2626" stroke-width="2.5" marker-end="url(#a)"/>
+<text x="40" y="606" font-size="15" font-weight="bold" fill="#0f172a">2.  Signal routing   (green = FC flight stack,  indigo = FC user-sketch aux)</text>
+<line x1="40" y1="614" x2="1280" y2="614" stroke="#cbd5e1" stroke-width="1.5"/>
+<rect x="245" y="632" width="230" height="52" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+<text x="360.0" y="654" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">SBUS receiver</text>
+<text x="259" y="674" font-size="12" fill="#374151">SBUS only - no PWM outputs</text>
+<rect x="515" y="706" width="300" height="156" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+<text x="665.0" y="728" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">RP2350 FC  (WeAct RP2350A_V10)</text>
+<text x="529" y="748" font-size="12" fill="#374151">GP1  &lt;- SBUS        GP4/5 &lt;-&gt; I2C IMU+baro</text>
+<text x="529" y="765" font-size="12" fill="#374151">GP16-19 &lt;-&gt; SPI microSD</text>
+<text x="529" y="782" font-size="12" fill="#374151">GP10/11 -&gt; ESC #1 / #2</text>
+<text x="529" y="799" font-size="12" fill="#374151">GP6/7 -&gt; ailerons   GP8 -&gt; elevator x2</text>
+<text x="529" y="816" font-size="12" fill="#374151">GP9 -&gt; rudder       GP14 -&gt; status LED</text>
+<text x="529" y="833" font-size="12" fill="#374151">GP2/3 -&gt; wingtip LEDs</text>
+<rect x="95" y="726" width="190" height="48" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+<text x="190.0" y="748" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">MPU6500 + BMP388</text>
+<text x="109" y="768" font-size="12" fill="#374151">IMU + barometer</text>
+<rect x="1045" y="726" width="190" height="48" rx="8" fill="#ccfbf1" stroke="#14b8a6" stroke-width="1.5"/>
+<text x="1140.0" y="748" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">microSD card</text>
+<text x="1059" y="768" font-size="12" fill="#374151">telemetry log</text>
+<rect x="70" y="928" width="320" height="150" rx="8" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.5"/>
+<text x="230.0" y="950" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">Aux servos  (FC user-sketch)</text>
+<text x="84" y="970" font-size="12" fill="#374151">flap servo x4      &lt;- GP28</text>
+<text x="84" y="987" font-size="12" fill="#374151">main gear retract  &lt;- GP26 / GP27</text>
+<text x="84" y="1004" font-size="12" fill="#374151">cargo bay doors    &lt;- GP15</text>
+<text x="84" y="1021" font-size="12" fill="#374151">nose gear retract  &lt;- GP22</text>
+<text x="84" y="1038" font-size="12" fill="#374151">nose wheel steer   &lt;- GP12</text>
+<rect x="430" y="928" width="175" height="150" rx="8" fill="#ffedd5" stroke="#f97316" stroke-width="1.5"/>
+<text x="517.5" y="950" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">ESC signal in</text>
+<text x="444" y="970" font-size="12" fill="#374151">ESC #1  &lt;- GP10</text>
+<text x="444" y="987" font-size="12" fill="#374151">ESC #2  &lt;- GP11</text>
+<text x="444" y="1004" font-size="12" fill="#374151"></text>
+<text x="444" y="1021" font-size="12" fill="#374151">(throttle, both</text>
+<text x="444" y="1038" font-size="12" fill="#374151"> motors)</text>
+<rect x="645" y="928" width="300" height="150" rx="8" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+<text x="795.0" y="950" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">Primary surfaces  (stabilized)</text>
+<text x="659" y="970" font-size="12" fill="#374151">aileron LEFT   &lt;- GP6</text>
+<text x="659" y="987" font-size="12" fill="#374151">aileron RIGHT  &lt;- GP7</text>
+<text x="659" y="1004" font-size="12" fill="#374151">elevator x2    &lt;- GP8  (Y-harness)</text>
+<text x="659" y="1021" font-size="12" fill="#374151">rudder         &lt;- GP9</text>
+<rect x="985" y="928" width="250" height="150" rx="8" fill="#fef9c3" stroke="#eab308" stroke-width="1.5"/>
+<text x="1110.0" y="950" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">Indicator LEDs</text>
+<text x="999" y="970" font-size="12" fill="#374151">status LED   &lt;- GP14</text>
+<text x="999" y="987" font-size="12" fill="#374151">onboard LED  =  GP25</text>
+<text x="999" y="1004" font-size="12" fill="#374151">R wingtip    &lt;- GP2</text>
+<text x="999" y="1021" font-size="12" fill="#374151">L wingtip    &lt;- GP3</text>
+<polyline points="475,660 515,720" fill="none" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="476.8" y="680.0" width="36.4" height="16" rx="3" fill="#ffffff" stroke="#7c3aed"/>
+<text x="495.0" y="692.0" font-size="10.5" text-anchor="middle" fill="#7c3aed">SBUS</text>
+<polyline points="515,770 285,748" fill="none" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="385.1" y="749.0" width="29.799999999999997" height="16" rx="3" fill="#ffffff" stroke="#3b82f6"/>
+<text x="400.0" y="761.0" font-size="10.5" text-anchor="middle" fill="#3b82f6">I2C</text>
+<polyline points="815,770 1045,748" fill="none" stroke="#14b8a6" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="915.1" y="749.0" width="29.799999999999997" height="16" rx="3" fill="#ffffff" stroke="#14b8a6"/>
+<text x="930.0" y="761.0" font-size="10.5" text-anchor="middle" fill="#14b8a6">SPI</text>
+<polyline points="545,862 230,900 230,928" fill="none" stroke="#6366f1" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="242.2" y="880" width="115.6" height="16" rx="3" fill="#ffffff" stroke="#6366f1"/>
+<text x="300" y="892" font-size="10.5" text-anchor="middle" fill="#6366f1">user-sketch GPIO</text>
+<polyline points="560,862 510,928" fill="none" stroke="#f97316" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="506.9" y="885.0" width="56.199999999999996" height="16" rx="3" fill="#ffffff" stroke="#f97316"/>
+<text x="535.0" y="897.0" font-size="10.5" text-anchor="middle" fill="#f97316">GP10/11</text>
+<polyline points="700,862 740,928" fill="none" stroke="#16a34a" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="698.5" y="885.0" width="43.0" height="16" rx="3" fill="#ffffff" stroke="#16a34a"/>
+<text x="720.0" y="897.0" font-size="10.5" text-anchor="middle" fill="#16a34a">GP6-9</text>
+<polyline points="795,862 1080,928" fill="none" stroke="#eab308" stroke-width="2.5" marker-end="url(#a)"/>
+<rect x="906.1" y="885.0" width="62.8" height="16" rx="3" fill="#ffffff" stroke="#eab308"/>
+<text x="937.5" y="897.0" font-size="10.5" text-anchor="middle" fill="#eab308">GP2/3/14</text>
+<text x="40" y="1138" font-size="15" font-weight="bold" fill="#0f172a">3.  Wing connectors   (harness build reference)</text>
+<line x1="40" y1="1146" x2="1280" y2="1146" stroke="#cbd5e1" stroke-width="1.5"/>
+<rect x="70" y="1170" width="430" height="94" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.5"/>
+<rect x="70" y="1170" width="430" height="30" rx="8" fill="#475569"/>
+<rect x="70" y="1192" width="430" height="8" fill="#475569"/>
+<text x="285.0" y="1190" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">RIGHT WING  -  XT60 (2 pin)</text>
+<rect x="78" y="1204" width="30" height="19" rx="4" fill="#475569"/>
+<text x="93" y="1218" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">+</text>
+<text x="118" y="1218" font-size="12" fill="#1f2937">battery positive</text>
+<text x="488" y="1218" font-size="11.5" text-anchor="end" fill="#b91c1c">to ESC #1</text>
+<rect x="71" y="1227" width="428" height="27" fill="#f1f5f9"/>
+<rect x="78" y="1231" width="30" height="19" rx="4" fill="#475569"/>
+<text x="93" y="1245" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">-</text>
+<text x="118" y="1245" font-size="12" fill="#1f2937">battery negative</text>
+<text x="488" y="1245" font-size="11.5" text-anchor="end" fill="#b91c1c">common ground</text>
+<rect x="70" y="1262" width="430" height="256" rx="8" fill="#ffffff" stroke="#0f766e" stroke-width="1.5"/>
+<rect x="70" y="1262" width="430" height="30" rx="8" fill="#0f766e"/>
+<rect x="70" y="1284" width="430" height="8" fill="#0f766e"/>
+<text x="285.0" y="1282" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">RIGHT WING  -  MPX 8 pin</text>
+<rect x="78" y="1296" width="30" height="19" rx="4" fill="#0f766e"/>
+<text x="93" y="1310" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">1</text>
+<text x="118" y="1310" font-size="12" fill="#1f2937">+5V</text>
+<text x="488" y="1310" font-size="11.5" text-anchor="end" fill="#b91c1c">Rail A (ESC #1)</text>
+<rect x="71" y="1319" width="428" height="27" fill="#f0fdfa"/>
+<rect x="78" y="1323" width="30" height="19" rx="4" fill="#0f766e"/>
+<text x="93" y="1337" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">2</text>
+<text x="118" y="1337" font-size="12" fill="#1f2937">GND</text>
+<text x="488" y="1337" font-size="11.5" text-anchor="end" fill="#b91c1c">common ground</text>
+<rect x="78" y="1350" width="30" height="19" rx="4" fill="#0f766e"/>
+<text x="93" y="1364" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">3</text>
+<text x="118" y="1364" font-size="12" fill="#1f2937">ESC signal</text>
+<text x="488" y="1364" font-size="11.5" text-anchor="end" fill="#1d4ed8">FC GP10</text>
+<rect x="71" y="1373" width="428" height="27" fill="#f0fdfa"/>
+<rect x="78" y="1377" width="30" height="19" rx="4" fill="#0f766e"/>
+<text x="93" y="1391" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">4</text>
+<text x="118" y="1391" font-size="12" fill="#1f2937">aileron servo</text>
+<text x="488" y="1391" font-size="11.5" text-anchor="end" fill="#1d4ed8">FC GP7</text>
+<rect x="78" y="1404" width="30" height="19" rx="4" fill="#0f766e"/>
+<text x="93" y="1418" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">5</text>
+<text x="118" y="1418" font-size="12" fill="#1f2937">flap 1 servo</text>
+<text x="488" y="1418" font-size="11.5" text-anchor="end" fill="#4338ca">FC GP28 (aux)</text>
+<rect x="71" y="1427" width="428" height="27" fill="#f0fdfa"/>
+<rect x="78" y="1431" width="30" height="19" rx="4" fill="#0f766e"/>
+<text x="93" y="1445" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">6</text>
+<text x="118" y="1445" font-size="12" fill="#1f2937">flap 2 servo</text>
+<text x="488" y="1445" font-size="11.5" text-anchor="end" fill="#4338ca">FC GP28 (aux)</text>
+<rect x="78" y="1458" width="30" height="19" rx="4" fill="#0f766e"/>
+<text x="93" y="1472" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">7</text>
+<text x="118" y="1472" font-size="12" fill="#1f2937">retract (main gear)</text>
+<text x="488" y="1472" font-size="11.5" text-anchor="end" fill="#4338ca">FC GP27 (aux)</text>
+<rect x="71" y="1481" width="428" height="27" fill="#f0fdfa"/>
+<rect x="78" y="1485" width="30" height="19" rx="4" fill="#0f766e"/>
+<text x="93" y="1499" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">8</text>
+<text x="118" y="1499" font-size="12" fill="#1f2937">wingtip LED</text>
+<text x="488" y="1499" font-size="11.5" text-anchor="end" fill="#4338ca">FC GP2 (aux)</text>
+<rect x="820" y="1170" width="430" height="94" rx="8" fill="#ffffff" stroke="#475569" stroke-width="1.5"/>
+<rect x="820" y="1170" width="430" height="30" rx="8" fill="#475569"/>
+<rect x="820" y="1192" width="430" height="8" fill="#475569"/>
+<text x="1035.0" y="1190" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">LEFT WING  -  XT60 (2 pin)</text>
+<rect x="828" y="1204" width="30" height="19" rx="4" fill="#475569"/>
+<text x="843" y="1218" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">+</text>
+<text x="868" y="1218" font-size="12" fill="#1f2937">battery positive</text>
+<text x="1238" y="1218" font-size="11.5" text-anchor="end" fill="#b91c1c">to ESC #2</text>
+<rect x="821" y="1227" width="428" height="27" fill="#f1f5f9"/>
+<rect x="828" y="1231" width="30" height="19" rx="4" fill="#475569"/>
+<text x="843" y="1245" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">-</text>
+<text x="868" y="1245" font-size="12" fill="#1f2937">battery negative</text>
+<text x="1238" y="1245" font-size="11.5" text-anchor="end" fill="#b91c1c">common ground</text>
+<rect x="820" y="1262" width="430" height="256" rx="8" fill="#ffffff" stroke="#0f766e" stroke-width="1.5"/>
+<rect x="820" y="1262" width="430" height="30" rx="8" fill="#0f766e"/>
+<rect x="820" y="1284" width="430" height="8" fill="#0f766e"/>
+<text x="1035.0" y="1282" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">LEFT WING  -  MPX 8 pin</text>
+<rect x="828" y="1296" width="30" height="19" rx="4" fill="#0f766e"/>
+<text x="843" y="1310" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">1</text>
+<text x="868" y="1310" font-size="12" fill="#1f2937">+5V</text>
+<text x="1238" y="1310" font-size="11.5" text-anchor="end" fill="#b91c1c">Rail B (ESC #2)</text>
+<rect x="821" y="1319" width="428" height="27" fill="#f0fdfa"/>
+<rect x="828" y="1323" width="30" height="19" rx="4" fill="#0f766e"/>
+<text x="843" y="1337" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">2</text>
+<text x="868" y="1337" font-size="12" fill="#1f2937">GND</text>
+<text x="1238" y="1337" font-size="11.5" text-anchor="end" fill="#b91c1c">common ground</text>
+<rect x="828" y="1350" width="30" height="19" rx="4" fill="#0f766e"/>
+<text x="843" y="1364" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">3</text>
+<text x="868" y="1364" font-size="12" fill="#1f2937">ESC signal</text>
+<text x="1238" y="1364" font-size="11.5" text-anchor="end" fill="#1d4ed8">FC GP11</text>
+<rect x="821" y="1373" width="428" height="27" fill="#f0fdfa"/>
+<rect x="828" y="1377" width="30" height="19" rx="4" fill="#0f766e"/>
+<text x="843" y="1391" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">4</text>
+<text x="868" y="1391" font-size="12" fill="#1f2937">aileron servo</text>
+<text x="1238" y="1391" font-size="11.5" text-anchor="end" fill="#1d4ed8">FC GP6</text>
+<rect x="828" y="1404" width="30" height="19" rx="4" fill="#0f766e"/>
+<text x="843" y="1418" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">5</text>
+<text x="868" y="1418" font-size="12" fill="#1f2937">flap 1 servo</text>
+<text x="1238" y="1418" font-size="11.5" text-anchor="end" fill="#4338ca">FC GP28 (aux)</text>
+<rect x="821" y="1427" width="428" height="27" fill="#f0fdfa"/>
+<rect x="828" y="1431" width="30" height="19" rx="4" fill="#0f766e"/>
+<text x="843" y="1445" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">6</text>
+<text x="868" y="1445" font-size="12" fill="#1f2937">flap 2 servo</text>
+<text x="1238" y="1445" font-size="11.5" text-anchor="end" fill="#4338ca">FC GP28 (aux)</text>
+<rect x="828" y="1458" width="30" height="19" rx="4" fill="#0f766e"/>
+<text x="843" y="1472" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">7</text>
+<text x="868" y="1472" font-size="12" fill="#1f2937">retract (main gear)</text>
+<text x="1238" y="1472" font-size="11.5" text-anchor="end" fill="#4338ca">FC GP26 (aux)</text>
+<rect x="821" y="1481" width="428" height="27" fill="#f0fdfa"/>
+<rect x="828" y="1485" width="30" height="19" rx="4" fill="#0f766e"/>
+<text x="843" y="1499" font-size="12" font-weight="bold" text-anchor="middle" fill="#ffffff">8</text>
+<text x="868" y="1499" font-size="12" fill="#1f2937">wingtip LED</text>
+<text x="1238" y="1499" font-size="11.5" text-anchor="end" fill="#4338ca">FC GP3 (aux)</text>
+<rect x="540" y="1300" width="240" height="150" rx="8" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="660" y="1322" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#0f172a">Notes</text>
+<text x="554" y="1344" font-size="10.5" fill="#334155">Grounds are common: MPX</text>
+<text x="554" y="1357" font-size="10.5" fill="#334155">pin 2 can be freed by</text>
+<text x="554" y="1370" font-size="10.5" fill="#334155">tapping GND off the XT60.</text>
+<text x="554" y="1383" font-size="10.5" fill="#334155"></text>
+<text x="554" y="1396" font-size="10.5" fill="#334155">Receiver is SBUS-only, so</text>
+<text x="554" y="1409" font-size="10.5" fill="#334155">every actuator is on an FC</text>
+<text x="554" y="1422" font-size="10.5" fill="#334155">pin. Aux servos run from</text>
+<text x="554" y="1435" font-size="10.5" fill="#334155">user-sketch.ino (SBUS in).</text>
+</svg>

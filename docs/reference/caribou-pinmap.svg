@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="812" viewBox="0 0 920 812" font-family="Menlo,Consolas,monospace">
+<rect width="920" height="812" fill="#ffffff"/>
+<text x="460" y="32" font-size="19" font-weight="bold" text-anchor="middle" fill="#111827">CrowPilot pin map  -  WeAct RP2350A_V10  -  DHC-4 Caribou</text>
+<text x="460" y="51" font-size="11" text-anchor="middle" fill="#6b7280">Flight pins are firmware-claimed; aux pins are driven by user-sketch.ino from SBUS channels. Header order follows Pi-Pico form.</text>
+<rect x="382" y="72" width="156" height="664" rx="10" fill="#1f2937"/>
+<rect x="440" y="60" width="40" height="14" rx="2" fill="#4b5563"/>
+<text x="460" y="70" font-size="8" text-anchor="middle" fill="#cbd5e1">USB-C</text>
+<text x="460" y="728" font-size="9" text-anchor="middle" fill="#9ca3af">GP25 = onboard LED (boot heartbeat)</text>
+<line x1="382" y1="96" x2="372" y2="96" stroke="#6b7280"/>
+<line x1="538" y1="96" x2="548" y2="96" stroke="#6b7280"/>
+<text x="397" y="99" font-size="9" text-anchor="middle" fill="#cbd5e1">1</text>
+<text x="523" y="99" font-size="9" text-anchor="middle" fill="#cbd5e1">40</text>
+<rect x="60" y="84" width="304" height="24" rx="5" fill="#f3f4f6" stroke="#d1d5db"/><text x="74" y="100" font-size="11" fill="#6b7280">GP0:  spare</text>
+<rect x="556" y="84" width="304" height="24" rx="5" fill="#fee2e2" stroke="#ef4444"/><text x="570" y="100" font-size="11" fill="#991b1b">VBUS:  5V from USB</text>
+<line x1="382" y1="128" x2="372" y2="128" stroke="#6b7280"/>
+<line x1="538" y1="128" x2="548" y2="128" stroke="#6b7280"/>
+<text x="397" y="131" font-size="9" text-anchor="middle" fill="#cbd5e1">2</text>
+<text x="523" y="131" font-size="9" text-anchor="middle" fill="#cbd5e1">39</text>
+<rect x="60" y="116" width="304" height="24" rx="5" fill="#ede9fe" stroke="#8b5cf6"/><text x="74" y="132" font-size="11" fill="#5b21b6">GP1:  SBUS RX (receiver)</text>
+<rect x="556" y="116" width="304" height="24" rx="5" fill="#fee2e2" stroke="#ef4444"/><text x="570" y="132" font-size="11" fill="#991b1b">VSYS:  5V IN (ESC1 BEC)</text>
+<line x1="382" y1="160" x2="372" y2="160" stroke="#6b7280"/>
+<line x1="538" y1="160" x2="548" y2="160" stroke="#6b7280"/>
+<text x="397" y="163" font-size="9" text-anchor="middle" fill="#cbd5e1">3</text>
+<text x="523" y="163" font-size="9" text-anchor="middle" fill="#cbd5e1">38</text>
+<rect x="60" y="148" width="304" height="24" rx="5" fill="#e5e7eb" stroke="#9ca3af"/><text x="74" y="164" font-size="11" fill="#4b5563">GND</text>
+<rect x="556" y="148" width="304" height="24" rx="5" fill="#e5e7eb" stroke="#9ca3af"/><text x="570" y="164" font-size="11" fill="#4b5563">GND</text>
+<line x1="382" y1="192" x2="372" y2="192" stroke="#6b7280"/>
+<line x1="538" y1="192" x2="548" y2="192" stroke="#6b7280"/>
+<text x="397" y="195" font-size="9" text-anchor="middle" fill="#cbd5e1">4</text>
+<text x="523" y="195" font-size="9" text-anchor="middle" fill="#cbd5e1">37</text>
+<rect x="60" y="180" width="304" height="24" rx="5" fill="#e0e7ff" stroke="#6366f1"/><text x="74" y="196" font-size="11" fill="#3730a3">GP2:  aux  R wingtip LED</text>
+<rect x="556" y="180" width="304" height="24" rx="5" fill="#f9fafb" stroke="#e5e7eb"/><text x="570" y="196" font-size="11" fill="#9ca3af">3V3_EN</text>
+<line x1="382" y1="224" x2="372" y2="224" stroke="#6b7280"/>
+<line x1="538" y1="224" x2="548" y2="224" stroke="#6b7280"/>
+<text x="397" y="227" font-size="9" text-anchor="middle" fill="#cbd5e1">5</text>
+<text x="523" y="227" font-size="9" text-anchor="middle" fill="#cbd5e1">36</text>
+<rect x="60" y="212" width="304" height="24" rx="5" fill="#e0e7ff" stroke="#6366f1"/><text x="74" y="228" font-size="11" fill="#3730a3">GP3:  aux  L wingtip LED</text>
+<rect x="556" y="212" width="304" height="24" rx="5" fill="#fee2e2" stroke="#ef4444"/><text x="570" y="228" font-size="11" fill="#991b1b">3V3:  sensor supply</text>
+<line x1="382" y1="256" x2="372" y2="256" stroke="#6b7280"/>
+<line x1="538" y1="256" x2="548" y2="256" stroke="#6b7280"/>
+<text x="397" y="259" font-size="9" text-anchor="middle" fill="#cbd5e1">6</text>
+<text x="523" y="259" font-size="9" text-anchor="middle" fill="#cbd5e1">35</text>
+<rect x="60" y="244" width="304" height="24" rx="5" fill="#dbeafe" stroke="#3b82f6"/><text x="74" y="260" font-size="11" fill="#1e40af">GP4:  I2C0 SDA (IMU + baro)</text>
+<rect x="556" y="244" width="304" height="24" rx="5" fill="#f9fafb" stroke="#e5e7eb"/><text x="570" y="260" font-size="11" fill="#9ca3af">ADC_VREF</text>
+<line x1="382" y1="288" x2="372" y2="288" stroke="#6b7280"/>
+<line x1="538" y1="288" x2="548" y2="288" stroke="#6b7280"/>
+<text x="397" y="291" font-size="9" text-anchor="middle" fill="#cbd5e1">7</text>
+<text x="523" y="291" font-size="9" text-anchor="middle" fill="#cbd5e1">34</text>
+<rect x="60" y="276" width="304" height="24" rx="5" fill="#dbeafe" stroke="#3b82f6"/><text x="74" y="292" font-size="11" fill="#1e40af">GP5:  I2C0 SCL</text>
+<rect x="556" y="276" width="304" height="24" rx="5" fill="#e0e7ff" stroke="#6366f1"/><text x="570" y="292" font-size="11" fill="#3730a3">GP28:  aux  flap servos</text>
+<line x1="382" y1="320" x2="372" y2="320" stroke="#6b7280"/>
+<line x1="538" y1="320" x2="548" y2="320" stroke="#6b7280"/>
+<text x="397" y="323" font-size="9" text-anchor="middle" fill="#cbd5e1">8</text>
+<text x="523" y="323" font-size="9" text-anchor="middle" fill="#cbd5e1">33</text>
+<rect x="60" y="308" width="304" height="24" rx="5" fill="#e5e7eb" stroke="#9ca3af"/><text x="74" y="324" font-size="11" fill="#4b5563">GND</text>
+<rect x="556" y="308" width="304" height="24" rx="5" fill="#e5e7eb" stroke="#9ca3af"/><text x="570" y="324" font-size="11" fill="#4b5563">GND</text>
+<line x1="382" y1="352" x2="372" y2="352" stroke="#6b7280"/>
+<line x1="538" y1="352" x2="548" y2="352" stroke="#6b7280"/>
+<text x="397" y="355" font-size="9" text-anchor="middle" fill="#cbd5e1">9</text>
+<text x="523" y="355" font-size="9" text-anchor="middle" fill="#cbd5e1">32</text>
+<rect x="60" y="340" width="304" height="24" rx="5" fill="#dcfce7" stroke="#22c55e"/><text x="74" y="356" font-size="11" fill="#166534">GP6:  servo aileron LEFT</text>
+<rect x="556" y="340" width="304" height="24" rx="5" fill="#e0e7ff" stroke="#6366f1"/><text x="570" y="356" font-size="11" fill="#3730a3">GP27:  aux  R gear retract</text>
+<line x1="382" y1="384" x2="372" y2="384" stroke="#6b7280"/>
+<line x1="538" y1="384" x2="548" y2="384" stroke="#6b7280"/>
+<text x="397" y="387" font-size="9" text-anchor="middle" fill="#cbd5e1">10</text>
+<text x="523" y="387" font-size="9" text-anchor="middle" fill="#cbd5e1">31</text>
+<rect x="60" y="372" width="304" height="24" rx="5" fill="#dcfce7" stroke="#22c55e"/><text x="74" y="388" font-size="11" fill="#166534">GP7:  servo aileron RIGHT</text>
+<rect x="556" y="372" width="304" height="24" rx="5" fill="#e0e7ff" stroke="#6366f1"/><text x="570" y="388" font-size="11" fill="#3730a3">GP26:  aux  L gear retract</text>
+<line x1="382" y1="416" x2="372" y2="416" stroke="#6b7280"/>
+<line x1="538" y1="416" x2="548" y2="416" stroke="#6b7280"/>
+<text x="397" y="419" font-size="9" text-anchor="middle" fill="#cbd5e1">11</text>
+<text x="523" y="419" font-size="9" text-anchor="middle" fill="#cbd5e1">30</text>
+<rect x="60" y="404" width="304" height="24" rx="5" fill="#dcfce7" stroke="#22c55e"/><text x="74" y="420" font-size="11" fill="#166534">GP8:  servo elevator</text>
+<rect x="556" y="404" width="304" height="24" rx="5" fill="#f9fafb" stroke="#e5e7eb"/><text x="570" y="420" font-size="11" fill="#9ca3af">RUN:  reset</text>
+<line x1="382" y1="448" x2="372" y2="448" stroke="#6b7280"/>
+<line x1="538" y1="448" x2="548" y2="448" stroke="#6b7280"/>
+<text x="397" y="451" font-size="9" text-anchor="middle" fill="#cbd5e1">12</text>
+<text x="523" y="451" font-size="9" text-anchor="middle" fill="#cbd5e1">29</text>
+<rect x="60" y="436" width="304" height="24" rx="5" fill="#dcfce7" stroke="#22c55e"/><text x="74" y="452" font-size="11" fill="#166534">GP9:  servo rudder</text>
+<rect x="556" y="436" width="304" height="24" rx="5" fill="#e0e7ff" stroke="#6366f1"/><text x="570" y="452" font-size="11" fill="#3730a3">GP22:  aux  nose gear</text>
+<line x1="382" y1="480" x2="372" y2="480" stroke="#6b7280"/>
+<line x1="538" y1="480" x2="548" y2="480" stroke="#6b7280"/>
+<text x="397" y="483" font-size="9" text-anchor="middle" fill="#cbd5e1">13</text>
+<text x="523" y="483" font-size="9" text-anchor="middle" fill="#cbd5e1">28</text>
+<rect x="60" y="468" width="304" height="24" rx="5" fill="#e5e7eb" stroke="#9ca3af"/><text x="74" y="484" font-size="11" fill="#4b5563">GND</text>
+<rect x="556" y="468" width="304" height="24" rx="5" fill="#e5e7eb" stroke="#9ca3af"/><text x="570" y="484" font-size="11" fill="#4b5563">GND</text>
+<line x1="382" y1="512" x2="372" y2="512" stroke="#6b7280"/>
+<line x1="538" y1="512" x2="548" y2="512" stroke="#6b7280"/>
+<text x="397" y="515" font-size="9" text-anchor="middle" fill="#cbd5e1">14</text>
+<text x="523" y="515" font-size="9" text-anchor="middle" fill="#cbd5e1">27</text>
+<rect x="60" y="500" width="304" height="24" rx="5" fill="#ffedd5" stroke="#f97316"/><text x="74" y="516" font-size="11" fill="#9a3412">GP10:  ESC RIGHT (motor)</text>
+<rect x="556" y="500" width="304" height="24" rx="5" fill="#f3f4f6" stroke="#d1d5db"/><text x="570" y="516" font-size="11" fill="#9ca3af">GP21:  companion RX (unused)</text>
+<line x1="382" y1="544" x2="372" y2="544" stroke="#6b7280"/>
+<line x1="538" y1="544" x2="548" y2="544" stroke="#6b7280"/>
+<text x="397" y="547" font-size="9" text-anchor="middle" fill="#cbd5e1">15</text>
+<text x="523" y="547" font-size="9" text-anchor="middle" fill="#cbd5e1">26</text>
+<rect x="60" y="532" width="304" height="24" rx="5" fill="#ffedd5" stroke="#f97316"/><text x="74" y="548" font-size="11" fill="#9a3412">GP11:  ESC LEFT (motor)</text>
+<rect x="556" y="532" width="304" height="24" rx="5" fill="#f3f4f6" stroke="#d1d5db"/><text x="570" y="548" font-size="11" fill="#9ca3af">GP20:  companion TX (unused)</text>
+<line x1="382" y1="576" x2="372" y2="576" stroke="#6b7280"/>
+<line x1="538" y1="576" x2="548" y2="576" stroke="#6b7280"/>
+<text x="397" y="579" font-size="9" text-anchor="middle" fill="#cbd5e1">16</text>
+<text x="523" y="579" font-size="9" text-anchor="middle" fill="#cbd5e1">25</text>
+<rect x="60" y="564" width="304" height="24" rx="5" fill="#e0e7ff" stroke="#6366f1"/><text x="74" y="580" font-size="11" fill="#3730a3">GP12:  aux  nose steering</text>
+<rect x="556" y="564" width="304" height="24" rx="5" fill="#ccfbf1" stroke="#14b8a6"/><text x="570" y="580" font-size="11" fill="#115e59">GP19:  SD MOSI</text>
+<line x1="382" y1="608" x2="372" y2="608" stroke="#6b7280"/>
+<line x1="538" y1="608" x2="548" y2="608" stroke="#6b7280"/>
+<text x="397" y="611" font-size="9" text-anchor="middle" fill="#cbd5e1">17</text>
+<text x="523" y="611" font-size="9" text-anchor="middle" fill="#cbd5e1">24</text>
+<rect x="60" y="596" width="304" height="24" rx="5" fill="#f3f4f6" stroke="#d1d5db"/><text x="74" y="612" font-size="11" fill="#6b7280">GP13:  spare</text>
+<rect x="556" y="596" width="304" height="24" rx="5" fill="#ccfbf1" stroke="#14b8a6"/><text x="570" y="612" font-size="11" fill="#115e59">GP18:  SD SCK</text>
+<line x1="382" y1="640" x2="372" y2="640" stroke="#6b7280"/>
+<line x1="538" y1="640" x2="548" y2="640" stroke="#6b7280"/>
+<text x="397" y="643" font-size="9" text-anchor="middle" fill="#cbd5e1">18</text>
+<text x="523" y="643" font-size="9" text-anchor="middle" fill="#cbd5e1">23</text>
+<rect x="60" y="628" width="304" height="24" rx="5" fill="#e5e7eb" stroke="#9ca3af"/><text x="74" y="644" font-size="11" fill="#4b5563">GND</text>
+<rect x="556" y="628" width="304" height="24" rx="5" fill="#e5e7eb" stroke="#9ca3af"/><text x="570" y="644" font-size="11" fill="#4b5563">GND</text>
+<line x1="382" y1="672" x2="372" y2="672" stroke="#6b7280"/>
+<line x1="538" y1="672" x2="548" y2="672" stroke="#6b7280"/>
+<text x="397" y="675" font-size="9" text-anchor="middle" fill="#cbd5e1">19</text>
+<text x="523" y="675" font-size="9" text-anchor="middle" fill="#cbd5e1">22</text>
+<rect x="60" y="660" width="304" height="24" rx="5" fill="#fef9c3" stroke="#eab308"/><text x="74" y="676" font-size="11" fill="#854d0e">GP14:  status LED (external)</text>
+<rect x="556" y="660" width="304" height="24" rx="5" fill="#ccfbf1" stroke="#14b8a6"/><text x="570" y="676" font-size="11" fill="#115e59">GP17:  SD CS</text>
+<line x1="382" y1="704" x2="372" y2="704" stroke="#6b7280"/>
+<line x1="538" y1="704" x2="548" y2="704" stroke="#6b7280"/>
+<text x="397" y="707" font-size="9" text-anchor="middle" fill="#cbd5e1">20</text>
+<text x="523" y="707" font-size="9" text-anchor="middle" fill="#cbd5e1">21</text>
+<rect x="60" y="692" width="304" height="24" rx="5" fill="#e0e7ff" stroke="#6366f1"/><text x="74" y="708" font-size="11" fill="#3730a3">GP15:  aux  cargo bay doors</text>
+<rect x="556" y="692" width="304" height="24" rx="5" fill="#ccfbf1" stroke="#14b8a6"/><text x="570" y="708" font-size="11" fill="#115e59">GP16:  SD MISO</text>
+<rect x="56" y="759" width="14" height="14" rx="3" fill="#fee2e2" stroke="#ef4444"/>
+<text x="76" y="770" font-size="10" fill="#374151">power</text>
+<rect x="148" y="759" width="14" height="14" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="168" y="770" font-size="10" fill="#374151">I2C sensors</text>
+<rect x="240" y="759" width="14" height="14" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="260" y="770" font-size="10" fill="#374151">flight servo</text>
+<rect x="332" y="759" width="14" height="14" rx="3" fill="#ffedd5" stroke="#f97316"/>
+<text x="352" y="770" font-size="10" fill="#374151">ESC / motor</text>
+<rect x="424" y="759" width="14" height="14" rx="3" fill="#ede9fe" stroke="#8b5cf6"/>
+<text x="444" y="770" font-size="10" fill="#374151">SBUS rx</text>
+<rect x="516" y="759" width="14" height="14" rx="3" fill="#ccfbf1" stroke="#14b8a6"/>
+<text x="536" y="770" font-size="10" fill="#374151">microSD</text>
+<rect x="608" y="759" width="14" height="14" rx="3" fill="#fef9c3" stroke="#eab308"/>
+<text x="628" y="770" font-size="10" fill="#374151">status LED</text>
+<rect x="700" y="759" width="14" height="14" rx="3" fill="#e0e7ff" stroke="#6366f1"/>
+<text x="720" y="770" font-size="10" fill="#374151">aux (user sketch)</text>
+<rect x="792" y="759" width="14" height="14" rx="3" fill="#f3f4f6" stroke="#d1d5db"/>
+<text x="812" y="770" font-size="10" fill="#374151">spare</text>
+</svg>
