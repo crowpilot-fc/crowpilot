@@ -39,6 +39,17 @@ inline float clampValue(const Param& p, float v) {
   return v;
 }
 
+// FNV-1a 32-bit hash. Used as an integrity check on the persisted
+// parameter file: a truncated write or bit-rot changes the hash.
+uint32_t fnv1a(const char* data, size_t len) {
+  uint32_t h = 2166136261u;
+  for (size_t i = 0; i < len; ++i) {
+    h ^= static_cast<uint8_t>(data[i]);
+    h *= 16777619u;
+  }
+  return h;
+}
+
 }  // namespace
 
 void init() {
@@ -119,6 +130,14 @@ bool save() {
     }
     len += static_cast<size_t>(written);
   }
+  // Append an integrity line over the body just written. load() recomputes
+  // it and rejects the file on a mismatch.
+  const int cs = snprintf(buf + len, kFileBufLen - len, "checksum=%08lx\n",
+                          static_cast<unsigned long>(fnv1a(buf, len)));
+  if (cs <= 0 || static_cast<size_t>(cs) >= kFileBufLen - len) {
+    return false;
+  }
+  len += static_cast<size_t>(cs);
   if (!cp::storage::writeText(kParamFile, buf, len)) {
     return false;
   }
@@ -135,6 +154,24 @@ bool load() {
   const int n = cp::storage::readText(kParamFile, buf, kFileBufLen);
   if (n <= 0) {
     return false;
+  }
+
+  // Integrity check. A firmware-written file ends with a checksum line
+  // computed over everything before it. A present-but-wrong checksum
+  // means the file is corrupt, so fall back to defaults rather than load
+  // bad gains. A missing checksum line is accepted, so a hand-edited
+  // file still loads once its checksum line is deleted.
+  char* cs_line = strstr(buf, "checksum=");
+  if (cs_line != nullptr) {
+    const uint32_t expected =
+        static_cast<uint32_t>(strtoul(cs_line + 9, nullptr, 16));
+    const uint32_t actual = fnv1a(buf, static_cast<size_t>(cs_line - buf));
+    if (expected != actual) {
+      if (Serial) {
+        Serial.println("WARN: param file checksum mismatch. Using defaults.");
+      }
+      return false;
+    }
   }
 
   // Walk the buffer line by line. The parse is in-place: each line is
@@ -163,7 +200,11 @@ bool load() {
     if (id < 0) {
       continue;  // unknown key, e.g. a parameter removed in a later build
     }
-    const float value = static_cast<float>(strtod(value_str, nullptr));
+    char* endp = nullptr;
+    const float value = static_cast<float>(strtod(value_str, &endp));
+    if (endp == value_str) {
+      continue;  // value is not a number, skip rather than store 0.0
+    }
     set(static_cast<ParamId>(id), value);
   }
   // A freshly loaded registry is by definition in sync with flash.
