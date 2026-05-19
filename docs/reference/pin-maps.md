@@ -13,8 +13,8 @@ This is the primary v1 target. The pin layout was chosen to keep ESC and servo l
 |---|---|---|---|
 | I2C SDA | GP4 | I2C0 | IMU + barometer shared. |
 | I2C SCL | GP5 | I2C0 | |
-| Motor 1 (right) | GP10 | GPIO bit-bang | OneShot125. |
-| Motor 2 (left) | GP11 | GPIO bit-bang | OneShot125. |
+| Motor 1 (right) | GP10 | PWM (Servo lib) | Standard 1000-2000 us PWM, or OneShot125; set by `MOTOR_PROTOCOL`. |
+| Motor 2 (left) | GP11 | PWM (Servo lib) | Standard 1000-2000 us PWM, or OneShot125; set by `MOTOR_PROTOCOL`. |
 | Servo 1 | GP12 | PWM slice (Servo lib) | 50 Hz, 1 to 2 ms. Left elevon on the tailsitter. |
 | Servo 2 | GP13 | PWM slice (Servo lib) | Right elevon on the tailsitter. |
 | Servo 3 | GP8 | PWM slice (Servo lib) | Twin-cargo plane only. Free on the tailsitter. |
@@ -39,8 +39,8 @@ The WeAct RP2350A is functionally equivalent to the Waveshare RP2350-One and use
 |---|---|---|---|
 | I2C SDA | GP4 | I2C0 | |
 | I2C SCL | GP5 | I2C0 | |
-| Motor 1 (right) | GP10 | GPIO bit-bang | OneShot125. |
-| Motor 2 (left) | GP11 | GPIO bit-bang | OneShot125. |
+| Motor 1 (right) | GP10 | PWM (Servo lib) | Standard 1000-2000 us PWM, or OneShot125; set by `MOTOR_PROTOCOL`. |
+| Motor 2 (left) | GP11 | PWM (Servo lib) | Standard 1000-2000 us PWM, or OneShot125; set by `MOTOR_PROTOCOL`. |
 | Servo 1 | GP6 | PWM slice (Servo lib) | Different from Waveshare profile. Left elevon on the tailsitter. |
 | Servo 2 | GP7 | PWM slice (Servo lib) | Right elevon on the tailsitter. |
 | Servo 3 | GP8 | PWM slice (Servo lib) | Twin-cargo plane only. Free on the tailsitter. |

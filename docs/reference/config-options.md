@@ -103,6 +103,7 @@ are `constexpr` constants in namespace `cp`.
 | `ENABLE_PARAM_PERSIST` | `1` | Enables flash persistence of the parameter registry. |
 | `ENABLE_LIVE_TUNE` | `1` | Enables transmitter-channel live tuning. |
 | `ENABLE_CONFIG_CLI` | `1` | Enables the `cp` serial command interface the browser-based configurator speaks. A bench tool; a flight-only build can drop it. |
+| `ENABLE_COMPANION_CLI` | `1` | Also runs the `cp` interface on the companion UART (native builds), so an ESP WiFi module can bridge it to a phone. |
 | `LIVE_TUNE_CH_KP` | `9` | Channel for the live P-gain knob. |
 | `LIVE_TUNE_CH_KD` | `10` | Channel for the live D-gain knob. |
 | `LIVE_TUNE_RANGE` | `0.5` | Fractional tuning range, plus or minus. |
