@@ -1,0 +1,310 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1900" viewBox="0 0 1440 1900" font-family="Helvetica,Arial,sans-serif">
+<rect width="1440" height="1900" fill="#ffffff"/>
+<defs><marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#475569"/></marker></defs>
+<text x="720.0" y="34" font-size="20" font-weight="bold" text-anchor="middle" fill="#0f172a">DHC-4 Caribou  -  full electronics wiring</text>
+<text x="40" y="70" font-size="16" font-weight="bold" fill="#0f172a">1.  Power</text>
+<line x1="40" y1="79" x2="1400" y2="79" stroke="#cbd5e1" stroke-width="1.6"/>
+<rect x="600" y="86" width="240" height="56" rx="9" fill="#fee2e2" stroke="#dc2626" stroke-width="1.6"/>
+<text x="720.0" y="109" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">6S LiPo 3200 mAh</text>
+<text x="615" y="130" font-size="12" fill="#374151">22.2 V nominal. Negative = common ground.</text>
+<rect x="250" y="196" width="220" height="66" rx="9" fill="#ffedd5" stroke="#f97316" stroke-width="1.6"/>
+<text x="360.0" y="219" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">XT60  +  ESC-B  (left wing)</text>
+<text x="265" y="240" font-size="12" fill="#374151">80 A bidirectional ESC</text>
+<text x="265" y="257.5" font-size="12" fill="#374151">5 A 5 V BEC  -&gt;  Rail B</text>
+<rect x="970" y="196" width="220" height="66" rx="9" fill="#ffedd5" stroke="#f97316" stroke-width="1.6"/>
+<text x="1080.0" y="219" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">XT60  +  ESC-A  (right wing)</text>
+<text x="985" y="240" font-size="12" fill="#374151">80 A bidirectional ESC</text>
+<text x="985" y="257.5" font-size="12" fill="#374151">5 A 5 V BEC  -&gt;  Rail A</text>
+<rect x="70" y="205" width="150" height="48" rx="9" fill="#f1f5f9" stroke="#64748b" stroke-width="1.6"/>
+<text x="145.0" y="228" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">Motor LEFT</text>
+<text x="85" y="249" font-size="12" fill="#374151">XRotor 3115 900kv</text>
+<rect x="1220" y="205" width="150" height="48" rx="9" fill="#f1f5f9" stroke="#64748b" stroke-width="1.6"/>
+<text x="1295.0" y="228" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">Motor RIGHT</text>
+<text x="1235" y="249" font-size="12" fill="#374151">XRotor 3115 900kv</text>
+<rect x="250" y="292" width="220" height="30" rx="6" fill="#dc2626"/><text x="360" y="312" font-size="12" font-weight="bold" text-anchor="middle" fill="#fff">Rail B  =  left wing only</text>
+<rect x="970" y="292" width="220" height="30" rx="6" fill="#dc2626"/><text x="1080" y="312" font-size="12" font-weight="bold" text-anchor="middle" fill="#fff">Rail A  =  right wing + body</text>
+<polyline points="660,142 660,168 360,168 360,196" fill="none" stroke="#dc2626" stroke-width="2.6" marker-end="url(#a)"/>
+<polyline points="660,168 1080,168 1080,196" fill="none" stroke="#dc2626" stroke-width="2.6" marker-end="url(#a)"/>
+<polyline points="250,230 220,230" fill="none" stroke="#1f2937" stroke-width="4" marker-end="url(#a)"/>
+<rect x="206.6" y="221.0" width="56.800000000000004" height="16" rx="3" fill="#ffffff" stroke="#1f2937"/>
+<text x="235.0" y="233.0" font-size="10" text-anchor="middle" fill="#1f2937">3-phase</text>
+<polyline points="1190,230 1220,230" fill="none" stroke="#1f2937" stroke-width="4" marker-end="url(#a)"/>
+<rect x="1176.6" y="221.0" width="56.800000000000004" height="16" rx="3" fill="#ffffff" stroke="#1f2937"/>
+<text x="1205.0" y="233.0" font-size="10" text-anchor="middle" fill="#1f2937">3-phase</text>
+<polyline points="360,262 360,292" fill="none" stroke="#dc2626" stroke-width="2.6" marker-end="url(#a)"/>
+<polyline points="1080,262 1080,292" fill="none" stroke="#dc2626" stroke-width="2.6" marker-end="url(#a)"/>
+<text x="40" y="372" font-size="16" font-weight="bold" fill="#0f172a">2.  Layout   (each wing self-powered by its own ESC; ESC-A also feeds the fuselage)</text>
+<line x1="40" y1="381" x2="1400" y2="381" stroke="#cbd5e1" stroke-width="1.6"/>
+<rect x="40" y="398" width="360" height="340" rx="9" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.6"/>
+<text x="220.0" y="421" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">LEFT WING   (on Rail B, local)</text>
+<text x="55" y="442" font-size="12" font-weight="bold" fill="#374151">Actuators (5 V + GND from local ESC-B):</text>
+<text x="55" y="459.5" font-size="12" fill="#374151">aileron L servo</text>
+<text x="55" y="477.0" font-size="12" fill="#374151">flap 1 L servo</text>
+<text x="55" y="494.5" font-size="12" fill="#374151">flap 2 L servo</text>
+<text x="55" y="512.0" font-size="12" fill="#374151">retract L  (main gear)</text>
+<text x="55" y="529.5" font-size="12" fill="#374151">LED1  white, steady   (taps 5 V / GND)</text>
+<text x="55" y="547.0" font-size="12" fill="#374151">LED2  red, blink   (GPIO signal)</text>
+<text x="55" y="564.5" font-size="12" fill="#374151"></text>
+<text x="55" y="582.0" font-size="12" font-weight="bold" fill="#374151">To fuselage via MPX-L (8 pin):</text>
+<text x="55" y="599.5" font-size="12" fill="#374151">6 signal wires + 1 ground.  1 pin spare.</text>
+<rect x="540" y="398" width="360" height="340" rx="9" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.6"/>
+<text x="720.0" y="421" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">FUSELAGE   (on Rail A, from ESC-A)</text>
+<text x="555" y="442" font-size="12" font-weight="bold" fill="#374151">Electronics (5 V from Rail A):</text>
+<text x="555" y="459.5" font-size="12" fill="#374151">RP2350 WeAct  -&gt;  VSYS</text>
+<text x="555" y="477.0" font-size="12" fill="#374151">ESP32-C3 companion</text>
+<text x="555" y="494.5" font-size="12" fill="#374151">MPU6500 IMU + BMP388 baro  (I2C)</text>
+<text x="555" y="512.0" font-size="12" fill="#374151">microSD  (SPI)      SBUS receiver</text>
+<text x="555" y="529.5" font-size="12" fill="#374151"></text>
+<text x="555" y="547.0" font-size="12" font-weight="bold" fill="#374151">Body actuators on 3-pin headers</text>
+<text x="555" y="564.5" font-size="12" fill="#374151">(signal / 5 V Rail A / GND):</text>
+<text x="555" y="582.0" font-size="12" fill="#374151">elevator x2, rudder,</text>
+<text x="555" y="599.5" font-size="12" fill="#374151">bay door 1, bay door 2, nose retract</text>
+<rect x="1040" y="398" width="360" height="340" rx="9" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.6"/>
+<text x="1220.0" y="421" font-size="14" font-weight="bold" text-anchor="middle" fill="#111827">RIGHT WING   (on Rail A, local)</text>
+<text x="1055" y="442" font-size="12" font-weight="bold" fill="#374151">Actuators (5 V + GND from local ESC-A):</text>
+<text x="1055" y="459.5" font-size="12" fill="#374151">aileron R servo</text>
+<text x="1055" y="477.0" font-size="12" fill="#374151">flap 1 R servo</text>
+<text x="1055" y="494.5" font-size="12" fill="#374151">flap 2 R servo</text>
+<text x="1055" y="512.0" font-size="12" fill="#374151">retract R  (main gear)</text>
+<text x="1055" y="529.5" font-size="12" fill="#374151">LED1  white, steady   (taps 5 V / GND)</text>
+<text x="1055" y="547.0" font-size="12" fill="#374151">LED2  green, blink   (GPIO signal)</text>
+<text x="1055" y="564.5" font-size="12" fill="#374151"></text>
+<text x="1055" y="582.0" font-size="12" font-weight="bold" fill="#374151">To fuselage via MPX-R (8 pin):</text>
+<text x="1055" y="599.5" font-size="12" fill="#374151">6 signal wires + Rail A (5 V + GND).  Full.</text>
+<rect x="430" y="520" width="50" height="96" rx="5" fill="#0f766e"/>
+<text x="455" y="545" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">MPX-L</text>
+<text x="455" y="562" font-size="9" text-anchor="middle" fill="#99f6e4">8-pin</text>
+<circle cx="455" cy="572" r="1.7" fill="#99f6e4"/>
+<circle cx="455" cy="577" r="1.7" fill="#99f6e4"/>
+<circle cx="455" cy="582" r="1.7" fill="#99f6e4"/>
+<circle cx="455" cy="587" r="1.7" fill="#99f6e4"/>
+<circle cx="455" cy="592" r="1.7" fill="#99f6e4"/>
+<circle cx="455" cy="597" r="1.7" fill="#99f6e4"/>
+<circle cx="455" cy="602" r="1.7" fill="#99f6e4"/>
+<circle cx="455" cy="607" r="1.7" fill="#99f6e4"/>
+<rect x="915" y="520" width="50" height="96" rx="5" fill="#0f766e"/>
+<text x="940" y="545" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">MPX-R</text>
+<text x="940" y="562" font-size="9" text-anchor="middle" fill="#99f6e4">8-pin</text>
+<circle cx="940" cy="572" r="1.7" fill="#99f6e4"/>
+<circle cx="940" cy="577" r="1.7" fill="#99f6e4"/>
+<circle cx="940" cy="582" r="1.7" fill="#99f6e4"/>
+<circle cx="940" cy="587" r="1.7" fill="#99f6e4"/>
+<circle cx="940" cy="592" r="1.7" fill="#99f6e4"/>
+<circle cx="940" cy="597" r="1.7" fill="#99f6e4"/>
+<circle cx="940" cy="602" r="1.7" fill="#99f6e4"/>
+<circle cx="940" cy="607" r="1.7" fill="#99f6e4"/>
+<polyline points="400,540 430,540" fill="none" stroke="#4f46e5" stroke-width="3.4" marker-end="url(#a)"/>
+<rect x="393.0" y="531.0" width="44.0" height="16" rx="3" fill="#ffffff" stroke="#4f46e5"/>
+<text x="415.0" y="543.0" font-size="10" text-anchor="middle" fill="#4f46e5">6 sig</text>
+<polyline points="480,540 540,540" fill="none" stroke="#4f46e5" stroke-width="3.4" marker-end="url(#a)"/>
+<polyline points="480,596 540,596" fill="none" stroke="#dc2626" stroke-width="3.4" marker-end="url(#a)"/>
+<rect x="462.4" y="587.0" width="95.2" height="16" rx="3" fill="#ffffff" stroke="#dc2626"/>
+<text x="510.0" y="599.0" font-size="10" text-anchor="middle" fill="#dc2626">Rail A 5V/GND</text>
+<polyline points="900,540 915,540" fill="none" stroke="#4f46e5" stroke-width="3.4" marker-end="url(#a)"/>
+<polyline points="965,540 1040,540" fill="none" stroke="#4f46e5" stroke-width="3.4" marker-end="url(#a)"/>
+<rect x="980.5" y="531.0" width="44.0" height="16" rx="3" fill="#ffffff" stroke="#4f46e5"/>
+<text x="1002.5" y="543.0" font-size="10" text-anchor="middle" fill="#4f46e5">6 sig</text>
+<polyline points="900,596 915,596" fill="none" stroke="#dc2626" stroke-width="3.4" marker-end="url(#a)"/>
+<rect x="859.9" y="587.0" width="95.2" height="16" rx="3" fill="#ffffff" stroke="#dc2626"/>
+<text x="907.5" y="599.0" font-size="10" text-anchor="middle" fill="#dc2626">Rail A 5V/GND</text>
+<text x="720" y="726" font-size="11" text-anchor="middle" fill="#92400e">Note: ESC-A 5 A BEC carries the right wing + the whole fuselage. If it sags under retract / multi-servo current, split body load onto ESC-B.</text>
+<text x="40" y="786" font-size="16" font-weight="bold" fill="#0f172a">3.  Connector pinouts and FC channel map</text>
+<line x1="40" y1="795" x2="1400" y2="795" stroke="#cbd5e1" stroke-width="1.6"/>
+<rect x="60" y="818" width="600" height="246" rx="8" fill="#fff" stroke="#0f766e" stroke-width="1.5"/>
+<rect x="60" y="818" width="600" height="30" fill="#0f766e"/>
+<rect x="60" y="840" width="600" height="8" fill="#0f766e"/>
+<text x="360.0" y="838" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#fff">MPX-R   right wing  (full, 8/8)</text>
+<rect x="68" y="852" width="28" height="18" rx="4" fill="#0f766e"/>
+<text x="82" y="865" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">1</text>
+<text x="106" y="865" font-size="11.5" fill="#1f2937">aileron R  signal</text>
+<text x="648" y="865" font-size="11" text-anchor="end" fill="#1d4ed8">FC GP7</text>
+<rect x="61" y="874" width="598" height="26" fill="#f0fdfa"/>
+<rect x="68" y="878" width="28" height="18" rx="4" fill="#0f766e"/>
+<text x="82" y="891" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">2</text>
+<text x="106" y="891" font-size="11.5" fill="#1f2937">flap 1  signal</text>
+<text x="648" y="891" font-size="11" text-anchor="end" fill="#4f46e5">FC GP12</text>
+<rect x="68" y="904" width="28" height="18" rx="4" fill="#0f766e"/>
+<text x="82" y="917" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">3</text>
+<text x="106" y="917" font-size="11.5" fill="#1f2937">flap 2  signal</text>
+<text x="648" y="917" font-size="11" text-anchor="end" fill="#4f46e5">FC GP13</text>
+<rect x="61" y="926" width="598" height="26" fill="#f0fdfa"/>
+<rect x="68" y="930" width="28" height="18" rx="4" fill="#0f766e"/>
+<text x="82" y="943" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">4</text>
+<text x="106" y="943" font-size="11.5" fill="#1f2937">retract R  signal</text>
+<text x="648" y="943" font-size="11" text-anchor="end" fill="#4f46e5">FC GP22</text>
+<rect x="68" y="956" width="28" height="18" rx="4" fill="#0f766e"/>
+<text x="82" y="969" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">5</text>
+<text x="106" y="969" font-size="11.5" fill="#1f2937">ESC-A  signal</text>
+<text x="648" y="969" font-size="11" text-anchor="end" fill="#1d4ed8">FC GP10</text>
+<rect x="61" y="978" width="598" height="26" fill="#f0fdfa"/>
+<rect x="68" y="982" width="28" height="18" rx="4" fill="#0f766e"/>
+<text x="82" y="995" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">6</text>
+<text x="106" y="995" font-size="11.5" fill="#1f2937">LED2  signal (blink)</text>
+<text x="648" y="995" font-size="11" text-anchor="end" fill="#4f46e5">FC GP2</text>
+<rect x="68" y="1008" width="28" height="18" rx="4" fill="#0f766e"/>
+<text x="82" y="1021" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">7</text>
+<text x="106" y="1021" font-size="11.5" fill="#1f2937">+5V  Rail A</text>
+<text x="648" y="1021" font-size="11" text-anchor="end" fill="#b91c1c">ESC-A BEC -&gt; body</text>
+<rect x="61" y="1030" width="598" height="26" fill="#f0fdfa"/>
+<rect x="68" y="1034" width="28" height="18" rx="4" fill="#0f766e"/>
+<text x="82" y="1047" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">8</text>
+<text x="106" y="1047" font-size="11.5" fill="#1f2937">GND  Rail A</text>
+<text x="648" y="1047" font-size="11" text-anchor="end" fill="#b91c1c">common ground -&gt; body</text>
+<rect x="780" y="818" width="600" height="246" rx="8" fill="#fff" stroke="#0f766e" stroke-width="1.5"/>
+<rect x="780" y="818" width="600" height="30" fill="#0f766e"/>
+<rect x="780" y="840" width="600" height="8" fill="#0f766e"/>
+<text x="1080.0" y="838" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#fff">MPX-L   left wing  (7/8, 1 spare)</text>
+<rect x="788" y="852" width="28" height="18" rx="4" fill="#0f766e"/>
+<text x="802" y="865" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">1</text>
+<text x="826" y="865" font-size="11.5" fill="#1f2937">aileron L  signal</text>
+<text x="1368" y="865" font-size="11" text-anchor="end" fill="#1d4ed8">FC GP6</text>
+<rect x="781" y="874" width="598" height="26" fill="#f0fdfa"/>
+<rect x="788" y="878" width="28" height="18" rx="4" fill="#0f766e"/>
+<text x="802" y="891" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">2</text>
+<text x="826" y="891" font-size="11.5" fill="#1f2937">flap 1  signal</text>
+<text x="1368" y="891" font-size="11" text-anchor="end" fill="#4f46e5">FC GP12</text>
+<rect x="788" y="904" width="28" height="18" rx="4" fill="#0f766e"/>
+<text x="802" y="917" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">3</text>
+<text x="826" y="917" font-size="11.5" fill="#1f2937">flap 2  signal</text>
+<text x="1368" y="917" font-size="11" text-anchor="end" fill="#4f46e5">FC GP13</text>
+<rect x="781" y="926" width="598" height="26" fill="#f0fdfa"/>
+<rect x="788" y="930" width="28" height="18" rx="4" fill="#0f766e"/>
+<text x="802" y="943" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">4</text>
+<text x="826" y="943" font-size="11.5" fill="#1f2937">retract L  signal</text>
+<text x="1368" y="943" font-size="11" text-anchor="end" fill="#4f46e5">FC GP22</text>
+<rect x="788" y="956" width="28" height="18" rx="4" fill="#0f766e"/>
+<text x="802" y="969" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">5</text>
+<text x="826" y="969" font-size="11.5" fill="#1f2937">ESC-B  signal</text>
+<text x="1368" y="969" font-size="11" text-anchor="end" fill="#1d4ed8">FC GP11</text>
+<rect x="781" y="978" width="598" height="26" fill="#f0fdfa"/>
+<rect x="788" y="982" width="28" height="18" rx="4" fill="#0f766e"/>
+<text x="802" y="995" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">6</text>
+<text x="826" y="995" font-size="11.5" fill="#1f2937">LED2  signal (blink)</text>
+<text x="1368" y="995" font-size="11" text-anchor="end" fill="#4f46e5">FC GP2</text>
+<rect x="788" y="1008" width="28" height="18" rx="4" fill="#0f766e"/>
+<text x="802" y="1021" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">7</text>
+<text x="826" y="1021" font-size="11.5" fill="#1f2937">GND</text>
+<text x="1368" y="1021" font-size="11" text-anchor="end" fill="#b91c1c">signal ground -&gt; body</text>
+<rect x="781" y="1030" width="598" height="26" fill="#f0fdfa"/>
+<rect x="788" y="1034" width="28" height="18" rx="4" fill="#0f766e"/>
+<text x="802" y="1047" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">8</text>
+<text x="826" y="1047" font-size="11.5" fill="#1f2937">spare</text>
+<text x="1368" y="1047" font-size="11" text-anchor="end" fill="#94a3b8">open</text>
+<rect x="60" y="1066" width="600" height="194" rx="8" fill="#fff" stroke="#475569" stroke-width="1.5"/>
+<rect x="60" y="1066" width="600" height="30" fill="#475569"/>
+<rect x="60" y="1088" width="600" height="8" fill="#475569"/>
+<text x="360.0" y="1086" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#fff">Fuselage 3-pin headers   signal / +5V Rail A / GND</text>
+<rect x="68" y="1100" width="28" height="18" rx="4" fill="#475569"/>
+<text x="82" y="1113" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">H1</text>
+<text x="106" y="1113" font-size="11.5" fill="#1f2937">elevator servo 1</text>
+<text x="648" y="1113" font-size="11" text-anchor="end" fill="#1d4ed8">FC GP8</text>
+<rect x="61" y="1122" width="598" height="26" fill="#f1f5f9"/>
+<rect x="68" y="1126" width="28" height="18" rx="4" fill="#475569"/>
+<text x="82" y="1139" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">H2</text>
+<text x="106" y="1139" font-size="11.5" fill="#1f2937">elevator servo 2</text>
+<text x="648" y="1139" font-size="11" text-anchor="end" fill="#1d4ed8">FC GP8</text>
+<rect x="68" y="1152" width="28" height="18" rx="4" fill="#475569"/>
+<text x="82" y="1165" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">H3</text>
+<text x="106" y="1165" font-size="11.5" fill="#1f2937">rudder servo</text>
+<text x="648" y="1165" font-size="11" text-anchor="end" fill="#1d4ed8">FC GP9</text>
+<rect x="61" y="1174" width="598" height="26" fill="#f1f5f9"/>
+<rect x="68" y="1178" width="28" height="18" rx="4" fill="#475569"/>
+<text x="82" y="1191" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">H4</text>
+<text x="106" y="1191" font-size="11.5" fill="#1f2937">cargo bay door 1</text>
+<text x="648" y="1191" font-size="11" text-anchor="end" fill="#4f46e5">FC GP15</text>
+<rect x="68" y="1204" width="28" height="18" rx="4" fill="#475569"/>
+<text x="82" y="1217" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">H5</text>
+<text x="106" y="1217" font-size="11.5" fill="#1f2937">cargo bay door 2</text>
+<text x="648" y="1217" font-size="11" text-anchor="end" fill="#4f46e5">FC GP28</text>
+<rect x="61" y="1226" width="598" height="26" fill="#f1f5f9"/>
+<rect x="68" y="1230" width="28" height="18" rx="4" fill="#475569"/>
+<text x="82" y="1243" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">H6</text>
+<text x="106" y="1243" font-size="11.5" fill="#1f2937">nose gear retract</text>
+<text x="648" y="1243" font-size="11" text-anchor="end" fill="#4f46e5">FC GP22</text>
+<rect x="780" y="1066" width="600" height="350" rx="8" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/>
+<rect x="780" y="1066" width="600" height="30" fill="#1d4ed8"/>
+<rect x="780" y="1088" width="600" height="8" fill="#1d4ed8"/>
+<text x="1080.0" y="1086" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#fff">RP2350 channel map   (LED1 white = no GPIO)</text>
+<rect x="788" y="1100" width="28" height="18" rx="4" fill="#1d4ed8"/>
+<text x="802" y="1113" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">GP6</text>
+<text x="826" y="1113" font-size="11.5" fill="#1f2937">aileron LEFT</text>
+<text x="1368" y="1113" font-size="11" text-anchor="end" fill="#1d4ed8">core mixer</text>
+<rect x="781" y="1122" width="598" height="26" fill="#eff6ff"/>
+<rect x="788" y="1126" width="28" height="18" rx="4" fill="#1d4ed8"/>
+<text x="802" y="1139" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">GP7</text>
+<text x="826" y="1139" font-size="11.5" fill="#1f2937">aileron RIGHT</text>
+<text x="1368" y="1139" font-size="11" text-anchor="end" fill="#1d4ed8">core mixer</text>
+<rect x="788" y="1152" width="28" height="18" rx="4" fill="#1d4ed8"/>
+<text x="802" y="1165" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">GP8</text>
+<text x="826" y="1165" font-size="11.5" fill="#1f2937">elevator  (Y to 2 servos)</text>
+<text x="1368" y="1165" font-size="11" text-anchor="end" fill="#1d4ed8">core mixer</text>
+<rect x="781" y="1174" width="598" height="26" fill="#eff6ff"/>
+<rect x="788" y="1178" width="28" height="18" rx="4" fill="#1d4ed8"/>
+<text x="802" y="1191" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">GP9</text>
+<text x="826" y="1191" font-size="11.5" fill="#1f2937">rudder</text>
+<text x="1368" y="1191" font-size="11" text-anchor="end" fill="#1d4ed8">core mixer</text>
+<rect x="788" y="1204" width="28" height="18" rx="4" fill="#1d4ed8"/>
+<text x="802" y="1217" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">GP10</text>
+<text x="826" y="1217" font-size="11.5" fill="#1f2937">ESC RIGHT</text>
+<text x="1368" y="1217" font-size="11" text-anchor="end" fill="#1d4ed8">core mixer</text>
+<rect x="781" y="1226" width="598" height="26" fill="#eff6ff"/>
+<rect x="788" y="1230" width="28" height="18" rx="4" fill="#1d4ed8"/>
+<text x="802" y="1243" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">GP11</text>
+<text x="826" y="1243" font-size="11.5" fill="#1f2937">ESC LEFT</text>
+<text x="1368" y="1243" font-size="11" text-anchor="end" fill="#1d4ed8">core mixer</text>
+<rect x="788" y="1256" width="28" height="18" rx="4" fill="#1d4ed8"/>
+<text x="802" y="1269" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">GP12</text>
+<text x="826" y="1269" font-size="11.5" fill="#1f2937">flap 1  (Y to both wings)</text>
+<text x="1368" y="1269" font-size="11" text-anchor="end" fill="#4f46e5">user-sketch</text>
+<rect x="781" y="1278" width="598" height="26" fill="#eff6ff"/>
+<rect x="788" y="1282" width="28" height="18" rx="4" fill="#1d4ed8"/>
+<text x="802" y="1295" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">GP13</text>
+<text x="826" y="1295" font-size="11.5" fill="#1f2937">flap 2  (Y to both wings)</text>
+<text x="1368" y="1295" font-size="11" text-anchor="end" fill="#4f46e5">user-sketch</text>
+<rect x="788" y="1308" width="28" height="18" rx="4" fill="#1d4ed8"/>
+<text x="802" y="1321" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">GP22</text>
+<text x="826" y="1321" font-size="11.5" fill="#1f2937">retracts  (Y to all 3)</text>
+<text x="1368" y="1321" font-size="11" text-anchor="end" fill="#4f46e5">user-sketch</text>
+<rect x="781" y="1330" width="598" height="26" fill="#eff6ff"/>
+<rect x="788" y="1334" width="28" height="18" rx="4" fill="#1d4ed8"/>
+<text x="802" y="1347" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">GP15</text>
+<text x="826" y="1347" font-size="11.5" fill="#1f2937">bay door 1</text>
+<text x="1368" y="1347" font-size="11" text-anchor="end" fill="#4f46e5">user-sketch</text>
+<rect x="788" y="1360" width="28" height="18" rx="4" fill="#1d4ed8"/>
+<text x="802" y="1373" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">GP28</text>
+<text x="826" y="1373" font-size="11.5" fill="#1f2937">bay door 2</text>
+<text x="1368" y="1373" font-size="11" text-anchor="end" fill="#4f46e5">user-sketch</text>
+<rect x="781" y="1382" width="598" height="26" fill="#eff6ff"/>
+<rect x="788" y="1386" width="28" height="18" rx="4" fill="#1d4ed8"/>
+<text x="802" y="1399" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">GP2</text>
+<text x="826" y="1399" font-size="11.5" fill="#1f2937">LED2 nav blink  (both wings)</text>
+<text x="1368" y="1399" font-size="11" text-anchor="end" fill="#4f46e5">user-sketch</text>
+<rect x="60" y="1282" width="600" height="168" rx="8" fill="#fff" stroke="#334155" stroke-width="1.5"/>
+<rect x="60" y="1282" width="600" height="30" fill="#334155"/>
+<rect x="60" y="1304" width="600" height="8" fill="#334155"/>
+<text x="360.0" y="1302" font-size="12.5" font-weight="bold" text-anchor="middle" fill="#fff">RP2350 fixed connections</text>
+<rect x="68" y="1316" width="28" height="18" rx="4" fill="#334155"/>
+<text x="82" y="1329" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">GP4/5</text>
+<text x="106" y="1329" font-size="11.5" fill="#1f2937">I2C0  -  MPU6500 IMU + BMP388 baro</text>
+<text x="648" y="1329" font-size="11" text-anchor="end" fill="#2563eb"></text>
+<rect x="61" y="1338" width="598" height="26" fill="#f1f5f9"/>
+<rect x="68" y="1342" width="28" height="18" rx="4" fill="#334155"/>
+<text x="82" y="1355" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">GP16-19</text>
+<text x="106" y="1355" font-size="11.5" fill="#1f2937">SPI0  -  microSD card</text>
+<text x="648" y="1355" font-size="11" text-anchor="end" fill="#0d9488"></text>
+<rect x="68" y="1368" width="28" height="18" rx="4" fill="#334155"/>
+<text x="82" y="1381" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">GP1</text>
+<text x="106" y="1381" font-size="11.5" fill="#1f2937">SBUS receiver  (PIO)</text>
+<text x="648" y="1381" font-size="11" text-anchor="end" fill="#4f46e5"></text>
+<rect x="61" y="1390" width="598" height="26" fill="#f1f5f9"/>
+<rect x="68" y="1394" width="28" height="18" rx="4" fill="#334155"/>
+<text x="82" y="1407" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">GP20/21</text>
+<text x="106" y="1407" font-size="11.5" fill="#1f2937">companion UART  -  ESP32-C3</text>
+<text x="648" y="1407" font-size="11" text-anchor="end" fill="#7c3aed"></text>
+<rect x="68" y="1420" width="28" height="18" rx="4" fill="#334155"/>
+<text x="82" y="1433" font-size="11" font-weight="bold" text-anchor="middle" fill="#fff">GP14</text>
+<text x="106" y="1433" font-size="11.5" fill="#1f2937">status LED</text>
+<text x="648" y="1433" font-size="11" text-anchor="end" fill="#ca8a04"></text>
+<text x="60" y="1476" font-size="11" fill="#475569">Blue label = core flight mixer.   Indigo = aux, driven by user-sketch.ino.   Red = power.</text>
+<text x="60" y="1494" font-size="11" fill="#475569">LED1 (white, always on) taps each wing's local 5 V / GND. LED2 (red left, green right) blinks from one shared GPIO.</text>
+</svg>
