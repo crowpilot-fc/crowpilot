@@ -69,3 +69,80 @@ The mixer gains, the elevon travel, the differential-thrust gain, and the
 elevon trims, are also provisional. Set the elevon trims first, mechanically,
 so the surfaces sit at their true center. Then verify the travel gains give
 full but not saturated deflection at full demand.
+
+## Plane tuning (fixed-wing airframes)
+
+The Caribou twin-engine plane and the Gee Bee single-engine plane do not
+use the tailsitter angle PID described above. They use the fixed-wing
+stabilization subsystem (`cp::control::plane_stab`): a wing leveler, a
+pitch-attitude hold, a yaw damper, and an optional barometric altitude
+hold. The plane mixer consumes the stabilizer output directly.
+
+Plane gains live in `Config.h`: `KP_STAB_ROLL`, `KD_STAB_ROLL`,
+`KP_STAB_PITCH`, `KD_STAB_PITCH`, `KD_STAB_YAW`, and `KP_ALT` / `KD_ALT`
+for altitude hold. Each axis output is
+`STAB_OUTPUT_SCALE * (Kp * angle_error_deg - Kd * body_rate_dps)`,
+clamped to the surface range. There is no hover-versus-forward gain set
+on the plane. One gain set covers the whole flight envelope.
+
+### Plane tuning order
+
+1. **Bench first.** Confirm every control surface moves the correct way
+   for a given stick input, with the airframe restrained on the bench. A
+   reversed aileron is the single most common plane-maiden crash cause.
+   Reverse on the transmitter, not in `Config.h`.
+2. **Fly in passthrough.** Set the stab channel high so every stabilizer
+   term drops out. Trim the aircraft for hands-off level flight in
+   passthrough first. A plane that will not fly trimmed in manual will
+   not fly stabilized.
+3. **Enable stabilization.** Flip the stab channel low. With the airframe
+   in level cruise, sticks centered, the wing leveler and pitch hold
+   should hold attitude. Watch for oscillation on the `DEBUG_PRINT_STAB`
+   line.
+4. **Tune roll, then pitch.** Same D-then-P discipline as the tailsitter.
+   Raise `KD_STAB_*` until a hand-induced disturbance recovers without
+   oscillation, then `KP_STAB_*` until the recovery is crisp. A plane
+   needs less gain than a tailsitter because the aerodynamic surfaces
+   already provide damping.
+5. **Yaw damper.** `KD_STAB_YAW` only needs to take the wallow out. Raise
+   it until Dutch roll is damped. Do not chase a heading hold (v1 has
+   none).
+6. **Altitude hold last.** With `ENABLE_ALT_HOLD = 1`, engage the
+   alt-hold channel in level cruise. Raise `KP_ALT` until the aircraft
+   holds altitude without a slow porpoise. Raise `KD_ALT` if it
+   overshoots the captured altitude. Altitude hold needs a healthy
+   barometer.
+
+Plane forward-flight tuning otherwise follows the same log-reading
+discipline as the tailsitter: non-saturated surface output, low gyro
+noise, stable attitude with sticks centered.
+
+### EDF-specific notes
+
+An electric ducted fan behaves differently from a propeller and changes
+how the airframe is tuned.
+
+- **High static thrust, narrow efficient band.** An EDF produces strong
+  thrust over a narrower efficient throttle band than a propeller.
+  Useful thrust starts higher up the throttle curve. Expect to cruise at
+  a higher throttle percentage than a comparable prop plane, and set
+  `KP_ALT` conservatively, because a small altitude error commands a
+  throttle change that on an EDF can translate to a large thrust change.
+- **Fast spool-up, but not instant.** An EDF spools faster than it sounds
+  but still has rotational inertia. `KD_ALT` needs to be high enough
+  that altitude hold does not chase the spool lag into a porpoise.
+- **High current draw.** EDFs pull serious amps. Battery sag is
+  significant: tune and trim on a battery state representative of
+  mid-flight, not a fresh pack. Confirm the loop period and telemetry
+  stay clean under sustained full-throttle bench runs before flight,
+  because brownout-induced resets show up as gaps in the log.
+- **Thrust line.** An EDF mounted on the fuselage usually has a thrust
+  line close to the center of mass, so throttle changes produce little
+  pitch coupling. If the duct is high or low, expect a throttle-to-pitch
+  coupling that the pitch hold has to absorb. Tune pitch with throttle
+  steps as well as attitude disturbances.
+
+Start the plane stab gains lower than the prop defaults for an EDF
+airframe. An EDF airframe is typically faster and the control surfaces
+are more effective at speed, so a given `KP_STAB_*` produces a larger
+moment. Raise gains from a conservative base.
