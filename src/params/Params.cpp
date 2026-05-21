@@ -168,8 +168,15 @@ bool load() {
     const uint32_t actual = fnv1a(buf, static_cast<size_t>(cs_line - buf));
     if (expected != actual) {
       if (Serial) {
-        Serial.println("WARN: param file checksum mismatch. Using defaults.");
+        Serial.println("WARN: param file checksum mismatch. Reverting to defaults.");
       }
+      // Restore defaults explicitly so a runtime `cp load` against a
+      // corrupt file does not leave the previous (possibly live-tuned)
+      // values in place while the message claims otherwise.
+      for (uint8_t i = 0; i < PARAM_COUNT; ++i) {
+        s_params[i].value = s_params[i].default_value;
+      }
+      s_dirty = false;
       return false;
     }
   }

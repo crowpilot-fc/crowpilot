@@ -14,6 +14,15 @@
 void user_setup();
 void user_tick();
 
+// SITL and HIL builds do not compile user-sketch.ino (it pulls in Servo.h
+// and Arduino-only APIs). Provide weak no-op definitions so a host build
+// with ENABLE_USER_HOOK still links cleanly; native builds override these
+// with the real user-sketch.
+#if BUILD_TARGET != BUILD_TARGET_NATIVE
+__attribute__((weak)) void user_setup() {}
+__attribute__((weak)) void user_tick()  {}
+#endif
+
 namespace cp::user_hook {
 
 namespace {
