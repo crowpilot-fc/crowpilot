@@ -70,22 +70,21 @@ are `constexpr` constants in namespace `cp`.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `CHANNEL_THROTTLE` | `1` | Throttle channel, 1-based. |
-| `CHANNEL_ROLL` | `2` | Roll channel. |
-| `CHANNEL_PITCH` | `3` | Pitch channel. |
-| `CHANNEL_YAW` | `4` | Yaw channel. |
-| `CHANNEL_ARM` | `5` | Arm switch channel. |
-| `CHANNEL_TRANSITION` | `6` | Transition channel. |
+| `CHANNEL_ROLL` | `1` | Roll channel, 1-based. AETR ch1. |
+| `CHANNEL_PITCH` | `2` | Pitch channel. AETR ch2. |
+| `CHANNEL_THROTTLE` | `3` | Throttle channel. AETR ch3. |
+| `CHANNEL_YAW` | `4` | Yaw channel. AETR ch4. |
+| `CHANNEL_ARM` | `16` | Arm switch channel. Top SBUS channel, dedicated. |
+| `CHANNEL_TRANSITION` | `15` | Transition channel. Tailsitter fader only; parked on a high channel for the plane build. |
 | `RC_MIN_US` / `RC_MID_US` / `RC_MAX_US` | `1000` / `1500` / `2000` | RC pulse widths for a low, centered, and high stick. |
 
 ## Failsafe
 
 | Option | Default | Meaning |
 |---|---|---|
-| `FS_CH1_THROTTLE` | `1300` | Failsafe throttle, below hover for a gentle descent. |
-| `FS_CH2_ROLL` / `FS_CH3_PITCH` / `FS_CH4_YAW` | `1500` | Failsafe sticks, centered. |
-| `FS_CH5_ARM` | `1000` | Failsafe arm channel, armed so the descent stays powered. |
-| `FS_CH6_TRANSITION` | `2000` | Failsafe transition channel, hover end (high pulse). |
+| `FS_THROTTLE_US` | `1300` | Failsafe throttle, below hover for a gentle descent. |
+| `FS_ROLL_US` / `FS_PITCH_US` / `FS_YAW_US` | `1500` | Failsafe sticks, centered. |
+| `FS_ARM_US` | `1000` | Failsafe arm value, armed so the descent stays powered. |
 | `FS_LINK_TIMEOUT_US` | `100000` | Lost-link timeout in microseconds. |
 
 ## Telemetry
@@ -104,8 +103,8 @@ are `constexpr` constants in namespace `cp`.
 | `ENABLE_LIVE_TUNE` | `1` | Enables transmitter-channel live tuning. |
 | `ENABLE_CONFIG_CLI` | `1` | Enables the `cp` serial command interface the browser-based configurator speaks. A bench tool; a flight-only build can drop it. |
 | `ENABLE_COMPANION_CLI` | `1` | Also runs the `cp` interface on the companion UART (native builds), so an ESP WiFi module can bridge it to a phone. |
-| `LIVE_TUNE_CH_KP` | `9` | Channel for the live P-gain knob. |
-| `LIVE_TUNE_CH_KD` | `10` | Channel for the live D-gain knob. |
+| `LIVE_TUNE_CH_KP` | `11` | Channel for the live P-gain knob. |
+| `LIVE_TUNE_CH_KD` | `12` | Channel for the live D-gain knob. |
 | `LIVE_TUNE_RANGE` | `0.5` | Fractional tuning range, plus or minus. |
 
 ## Attitude estimation
@@ -167,7 +166,7 @@ tailsitter.
 | `ENABLE_PLANE_STAB` | `0` | Enables the fixed-wing stabilizer. Required by the plane airframes. |
 | `ENABLE_ALT_HOLD` | `0` | Enables barometric altitude hold. |
 | `ENABLE_DIFF_THRUST_YAW` | `0` | Enables differential-thrust yaw on the twin-engine plane. |
-| `CHANNEL_STAB` / `CHANNEL_ALT_HOLD` | `7` / `8` | Stabilization and altitude-hold switch channels. |
+| `CHANNEL_STAB` / `CHANNEL_ALT_HOLD` | `14` / `13` | Stabilization and altitude-hold switch channels. Parked on high SBUS channels so they cannot collide with TX-side primaries or aux. |
 | `KP_STAB_ROLL` ... `KD_STAB_YAW` | provisional | Wing-leveler, pitch-hold, and yaw-damper gains. |
 | `STAB_OUTPUT_SCALE` | `1.0` | Scales each stabilizer axis output. |
 | `ALT_CLIMB_FILTER_ALPHA`, `KP_ALT`, `KD_ALT` | provisional | Altitude-hold filter and gains. |

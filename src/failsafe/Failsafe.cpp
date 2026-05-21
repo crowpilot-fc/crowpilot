@@ -39,15 +39,17 @@ Channels s_channels = {};
 // per SPEC.md §5.11. Auxiliary channels (ch7 through ch16) sit at centered
 // 1500 us so any future user-hook consumer sees a benign value.
 void applyFailsafeDefaults(Channels& out) {
-  out.ch_us[0] = FS_CH1_THROTTLE;
-  out.ch_us[1] = FS_CH2_ROLL;
-  out.ch_us[2] = FS_CH3_PITCH;
-  out.ch_us[3] = FS_CH4_YAW;
-  out.ch_us[4] = FS_CH5_ARM;
-  out.ch_us[5] = FS_CH6_TRANSITION;
-  for (uint8_t i = 6; i < cp::radio::MAX_CHANNELS; ++i) {
+  // Default every channel to a centred 1500 us, then write the role-
+  // specific values into whichever channel the firmware currently reads
+  // for each role. The CHANNEL_* map can move without changing this.
+  for (uint8_t i = 0; i < cp::radio::MAX_CHANNELS; ++i) {
     out.ch_us[i] = 1500;
   }
+  out.ch_us[CHANNEL_THROTTLE - 1] = FS_THROTTLE_US;
+  out.ch_us[CHANNEL_ROLL     - 1] = FS_ROLL_US;
+  out.ch_us[CHANNEL_PITCH    - 1] = FS_PITCH_US;
+  out.ch_us[CHANNEL_YAW      - 1] = FS_YAW_US;
+  out.ch_us[CHANNEL_ARM      - 1] = FS_ARM_US;
 }
 
 // Copy the raw receiver channels through to the effective snapshot.

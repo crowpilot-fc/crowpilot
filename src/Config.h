@@ -229,12 +229,17 @@ constexpr uint32_t I2C_BUS_HZ = 400000;  // 400 kHz fast mode on I2C0.
 
 namespace cp {
 
-constexpr uint8_t CHANNEL_THROTTLE   = 1;
-constexpr uint8_t CHANNEL_ROLL       = 2;
-constexpr uint8_t CHANNEL_PITCH      = 3;
+// AETR primaries on ch1-4. ch5 and ch6 carry a second throttle and a
+// second aileron on the Caribou's transmitter and are read by the user
+// sketch rather than the firmware mixer. ch7, ch8, ch9 are user-sketch
+// aux switches (gear, flap, bay). Stab and arm sit on the high channels
+// so they cannot collide with any TX-side primary or aux assignment.
+constexpr uint8_t CHANNEL_ROLL       = 1;
+constexpr uint8_t CHANNEL_PITCH      = 2;
+constexpr uint8_t CHANNEL_THROTTLE   = 3;
 constexpr uint8_t CHANNEL_YAW        = 4;
-constexpr uint8_t CHANNEL_ARM        = 5;
-constexpr uint8_t CHANNEL_TRANSITION = 6;
+constexpr uint8_t CHANNEL_ARM        = 16;  // dedicated arm switch, top SBUS channel
+constexpr uint8_t CHANNEL_TRANSITION = 15;  // tailsitter fader only; parked here so the plane build leaves it at neutral 1500
 
 constexpr uint16_t RC_MIN_US = 1000;
 constexpr uint16_t RC_MID_US = 1500;
@@ -253,12 +258,15 @@ constexpr uint16_t RC_MAX_US = 2000;
 
 namespace cp {
 
-constexpr uint16_t FS_CH1_THROTTLE    = 1300;  // us. Below hover, gentle sink.
-constexpr uint16_t FS_CH2_ROLL        = 1500;  // us. Centered.
-constexpr uint16_t FS_CH3_PITCH       = 1500;  // us. Centered.
-constexpr uint16_t FS_CH4_YAW         = 1500;  // us. Centered.
-constexpr uint16_t FS_CH5_ARM         = 1000;  // us. Armed position, descent stays powered.
-constexpr uint16_t FS_CH6_TRANSITION  = 2000;  // us. Hover end (high pulse).
+// Failsafe channel values, written into the channel-1-based slot of
+// whichever CHANNEL_* the firmware reads for that role. All other slots
+// stay at 1500 (centred). Naming is by role, not by channel index, so
+// the channel map can move without renaming the constants.
+constexpr uint16_t FS_THROTTLE_US = 1300;  // below hover, gentle sink
+constexpr uint16_t FS_ROLL_US     = 1500;  // centred
+constexpr uint16_t FS_PITCH_US    = 1500;  // centred
+constexpr uint16_t FS_YAW_US      = 1500;  // centred
+constexpr uint16_t FS_ARM_US      = 1000;  // armed; descent stays powered
 
 // Link is considered lost when no fresh receiver frame arrives within
 // this window.
@@ -305,8 +313,8 @@ constexpr uint32_t TELEMETRY_LOG_MAX_BYTES = 16u * 1024u * 1024u;  // 16 MiB.
 
 namespace cp {
 
-constexpr uint8_t LIVE_TUNE_CH_KP = 9;   // 1-based channel index for the P knob.
-constexpr uint8_t LIVE_TUNE_CH_KD = 10;  // 1-based channel index for the D knob.
+constexpr uint8_t LIVE_TUNE_CH_KP = 11;  // 1-based channel index for the P knob.
+constexpr uint8_t LIVE_TUNE_CH_KD = 12;  // 1-based channel index for the D knob.
 
 // Fractional tuning range. 0.5 lets a knob scale a gain over [0.5x, 1.5x].
 constexpr float LIVE_TUNE_RANGE = 0.5f;
@@ -327,8 +335,8 @@ constexpr float LIVE_TUNE_RANGE = 0.5f;
 
 namespace cp {
 
-constexpr uint8_t CHANNEL_STAB     = 7;  // 1-based: stabilization on/off switch.
-constexpr uint8_t CHANNEL_ALT_HOLD = 8;  // 1-based: altitude-hold on/off switch.
+constexpr uint8_t CHANNEL_STAB     = 14;  // 1-based: stabilization on/off switch (high SBUS channel, away from TX primaries and aux).
+constexpr uint8_t CHANNEL_ALT_HOLD = 13;  // 1-based: altitude-hold on/off switch.
 
 // Wing leveler, pitch hold, and yaw damper gains. Provisional.
 constexpr float KP_STAB_ROLL  = 0.50f;
