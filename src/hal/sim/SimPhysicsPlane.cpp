@@ -84,19 +84,39 @@ float clampf(float v, float lo, float hi) {
   return v;
 }
 
+// Steady body-axis disturbance torques for SIM_SCENARIO_WIND. Zero for
+// the other scenarios so the compiler folds them away.
+#if SIM_SCENARIO == SIM_SCENARIO_WIND
+constexpr float kWindRollTorque  = 0.020f;
+constexpr float kWindPitchTorque = 0.015f;
+#else
+constexpr float kWindRollTorque  = 0.0f;
+constexpr float kWindPitchTorque = 0.0f;
+#endif
+
+// Build the initial orientation quaternion from a roll tilt then a
+// pitch tilt, both in degrees. Used by physics_init per SIM_SCENARIO.
+void setInitialAttitude(float roll_deg, float pitch_deg) {
+  const float roll_half  = (roll_deg  * 0.5f) / kRadToDeg;
+  const float pitch_half = (pitch_deg * 0.5f) / kRadToDeg;
+  const float q_roll[4]  = {cosf(roll_half), sinf(roll_half), 0.0f, 0.0f};
+  const float q_pitch[4] = {cosf(pitch_half), 0.0f, sinf(pitch_half), 0.0f};
+  quatMul(q_roll, q_pitch, s_q);
+  quatNormalize(s_q);
+}
+
 }  // anonymous namespace
 
 void physics_init() {
-  // Start in cruise upset off level: banked 20 degrees and pitched up 12
-  // degrees, so the run exercises the wing-leveler and the pitch-hold at
-  // once.
-  const float roll_half  = 10.0f / kRadToDeg;
-  const float pitch_half = 6.0f / kRadToDeg;
-  const float q_roll[4]  = {cosf(roll_half), sinf(roll_half), 0.0f, 0.0f};
-  const float q_pitch[4] = {cosf(pitch_half), 0.0f, sinf(pitch_half),
-                            0.0f};
-  quatMul(q_roll, q_pitch, s_q);
-  quatNormalize(s_q);
+  // Pick the initial attitude per SIM_SCENARIO. The default upset
+  // exercises the wing-leveler and the pitch-hold at once.
+#if SIM_SCENARIO == SIM_SCENARIO_LEVEL
+  setInitialAttitude(0.0f, 0.0f);
+#elif SIM_SCENARIO == SIM_SCENARIO_LARGE_UPSET
+  setInitialAttitude(45.0f, 30.0f);
+#else  // DEFAULT or WIND
+  setInitialAttitude(20.0f, 12.0f);
+#endif
 
   s_omega[0] = s_omega[1] = s_omega[2] = 0.0f;
   s_motor[0] = s_motor[1] = 0.0f;
@@ -129,11 +149,12 @@ void physics_step(float dt_s) {
   const float sin_pitch =
       2.0f * (s_q[0] * s_q[2] - s_q[1] * s_q[3]);
 
-  // Body torque: control, the natural pitch restoring moment, damping.
+  // Body torque: control, the steady wind disturbance (zero outside the
+  // WIND scenario), the natural pitch restoring moment, damping.
   const float tau[3] = {
-      kAileron * aileron - kRollDamp * s_omega[0],
-      kElevator * elevator - kPitchStiffness * sin_pitch -
-          kPitchDamp * s_omega[1],
+      kAileron * aileron + kWindRollTorque - kRollDamp * s_omega[0],
+      kElevator * elevator + kWindPitchTorque -
+          kPitchStiffness * sin_pitch - kPitchDamp * s_omega[1],
       kRudder * rudder - kYawDamp * s_omega[2],
   };
 

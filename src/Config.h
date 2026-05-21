@@ -69,6 +69,32 @@
 #define BUILD_TARGET BUILD_TARGET_NATIVE
 #endif
 
+// SIM_SCENARIO picks the initial conditions and any persistent
+// disturbance the SITL physics applies. Only used by the SITL plane
+// model in src/hal/sim/SimPhysicsPlane.cpp. Adding more scenarios is a
+// small extension there.
+//
+//   DEFAULT      20 deg bank + 12 deg pitch upset, calm air. The
+//                wing-leveler and pitch-hold must recover to level.
+//   LEVEL        no initial disturbance, calm air. Baseline /
+//                regression check that the controller does not drift
+//                from level on its own.
+//   LARGE_UPSET  45 deg bank + 30 deg pitch upset, calm air. Stress
+//                test of the stabilizer's recovery from a big upset.
+//   WIND         small upset plus a steady body-axis disturbance
+//                torque, equivalent to a constant cross-wind. The
+//                stabilizer must hold level against the persistent
+//                tendency to roll and pitch off axis.
+
+#define SIM_SCENARIO_DEFAULT     0
+#define SIM_SCENARIO_LEVEL       1
+#define SIM_SCENARIO_LARGE_UPSET 2
+#define SIM_SCENARIO_WIND        3
+
+#ifndef SIM_SCENARIO
+#define SIM_SCENARIO SIM_SCENARIO_DEFAULT
+#endif
+
 // ===========================================================================
 // Airframe
 // ===========================================================================
