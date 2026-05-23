@@ -32,7 +32,7 @@ struct State {
   float roll_passthru;   // unshaped roll stick, [-1, 1]
   float pitch_passthru;  // unshaped pitch stick, [-1, 1]
   float yaw_passthru;    // unshaped yaw stick, [-1, 1]
-  uint16_t ch5_us;       // arm-channel microseconds, for the actuator stage
+  uint16_t arm_us;       // arm-channel microseconds, for the actuator stage
 };
 
 // Reset the desired state to zero.

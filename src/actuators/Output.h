@@ -48,10 +48,10 @@ void init();
 // disarm pulse when NOT_ARMED. Servos respond regardless of arm state.
 //
 // throttle_norm is from cp::control::desired::current().throttle.
-// ch5_us is the failsafe-effective ch5 microseconds.
+// arm_us is the failsafe-effective arm-channel microseconds.
 void update(const cp::airframes::Output& mix,
             float throttle_norm,
-            uint16_t ch5_us);
+            uint16_t arm_us);
 
 ArmState arm_state();
 

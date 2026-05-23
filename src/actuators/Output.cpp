@@ -24,7 +24,7 @@ namespace cp::actuators {
 
 namespace {
 
-// The arm switch is in the arm position when channel 5 is below the
+// The arm switch is in the arm position when the arm channel is below the
 // channel midpoint.
 constexpr uint16_t kArmSwitchThresholdUs = RC_MID_US;
 
@@ -81,13 +81,13 @@ void init() {
 
 void update(const cp::airframes::Output& mix,
             float throttle_norm,
-            uint16_t ch5_us) {
+            uint16_t arm_us) {
   // Arm state machine. Disarm is unconditional. Arming needs the switch
   // in the arm position, the aircraft currently disarmed, the throttle
   // at idle, and the switch to have been seen in the disarm position at
   // least once since boot, so a power-up with the switch already armed
   // cannot arm without a deliberate switch transition.
-  const bool switch_in_arm_position = ch5_us < kArmSwitchThresholdUs;
+  const bool switch_in_arm_position = arm_us < kArmSwitchThresholdUs;
   if (!switch_in_arm_position) {
     s_arm       = ArmState::NOT_ARMED;
     s_arm_ready = true;

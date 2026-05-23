@@ -226,7 +226,7 @@ void debugOutput() {
   if ((s_tick_count % DEBUG_STREAM_INTERVAL_TICKS) == 0) {
     Serial.print("mode fader="); Serial.print(cp::modes::fader(), 2);
     Serial.print(" mode=");      Serial.print(modeName(cp::modes::mode()));
-    Serial.print(" ch6=");
+    Serial.print(" ch15=");
     Serial.println(cp::failsafe::channels().ch_us[CHANNEL_TRANSITION - 1]);
   }
 #endif
@@ -463,7 +463,7 @@ void tick() {
 
   // Actuator output: arm logic, OneShot125 emit, servo PWM.
   cp::actuators::update(cp::airframes::output(), desired.throttle,
-                        desired.ch5_us);
+                        desired.arm_us);
 
   // User extension and telemetry. Each is internally rate-limited.
   cp::user_hook::tick();

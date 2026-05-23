@@ -58,7 +58,7 @@ void update(const uint16_t* channels) {
   s_state.pitch_deg    = s_state.pitch_passthru * MAX_PITCH_ANGLE_DEG;
   s_state.yaw_rate_dps = s_state.yaw_passthru   * MAX_YAW_RATE_DPS;
 
-  s_state.ch5_us = channels[CHANNEL_ARM - 1];
+  s_state.arm_us = channels[CHANNEL_ARM - 1];
 }
 
 const State& current() {

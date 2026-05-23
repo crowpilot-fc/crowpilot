@@ -160,7 +160,7 @@ uint8_t computeStatusFlags() {
     flags |= kStatusFailsafeActive;
   }
   const auto& d = cp::control::desired::current();
-  if (d.ch5_us > 1500) {
+  if (d.arm_us > 1500) {
     flags |= kStatusThrottleCut;
   }
   if (!cp::sensors::imu::is_healthy()) {
