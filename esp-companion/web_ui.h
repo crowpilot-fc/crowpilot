@@ -18,15 +18,15 @@ const char kWebUi[] PROGMEM = R"HTML(<!doctype html>
 <style>
   :root { color-scheme: dark; --teal:#15b8a6; --bad:#e5484d; --ok:#2fa36b; --warn:#e0a100; }
   * { box-sizing: border-box; }
-  body { margin:0; background:#0f1115; color:#e9ecf1;
+  body { margin:0; background:#10141A; color:#e9ecf1;
          font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
   header { display:flex; align-items:center; justify-content:space-between;
-           padding:12px 16px; background:#171a21; border-bottom:1px solid #262b36; }
+           padding:12px 16px; background:#1B2127; border-bottom:1px solid #262b36; }
   header h1 { font-size:17px; margin:0; letter-spacing:.5px; }
   #status { font-size:12px; padding:4px 10px; border-radius:12px;
             background:#3a2530; color:#ff9aa8; }
   #status.on { background:#1f3a2a; color:#7ee2a8; }
-  .tabs { display:flex; background:#171a21; border-bottom:1px solid #262b36; }
+  .tabs { display:flex; background:#1B2127; border-bottom:1px solid #262b36; }
   .tabs button { flex:1; padding:12px; background:none; border:0; color:#8b93a4;
                  font-size:14px; font-weight:600; border-bottom:2px solid transparent; }
   .tabs button.active { color:#fff; border-bottom-color:var(--teal); }
@@ -34,32 +34,32 @@ const char kWebUi[] PROGMEM = R"HTML(<!doctype html>
   .tab { display:none; } .tab.active { display:block; }
   .badges { display:flex; gap:8px; margin-bottom:12px; }
   .badge { flex:1; text-align:center; padding:8px; border-radius:8px; font-size:12px;
-           font-weight:700; letter-spacing:.5px; background:#171a21; color:#8b93a4; }
+           font-weight:700; letter-spacing:.5px; background:#1B2127; color:#8b93a4; }
   .badge.bad { background:#3a2226; color:#ff8a96; } .badge.ok { background:#1d3329; color:#7ee2a8; }
   .ah-wrap { display:flex; justify-content:center; margin-bottom:14px; }
   .ah { width:min(78vw,300px); height:min(78vw,300px); }
   .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
-  .gauge { background:#171a21; border:1px solid #262b36; border-radius:12px;
+  .gauge { background:#1B2127; border:1px solid #262b36; border-radius:12px;
            padding:12px; text-align:center; }
   .gauge .lbl { font-size:10px; color:#8b93a4; text-transform:uppercase;
                 letter-spacing:1px; margin-bottom:4px; }
-  .gauge .val { font:600 26px/1 ui-monospace,"JetBrains Mono",Menlo,monospace; }
+  .gauge .val { font:600 26px/1 "JetBrains Mono",ui-monospace,Menlo,monospace; }
   .gauge .unit { font-size:11px; color:#8b93a4; }
   .vsi-up { color:var(--ok); } .vsi-dn { color:var(--warn); }
   .note { font-size:11px; color:#6b7280; margin-top:12px; text-align:center; }
-  .card { background:#171a21; border:1px solid #262b36; border-radius:12px;
+  .card { background:#1B2127; border:1px solid #262b36; border-radius:12px;
           padding:14px; margin-bottom:14px; }
   .card h2 { font-size:13px; text-transform:uppercase; letter-spacing:1px;
              color:#8b93a4; margin:0 0 12px; }
   .param { margin-bottom:14px; }
   .param .row { display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px; }
-  .param .pv { color:var(--teal); font:13px ui-monospace,monospace; }
+  .param .pv { color:var(--teal); font:13px "JetBrains Mono",ui-monospace,monospace; }
   input[type=range] { width:100%; height:30px; accent-color:var(--teal); }
   .actions { display:flex; gap:8px; }
   button.act { flex:1; padding:11px; font-size:14px; border:0; border-radius:8px;
                background:#2a3140; color:#e9ecf1; }
   button.act:active { background:var(--teal); }
-  #log { font:11px/1.5 ui-monospace,"JetBrains Mono",monospace; color:#8b93a4;
+  #log { font:11px/1.5 "JetBrains Mono",ui-monospace,monospace; color:#8b93a4;
          max-height:120px; overflow:auto; white-space:pre-wrap; }
 </style>
 </head>

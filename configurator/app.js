@@ -669,7 +669,7 @@ function renderLogTable(records) {
 }
 
 // Series colours, shared by the charts and their legend.
-const CHART_COLORS = ['#4ea1ff', '#3ec46d', '#e0a23c'];
+const CHART_COLORS = ['#15B8A6', '#2FA36B', '#E0A100'];
 
 function renderLogCharts(records) {
   const MAX_POINTS = 640;
@@ -698,7 +698,7 @@ function drawChart(canvas, series) {
   const w = canvas.width;
   const h = canvas.height;
   const pad = { l: 46, r: 8, t: 8, b: 14 };
-  ctx.fillStyle = '#0f1012';
+  ctx.fillStyle = '#0c0f14';
   ctx.fillRect(0, 0, w, h);
   if (series.length === 0 || series[0].values.length === 0) {
     return;
@@ -736,8 +736,8 @@ function drawChart(canvas, series) {
     ctx.lineTo(w - pad.r, y0);
     ctx.stroke();
   }
-  ctx.fillStyle = '#8b919b';
-  ctx.font = '10px ui-monospace, Menlo, monospace';
+  ctx.fillStyle = '#9CA3AF';
+  ctx.font = "10px 'JetBrains Mono', ui-monospace, Menlo, monospace";
   ctx.fillText(max.toFixed(1), 4, pad.t + 9);
   ctx.fillText(min.toFixed(1), 4, h - pad.b);
 

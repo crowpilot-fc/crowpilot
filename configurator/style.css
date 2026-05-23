@@ -2,15 +2,15 @@
 /* Copyright (C) 2026 Nitin Kumar */
 
 :root {
-  --bg: #1b1d21;
-  --panel: #25282d;
+  --bg: #10141A;      /* brand dark-mode background */
+  --panel: #1B2127;   /* Ink */
   --line: #383c43;
   --text: #e6e6e6;
-  --muted: #8b919b;
-  --accent: #4ea1ff;
-  --on: #3ec46d;
-  --off: #c4503e;
-  --dirty: #e0a23c;
+  --muted: #9CA3AF;   /* brand muted */
+  --accent: #15B8A6;  /* Crow Teal */
+  --on: #2FA36B;      /* functional: OK / good */
+  --off: #E5484D;     /* functional: armed / danger */
+  --dirty: #E0A100;   /* functional: warn */
 }
 
 * {
@@ -19,7 +19,7 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, Segoe UI, Roboto, sans-serif;
+  font-family: 'Inter', -apple-system, Segoe UI, Roboto, sans-serif;
   background: var(--bg);
   color: var(--text);
   font-size: 14px;
@@ -135,7 +135,7 @@ main {
 }
 
 .param label {
-  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
   font-size: 13px;
 }
 
@@ -162,13 +162,13 @@ main {
 }
 
 .log {
-  background: #0f1012;
+  background: #0c0f14;
   border: 1px solid var(--line);
   border-radius: 6px;
   padding: 10px;
   height: 200px;
   overflow-y: auto;
-  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
   font-size: 12px;
   white-space: pre-wrap;
   margin: 0;
@@ -212,7 +212,7 @@ main {
 }
 
 .rval {
-  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
   font-size: 15px;
   text-align: right;
 }
@@ -224,7 +224,7 @@ main {
 
 .badge {
   justify-self: start;
-  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
   font-size: 12px;
   padding: 2px 8px;
   border-radius: 3px;
@@ -244,7 +244,7 @@ main {
 }
 
 .chan-label {
-  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
   font-size: 13px;
   color: var(--muted);
 }
@@ -265,7 +265,7 @@ main {
 }
 
 .chan-val {
-  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
   font-size: 13px;
   text-align: right;
 }
@@ -309,7 +309,7 @@ code {
 }
 
 .lrow-value {
-  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
   font-size: 13px;
 }
 
@@ -320,7 +320,7 @@ code {
 .ltable {
   width: 100%;
   border-collapse: collapse;
-  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
   font-size: 12px;
 }
 
