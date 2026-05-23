@@ -17,7 +17,7 @@ are `constexpr` constants in namespace `cp`.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `BOARD` | `BOARD_WAVESHARE_RP2350_TINY` | Selects the pin map. The other choice is `BOARD_WEACT_RP2350A_V10`. |
+| `BOARD` | `BOARD_WEACT_RP2350A_V10` | Selects the pin map. The other choice is `BOARD_WAVESHARE_RP2350_TINY`. |
 
 ## Build target
 
@@ -29,7 +29,7 @@ are `constexpr` constants in namespace `cp`.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `AIRFRAME` | `AIRFRAME_TAILSITTER_BICOPTER` | Selects the mixer. `AIRFRAME_PLANE_TWIN_CARGO` and `AIRFRAME_PLANE_SINGLE` require `ENABLE_PLANE_STAB`. The remaining values are reserved and halt the build. |
+| `AIRFRAME` | `AIRFRAME_PLANE_TWIN_CARGO` | Selects the mixer. The plane airframes (`AIRFRAME_PLANE_TWIN_CARGO`, the Caribou first-flight target, and `AIRFRAME_PLANE_SINGLE`) require `ENABLE_PLANE_STAB`. `AIRFRAME_TAILSITTER_BICOPTER` is the carried alternative. The remaining values are reserved and halt the build. |
 
 ## IMU
 
@@ -163,7 +163,7 @@ tailsitter.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `ENABLE_PLANE_STAB` | `0` | Enables the fixed-wing stabilizer. Required by the plane airframes. |
+| `ENABLE_PLANE_STAB` | `1` | Enables the fixed-wing stabilizer. Required by the plane airframes. |
 | `ENABLE_ALT_HOLD` | `0` | Enables barometric altitude hold. |
 | `ENABLE_DIFF_THRUST_YAW` | `0` | Enables differential-thrust yaw on the twin-engine plane. |
 | `CHANNEL_STAB` / `CHANNEL_ALT_HOLD` | `14` / `13` | Stabilization and altitude-hold switch channels. Parked on high SBUS channels so they cannot collide with TX-side primaries or aux. |

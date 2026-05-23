@@ -97,8 +97,8 @@ on the plane. One gain set covers the whole flight envelope.
    not fly stabilized.
 3. **Enable stabilization.** Flip the stab channel low. With the airframe
    in level cruise, sticks centered, the wing leveler and pitch hold
-   should hold attitude. Watch for oscillation on the `DEBUG_PRINT_STAB`
-   line.
+   should hold attitude. Watch for oscillation on the `DEBUG_PRINT_MIXER`
+   line, which shows the commanded surface outputs.
 4. **Tune roll, then pitch.** Same D-then-P discipline as the tailsitter.
    Raise `KD_STAB_*` until a hand-induced disturbance recovers without
    oscillation, then `KP_STAB_*` until the recovery is crisp. A plane

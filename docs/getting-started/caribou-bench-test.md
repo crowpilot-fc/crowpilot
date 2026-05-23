@@ -56,30 +56,28 @@ Firmware defaults in [`Config.h`](https://github.com/crowpilot-fc/crowpilot/blob
 
 | Channel | Constant | Used by |
 |---|---|---|
-| 1 | `CHANNEL_THROTTLE` | Plane stabilizer / mixer |
-| 2 | `CHANNEL_ROLL` | Plane stabilizer / mixer |
-| 3 | `CHANNEL_PITCH` | Plane stabilizer / mixer |
-| 4 | `CHANNEL_YAW` | Plane stabilizer / mixer |
-| 5 | `CHANNEL_ARM` | Arm switch |
-| 6 | `CHANNEL_TRANSITION` | Tailsitter fader (unused on a plane) |
-| 7 | `CHANNEL_STAB` | Passthrough (HIGH) vs stabilized (LOW) |
-| 8 | `CHANNEL_ALT_HOLD` | Barometric altitude hold |
+| 1 | `CHANNEL_ROLL` | Plane stabilizer / mixer (Aileron) |
+| 2 | `CHANNEL_PITCH` | Plane stabilizer / mixer (Elevator) |
+| 3 | `CHANNEL_THROTTLE` | Plane stabilizer / mixer |
+| 4 | `CHANNEL_YAW` | Plane stabilizer / mixer (Rudder) |
+| 14 | `CHANNEL_STAB` | Passthrough (HIGH) vs stabilized (LOW) |
+| 16 | `CHANNEL_ARM` | Arm switch |
 
-Aux channels are read by `user-sketch.ino`; assign them to TX switches
-for the landing gear, flaps, bay doors, nose-wheel steering, and the
-LED2 nav-blink master.
+The primaries are in standard AETR order. The stabilizer and arm switches
+sit on high channels (14 and 16) so they never collide with a primary or
+an aux assignment. `CHANNEL_ALT_HOLD` (13) and the live-tune knobs (11 and
+12) are optional and unassigned by default.
 
-**Important if your TX is in AETR mode** (channels 1-4 = Aileron,
-Elevator, Throttle, Rudder), the firmware's TAER defaults will see your
-throttle on channel 3 and your roll stick on channel 1. Either:
+Aux channels 5-9 are read by `user-sketch.ino`, not the firmware mixer:
+ch5 throttle 2, ch6 aileron 2, ch7 landing gear, ch8 flap, ch9 bay door.
+Nose-wheel steering follows the rudder and the LED2 nav-blink is driven by
+the sketch directly.
 
-- Set the TX output map to TAER (throttle on channel 1), or
-- Edit the `CHANNEL_*` defines in `Config.h` to match your TX (roll on
-  1, pitch on 2, throttle on 3, yaw on 4) and reflash.
-
-Do this before any further phase. The whole procedure assumes the
-firmware's expectation of "channel N carries function X" lines up with
-the TX.
+**Important:** assign physical switches to ch14 and ch16 on the
+transmitter. They sit above the nine Caribou functions, so a TX that only
+outputs nine channels leaves them undriven and the aircraft cannot arm.
+The arm switch must also be cycled through disarm once after power-up
+before the firmware will arm.
 
 **Pass:** the TX is mapped so the firmware sees the right value on the
 right channel, and the spare TX switches are assigned to ARM, STAB,
@@ -258,7 +256,7 @@ unconditional.
 Propellers **off**. Arm the FC, throttle at idle.
 
 - [ ] Power off the transmitter. Within 100 ms (`FS_LINK_TIMEOUT_US`):
-  - Motor pulses go to `FS_CH1_THROTTLE` (1300 µs by default, a low
+  - Motor pulses go to `FS_THROTTLE_US` (1300 µs by default, a low
     descending throttle).
   - Surfaces drive to the failsafe defaults (centered sticks).
   - `cp tlm` reports `fs=1` if streaming.

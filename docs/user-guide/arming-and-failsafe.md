@@ -11,7 +11,7 @@ the pilot controls, and the failsafe, which handles a lost radio link.
 The motors cannot spin unless the pilot has explicitly armed the aircraft.
 The boot state is disarmed.
 
-A transmitter switch channel, `CHANNEL_ARM` (channel 5 by default), arms and
+A transmitter switch channel, `CHANNEL_ARM` (channel 16 by default), arms and
 disarms. The low position is the armed position and the high position is
 disarm.
 
@@ -24,10 +24,18 @@ true at once:
 - The aircraft is currently disarmed.
 - The arm switch is in the armed position.
 - The throttle stick is at idle, at or below `ARM_THROTTLE_MAX_US`.
+- The arm switch has been seen in the disarm position at least once since
+  boot.
 
 The throttle-idle requirement prevents arming straight into a spun-up
 throttle command. If you flip the arm switch with the throttle up, nothing
 happens. Lower the throttle, then arm.
+
+The seen-disarmed requirement means a board powered up with the switch
+already in the armed position will not arm until you cycle the switch
+through disarm. It also means a transmitter that never drives ch16 cannot
+arm the aircraft at all, so assign the arm switch before you go to the
+bench.
 
 When disarmed, the motor outputs are driven below the ESC protocol's valid
 pulse range, so the ESCs see no signal and stay silent. Servos still respond
@@ -62,5 +70,5 @@ uninitialized memory.
 - Confirm a normal arm works with the throttle at idle.
 - Confirm that disarmed motors stay silent.
 
-See [First Bench Test](../getting-started/first-bench-test.md) for the full
+See [Caribou Bench Test](../getting-started/caribou-bench-test.md) for the full
 pre-flight bench procedure.

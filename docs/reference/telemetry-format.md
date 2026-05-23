@@ -81,7 +81,7 @@ The decoder applies the v1 default scales. If you change `IMU_GYRO_RANGE` or `IM
 |---|---|---|---|
 | 0 | 0x01 | `ARMED` | Motors are live. |
 | 1 | 0x02 | `FAILSAFE_ACTIVE` | Lost-link override in effect. |
-| 2 | 0x04 | `THROTTLE_CUT` | Pilot commanded throttle cut (ch5 HIGH). |
+| 2 | 0x04 | `THROTTLE_CUT` | Arm switch in the disarm/cut position (`CHANNEL_ARM` HIGH). |
 | 3 | 0x08 | `IMU_FAULT` | IMU produced bad data this tick. |
 | 4 | 0x10 | `BARO_FAULT` | Baro produced bad data this tick. |
 | 5 | 0x20 | `RX_FAULT` | No RC frame in the last frame interval. |

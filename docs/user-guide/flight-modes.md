@@ -3,6 +3,12 @@
 
 # Flight modes
 
+This page covers the tailsitter airframe. The DHC-4 Caribou plane, the
+current first-flight aircraft, has no transition: it flies as a conventional
+fixed-wing, with the stabilizer switch (ch14) selecting between the wing
+leveler and full manual passthrough. See [transmitter-setup.md](transmitter-setup.md)
+for the plane switches.
+
 A tailsitter flies in two regimes, hover and forward flight, with a
 continuous transition between them. CrowPilot manages that transition with a
 single transmitter channel and a rate-limited internal value called the
@@ -10,7 +16,7 @@ fader.
 
 ## The transition channel
 
-One transmitter channel, `CHANNEL_TRANSITION` (channel 6 by default),
+One transmitter channel, `CHANNEL_TRANSITION` (channel 15 by default),
 commands the transition. The low end of the channel commands hover and the
 high end commands forward flight. Assign it to a switch or a knob on your
 transmitter.
