@@ -70,3 +70,11 @@ navigation lights. See the [User sketch](../user-guide/user-sketch.md) and the
 
 The stabilizer gains are provisional and are set by bench tuning. See
 [Tuning](../user-guide/tuning.md).
+
+## Credit
+
+The DHC-4 Caribou is a free build-it-yourself foam-board airframe shared by
+its designer on the FliteTest forum:
+[DHC-4 Caribou, 73 inch span](https://forum.flitetest.com/index.php?threads/dhc-4-caribou-73-span.69027/).
+CrowPilot is the flight electronics, not the airframe. Thanks to the designer
+for releasing the build to the community.
