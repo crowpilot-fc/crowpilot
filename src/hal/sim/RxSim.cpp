@@ -31,20 +31,23 @@ void rx_poll(RxState& out) {
   for (uint8_t i = 0; i < 16; ++i) {
     out.channel_us[i] = 1500;  // roll, pitch, yaw sticks centred
   }
-  out.channel_us[5] = 2000;  // ch6: tailsitter transition, unused by the plane
-  out.channel_us[6] = 1000;  // ch7 low: plane stabilizer on, not passthrough
+  // Channels are addressed by the configured map so the script tracks any
+  // remap. The stabilizer engage switch sits low (not passthrough), so the
+  // plane stabilizer runs and corrects the attitude offset SimPhysics
+  // starts in.
+  out.channel_us[CHANNEL_STAB - 1] = 1000;
 
-  const uint32_t arm_tick   = LOOP_HZ / 2;  // 0.5 s: settle disarmed
-  const uint32_t cruise_tick = LOOP_HZ;     // 1.0 s: step to cruise
+  const uint32_t arm_tick    = LOOP_HZ / 2;  // 0.5 s: settle disarmed
+  const uint32_t cruise_tick = LOOP_HZ;      // 1.0 s: step to cruise
   if (s_tick < arm_tick) {
-    out.channel_us[0] = 1000;  // throttle minimum
-    out.channel_us[4] = 2000;  // ch5 high: disarmed
+    out.channel_us[CHANNEL_THROTTLE - 1] = 1000;  // throttle minimum
+    out.channel_us[CHANNEL_ARM - 1]      = 2000;  // disarmed, latches arm-ready
   } else if (s_tick < cruise_tick) {
-    out.channel_us[0] = 1000;  // throttle still minimum, so auto-arm runs
-    out.channel_us[4] = 1000;  // ch5 low: arm
+    out.channel_us[CHANNEL_THROTTLE - 1] = 1000;  // still minimum, so auto-arm runs
+    out.channel_us[CHANNEL_ARM - 1]      = 1000;  // arm
   } else {
-    out.channel_us[0] = 1500;  // cruise throttle
-    out.channel_us[4] = 1000;  // armed
+    out.channel_us[CHANNEL_THROTTLE - 1] = 1500;  // cruise throttle
+    out.channel_us[CHANNEL_ARM - 1]      = 1000;  // armed
   }
 
   out.channels_valid = true;
