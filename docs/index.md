@@ -17,7 +17,7 @@ New here? Work through the getting-started path in order:
 2. [Hardware BOM](getting-started/hardware-bom.md) - the shopping list.
 3. [Wiring](getting-started/wiring.md) - how to connect everything.
 4. [Flashing](getting-started/flashing.md) - getting the firmware onto the board.
-5. [First Bench Test](getting-started/first-bench-test.md) - the smoke test before propellers go on.
+5. [Caribou Bench Test](getting-started/caribou-bench-test.md) - the smoke test before propellers go on, for the current first-flight airframe. (The carried tailsitter has its own [bench test](getting-started/first-bench-test.md).)
 
 ## What is inside
 

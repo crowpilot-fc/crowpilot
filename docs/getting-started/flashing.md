@@ -93,15 +93,15 @@ loop_period_us avg=1000 max=1006 (over 1000 iter)
 - "ERROR: IMU init failed" means the IMU is not responding on I2C. Check SDA/SCL pin assignments, sensor power, and the `IMU_I2C_ADDR` setting.
 - "WARN: Barometer init failed" is non-fatal. The FC continues without altitude. Check baro wiring or set `BARO_TYPE = BARO_NONE` if you do not want a baro.
 
-For deeper troubleshooting see [docs/getting-started/first-bench-test.md](first-bench-test.md).
+For deeper troubleshooting see [docs/getting-started/caribou-bench-test.md](caribou-bench-test.md).
 
 ## After first boot
 
 Before powering motors:
 
-1. Run through [docs/getting-started/first-bench-test.md](first-bench-test.md).
+1. Run through [docs/getting-started/caribou-bench-test.md](caribou-bench-test.md). (Tailsitter builds use [first-bench-test.md](first-bench-test.md).)
 2. Calibrate IMU bias by setting `ENABLE_IMU_CALIBRATION = 1`, reflashing, and following the serial-monitor prompts.
-3. Map your transmitter channels per [docs/user-guide/tuning.md](../user-guide/tuning.md).
+3. Map your transmitter channels per [docs/user-guide/transmitter-setup.md](../user-guide/transmitter-setup.md).
 4. Verify failsafe behavior by toggling the transmitter off mid-bench.
 
 Only after all bench tests pass should you connect motors or propellers.

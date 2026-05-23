@@ -71,9 +71,9 @@ Power servos from the 5 V UBEC rail. Servo current can spike during stall; size 
 
 ## ESCs
 
-ESCs go on GP10 (motor 1, right) and GP11 (motor 2, left). OneShot125 protocol; pulses fall in the 125 to 250 microsecond range during normal operation, and below 125 microseconds when CrowPilot is in NOT_ARMED state.
+ESCs go on GP10 (motor 1, right) and GP11 (motor 2, left). The default `MOTOR_PROTOCOL` is standard hobby PWM: pulses fall in the 1000 to 2000 microsecond range during normal operation and sit at `ESC_DISARM_PULSE_US` (1000 microseconds, idle) when CrowPilot is in the NOT_ARMED state. Set `MOTOR_PROTOCOL_ONESHOT125` for OneShot ESCs, where the running range is 125 to 250 microseconds and the disarm pulse drops below 125.
 
-If the ESC sees its first pulse below the OneShot125 valid range it stays silent. Once CrowPilot arms (ch5 LOW and throttle stick at idle), pulses enter the valid range and the ESC arms.
+When disarmed, CrowPilot holds the motors at the disarm pulse so they stay stopped. Once CrowPilot arms (`CHANNEL_ARM` LOW and the throttle stick at idle), the pulses follow the throttle command.
 
 For ESCs that require explicit calibration (less common with BLHeli, more common with older ESCs), see [docs/user-guide/tuning.md](../user-guide/tuning.md) and set `ENABLE_ESC_CALIBRATION = 1` in `src/Config.h`.
 
@@ -89,4 +89,4 @@ For ESCs that require explicit calibration (less common with BLHeli, more common
 - ESC signal lines go to GP10 and GP11; ESC battery leads are NOT connected yet.
 - Servos are wired but not yet on the airframe.
 
-When all of the above checks pass, follow [docs/getting-started/first-bench-test.md](first-bench-test.md) for the bench bring-up sequence.
+When all of the above checks pass, follow [docs/getting-started/caribou-bench-test.md](caribou-bench-test.md) for the bench bring-up sequence on the Caribou. For the carried tailsitter airframe, use [first-bench-test.md](first-bench-test.md).
