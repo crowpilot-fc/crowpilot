@@ -3,7 +3,7 @@
 
 # Transmitter setup
 
-CrowPilot reads SBUS. The four flight controls sit on the AETR primaries, the arm and stabilizer switches sit on high channels clear of the primaries, and the rest of the Caribou functions are aux channels handled by the [user sketch](../reference/user-hook.md). This page covers how to map them on your transmitter. Verify every channel on the bench per [caribou-bench-test.md](../getting-started/caribou-bench-test.md) before flying.
+CrowPilot reads SBUS. The four flight controls sit on the AETR primaries, the arm and stabilizer switches sit on high channels clear of the primaries, and the rest of the Caribou functions are aux channels handled by the [user sketch](user-sketch.md). This page covers how to map them on your transmitter. Verify every channel on the bench per [caribou-bench-test.md](../getting-started/caribou-bench-test.md) before flying.
 
 ## Channel mapping
 

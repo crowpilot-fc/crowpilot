@@ -37,7 +37,9 @@ The Seeed XIAO RP2350 is **not supported** because it only breaks out 11 GPIO, w
 
 CrowPilot does not prescribe a propulsion BOM. Pick motors, ESCs, propellers, servos, receiver, battery, UBEC, and airframe to match the aircraft you want to fly.
 
-The reference build is a 3D-printed tailsitter VTOL bicopter using the Eclipson E-VTOL-1 STL files (about USD 30 from the designer). The Eclipson airframe is roughly 1 kg class. A second supported reference is the FliteTest Kraken Mk2 converted to a tailsitter bicopter (about 2.5 kg class). v1.1 will add the DHC-4 Caribou twin-engine cargo plane and v1.2 will add a 3D-printed Gee Bee 80 mm EDF.
+The current first-flight airframe is the DHC-4 Caribou, a twin-engine high-wing cargo plane. Its propulsion and power wiring are documented in [Wiring](wiring.md) and the [Caribou wiring diagram](../reference/caribou-wiring.svg). The firmware also supports a 3D-printed tailsitter VTOL bicopter as a carried alternate, and v1.2 will add a 3D-printed Gee Bee 80 mm EDF.
+
+The propulsion example below is the tailsitter reference build, a roughly 1 kg-class Eclipson E-VTOL-1 (about USD 30 of STL files from the designer). A second supported tailsitter reference is the FliteTest Kraken Mk2 (about 2.5 kg class).
 
 For the Eclipson 1 kg class:
 

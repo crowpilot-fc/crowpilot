@@ -9,15 +9,17 @@ CrowPilot is a flight controller firmware that runs on the Raspberry Pi RP2350 m
 
 It is a clean-build project. Every driver and every algorithm is written from datasheets and published references, not lifted from another flight-controller codebase. The firmware is GPL-3.0-or-later, the documentation is CC-BY-SA-4.0, and the whole thing is built to be read, understood, and modified by one hobbyist with a soldering iron.
 
-## What it flies today
+## What it flies
 
-CrowPilot v1 flies a tailsitter VTOL bicopter: two motors, two elevon servos, a continuous hover-to-forward transition controlled by a transmitter switch. The reference build is a 3D-printed airframe in the ~1 kg class.
+CrowPilot is pre-alpha and has not flown yet. The firmware supports two airframe families and ships configured for the bring-up target.
 
-The flight controller itself is not tied to that airframe. It can be installed on any inexpensive foam-based plane or bicopter. The airframe, motors, and propulsion are yours to choose; CrowPilot only cares about the flight electronics.
+- **Fixed-wing plane** (the current target): a conventional plane with ailerons, elevator, rudder, throttle, and a wing leveler. The first-flight aircraft is the DHC-4 Caribou twin-engine cargo plane, and the default build is configured for it.
+- **Tailsitter VTOL bicopter**: two motors, two elevon servos, a continuous hover-to-forward transition controlled by a transmitter switch. This is the carried alternate airframe.
+
+The flight controller itself is not tied to one airframe. It can be installed on any inexpensive foam-based plane or bicopter. The airframe, motors, and propulsion are yours to choose, CrowPilot only cares about the flight electronics.
 
 ## What is coming
 
-- **v1.1** adds fixed-wing plane support: a plane stabilization subsystem and a twin-engine cargo plane mixer, plus a user extension hook for custom in-flight behavior.
 - **v1.2** adds a single-engine plane airframe.
 - **v2** adds GPS: position hold, return-to-home, and waypoint following.
 

@@ -3,13 +3,14 @@
 
 # Tailsitter bicopter
 
-The tailsitter bicopter is the v1.0 reference airframe. It is a 3D-printed
+The tailsitter bicopter is the carried alternate airframe. It is a 3D-printed
 VTOL aircraft that takes off and lands on its tail, hovers with the nose
 pointing up, and transitions to wing-borne forward flight by pitching roughly
 ninety degrees toward horizontal.
 
-Select it with `AIRFRAME = AIRFRAME_TAILSITTER_BICOPTER` in `Config.h`. It is
-the default.
+Select it with `AIRFRAME = AIRFRAME_TAILSITTER_BICOPTER` in `Config.h`. The
+default build is the [fixed-wing plane](fixed-wing-plane.md), the current
+first-flight airframe.
 
 ## Layout
 

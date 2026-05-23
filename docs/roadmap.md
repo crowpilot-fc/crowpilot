@@ -40,8 +40,9 @@ The first acceptance airframe is a 3D-printed tailsitter bicopter sized for two 
 **Next.**
 
 - Bench verification (one-shot, all phases) on the reference build per [docs/getting-started/first-bench-test.md](getting-started/first-bench-test.md).
-- Closed-loop SITL hover validation. The SITL host build exists. What remains is a physics model driving the simulated HAL, so the control law can be exercised before flight. HIL validation depends on the SCRC protocol and the external host runtime.
-- Tethered hover (v1.0 acceptance flight).
+- Tethered hover (v1.0 acceptance flight). Deprioritized behind the Caribou first flight, per the note above.
+
+The closed-loop SITL physics model has since landed for both airframes (see v1.1). HIL validation depends on the external host runtime.
 
 **Later.**
 
@@ -66,17 +67,23 @@ references.
 
 ## v1.1: Caribou cargo plane
 
-A two-engine cargo plane based on the open-source Caribou STL set.
+A two-engine cargo plane based on the open-source Caribou STL set. This is
+the active first-flight bring-up airframe, and the firmware ships configured
+for it.
 
-**Next.**
+**Complete.**
 
 - Plane stabilization subsystem (replaces the tailsitter PID for plane airframes).
 - Twin-engine cargo plane mixer.
-- User extension hook with pin-claim, sensor read-only API, three-strike disable, and per-tick time budget.
+- User extension hook with pin-claim, sensor read-only API, three-strike disable, and per-tick time budget, plus the Caribou aux `user-sketch.ino`.
+- ESP companion firmware (Wi-Fi bridge for the `cp` protocol).
+- Phone UI (browser-based, served by the ESP, with a cockpit instrument panel).
+- Closed-loop fixed-wing SITL with a plane physics model.
+
+**Next.**
+
 - Reference user-sketch examples (e.g. a payload-drop hook).
 - Caribou bench verification.
-- ESP companion firmware (Wi-Fi telemetry, simple phone UI).
-- Phone UI (browser-based, served by the ESP).
 - Caribou first flight (v1.1 acceptance).
 
 ## v1.2: Gee Bee single-engine plane
@@ -104,6 +111,6 @@ A short, fat, racing-style single-engine plane based on the open-source Gee Bee 
 
 - It is not a calendar. CrowPilot has one developer and ships when the work is done, not when a date is.
 - It is not a contract. Features can be added, dropped, or resequenced if the bench data says so.
-- It is not the full plan. Internal `internal-docs/DEVELOPMENT_PLAN.md` is the granular phase plan; this page is the public summary.
+- It is not the full plan. This page is the public summary of scope, not a granular development schedule.
 
-For the v1 disclaimer and the legal contour of "ship when ready," see [DISCLAIMER.md](../DISCLAIMER.md). For the cross-project coordination with the SITL host runtime (Scarecrow), see the crowtalk coordination repo.
+For the v1 disclaimer and the legal contour of "ship when ready," see [DISCLAIMER.md](../DISCLAIMER.md).
