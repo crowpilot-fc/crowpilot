@@ -256,7 +256,8 @@ void debugOutput() {
   // Configurator live telemetry. Emitted only while a channel has issued
   // "cp stream on", and sent to whichever channel asked (USB or the
   // companion UART). Fields, space-separated:
-  // roll pitch yaw armed failsafe mode loop_us ch1..ch6.
+  // roll pitch yaw armed failsafe mode loop_us ch1..ch6
+  // alt_m yawrate_dps ax_g ay_g az_g.
   if (cp::cli::streaming() &&
       (s_tick_count % DEBUG_STREAM_INTERVAL_TICKS) == 0) {
     const cp::estimation::attitude::Euler att =
@@ -265,17 +266,25 @@ void debugOutput() {
     const uint16_t*            ch = cp::failsafe::channels().ch_us;
     const bool armed =
         cp::actuators::arm_state() == cp::actuators::ArmState::ARMED;
-    char roll[12], pitch[12], yaw[12];
-    dtostrf(att.roll_deg,  0, 1, roll);
-    dtostrf(att.pitch_deg, 0, 1, pitch);
-    dtostrf(att.yaw_deg,   0, 1, yaw);
-    char line[128];
+    const cp::sensors::baro::Sample& baro = cp::sensors::baro::latest();
+    const cp::sensors::imu::Sample&  imu  = cp::sensors::imu::latest();
+    char roll[12], pitch[12], yaw[12], alt[12], gz[12], ax[12], ay[12], az[12];
+    dtostrf(att.roll_deg,    0, 1, roll);
+    dtostrf(att.pitch_deg,   0, 1, pitch);
+    dtostrf(att.yaw_deg,     0, 1, yaw);
+    dtostrf(baro.altitude_m, 0, 1, alt);   // metres, relative to ground baseline
+    dtostrf(imu.gz_dps,      0, 1, gz);    // yaw rate, for the turn coordinator
+    dtostrf(imu.ax_g,        0, 2, ax);    // accel x/y/z for slip and G-load
+    dtostrf(imu.ay_g,        0, 2, ay);
+    dtostrf(imu.az_g,        0, 2, az);
+    char line[220];
     snprintf(line, sizeof(line),
-             "cp tlm %s %s %s %d %d %s %lu %d %d %d %d %d %d",
+             "cp tlm %s %s %s %d %d %s %lu %d %d %d %d %d %d %s %s %s %s %s",
              roll, pitch, yaw, armed ? 1 : 0, fs.active ? 1 : 0,
              modeName(cp::modes::mode()),
              static_cast<unsigned long>(s_loop_period_us),
-             ch[0], ch[1], ch[2], ch[3], ch[4], ch[5]);
+             ch[0], ch[1], ch[2], ch[3], ch[4], ch[5],
+             alt, gz, ax, ay, az);
     cp::cli::emit_telemetry(line);
   }
 #endif

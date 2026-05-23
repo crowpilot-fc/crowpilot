@@ -471,9 +471,12 @@ function renderParam(p) {
 // ---------------------------------------------------------------------------
 
 // "cp tlm <roll> <pitch> <yaw> <armed> <fs> <mode> <loop_us> <ch1..ch6>"
+// Newer firmware appends instrument fields (alt, yaw rate, accel) after
+// the channels; accept any line with at least the original 15 tokens and
+// ignore the extras.
 function handleTelemetry(line) {
   const t = line.split(/\s+/);
-  if (t.length !== 15) {
+  if (t.length < 15) {
     return;
   }
   els.tRoll.textContent = t[2];
