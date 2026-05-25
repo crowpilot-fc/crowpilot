@@ -30,8 +30,11 @@ Buy a genuine MPU-6500 or MPU-6050. The IMU driver gates initialization on the c
 | Waveshare RP2350-Zero | $5 | Compact alternate. Permanent USB-C plus onboard WS2812 RGB LED. |
 | Waveshare RP2350-One | $5 | Pi-Pico form factor. Easy to breadboard for development. |
 | WeAct RP2350A_V10 | $6 | Pi-Pico form factor. Legacy alternate. |
+| Raspberry Pi Pico 2 W | $7 | RP2350A with an onboard WiFi radio. Serves the companion UI itself, so no separate ESP is needed. Same flight pins as the WeAct profile. |
 
 The Seeed XIAO RP2350 is **not supported** because it only breaks out 11 GPIO, which is too few for the v1 flight controller.
+
+WiFi is optional. A plain RP2350 board (above) is the cheapest build and has no WiFi. To add WiFi, either attach an ESP32-C3 companion to the companion UART (works on any board, keeps the radio off the flight MCU) or use the Pico 2 W, which has the radio built in.
 
 ## Propulsion, airframe, and the rest
 

@@ -57,6 +57,36 @@ The WeAct RP2350A is functionally equivalent to the Waveshare RP2350-One and use
 
 Select with `#define BOARD BOARD_WEACT_RP2350A_V10` in `src/Config.h`.
 
+## Raspberry Pi Pico 2 W
+
+The same RP2350A as the WeAct profile, plus an onboard Infineon CYW43439 radio. The flight pins are identical to the WeAct profile, so the wiring is the same. The radio claims GP23, GP24, GP25, and GP29, and the user LED hangs off the radio chip rather than a plain GPIO, so the boot heartbeat and panic blink move to the external status LED on GP14.
+
+| Function | GP pin | Bus / peripheral | Notes |
+|---|---|---|---|
+| I2C SDA | GP4 | I2C0 | IMU + barometer shared. |
+| I2C SCL | GP5 | I2C0 | |
+| Motor 1 (right) | GP10 | PWM (Servo lib) | |
+| Motor 2 (left) | GP11 | PWM (Servo lib) | |
+| Servo 1 | GP6 | PWM slice | |
+| Servo 2 | GP7 | PWM slice | |
+| Servo 3 | GP8 | PWM slice | Twin-cargo plane only. |
+| Servo 4 | GP9 | PWM slice | Twin-cargo plane only. |
+| SBUS receiver | GP1 | PIO SM 0 | |
+| SD MOSI / MISO / SCK / CS | GP19 / GP16 / GP18 / GP17 | SPI0 | |
+| Status LED (external) | GP14 | GPIO | Carries the boot heartbeat and panic blink. |
+| Companion UART TX / RX | GP20 / GP21 | UART1 | Free for an ESP companion or GPS when onboard WiFi is unused. |
+| Radio (reserved) | GP23 / GP24 / GP25 / GP29 | CYW43439 | Do not use for flight or aux. |
+
+With `ENABLE_ONBOARD_WIFI` (on by default for this board) the flight controller raises its own WiFi access point and serves the companion UI from core1, so a separate ESP companion is not required. Validate the core0 loop jitter on the bench before relying on it in the air.
+
+Select with `#define BOARD BOARD_PICO2W` in `src/Config.h`. Build with the Pico 2 W FQBN, and pass the repo-root include path through `compiler.cpp.extra_flags` so the core's WiFi flags in `build.extra_flags` are preserved:
+
+```
+arduino-cli compile --fqbn rp2040:rp2040:rpipico2w . \
+  --build-property "compiler.cpp.extra_flags=-DBOARD=BOARD_PICO2W -I{build.source.path}" \
+  --build-property "compiler.c.extra_flags=-DBOARD=BOARD_PICO2W -I{build.source.path}"
+```
+
 ## RP2350-One (Waveshare, Pi-Pico form)
 
 Use the WeAct profile. The two boards are pin-compatible.

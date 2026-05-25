@@ -41,15 +41,26 @@
 
 #define BOARD_WAVESHARE_RP2350_TINY 0
 #define BOARD_WEACT_RP2350A_V10     1
+#define BOARD_PICO2W                2
 
-#define BOARD BOARD_WEACT_RP2350A_V10
+#ifndef BOARD
+  #define BOARD BOARD_WEACT_RP2350A_V10
+#endif
 
 #if   BOARD == BOARD_WAVESHARE_RP2350_TINY
   #include "src/boards/waveshare_rp2350_tiny.h"
 #elif BOARD == BOARD_WEACT_RP2350A_V10
   #include "src/boards/weact_rp2350a_v10.h"
+#elif BOARD == BOARD_PICO2W
+  #include "src/boards/pico2w.h"
 #else
-  #error "Unknown BOARD. Pick BOARD_WAVESHARE_RP2350_TINY or BOARD_WEACT_RP2350A_V10."
+  #error "Unknown BOARD. Pick BOARD_WAVESHARE_RP2350_TINY, BOARD_WEACT_RP2350A_V10, or BOARD_PICO2W."
+#endif
+
+// A board header defines BOARD_HAS_WIFI when it carries an integrated radio
+// (e.g. the Pico 2 W's CYW43439). Boards without one default to 0.
+#ifndef BOARD_HAS_WIFI
+  #define BOARD_HAS_WIFI 0
 #endif
 
 // ===========================================================================
@@ -305,11 +316,24 @@ constexpr uint32_t TELEMETRY_LOG_MAX_BYTES = 16u * 1024u * 1024u;  // 16 MiB.
 // ENABLE_COMPANION_CLI also runs that interface on the companion UART
 // (PIN_COMPANION_TX / PIN_COMPANION_RX), so an ESP WiFi module can bridge
 // it to a phone. Native builds only; shares the UART with a future GPS.
+//
+// ENABLE_ONBOARD_WIFI is the no-ESP path for boards with an integrated radio
+// (BOARD_HAS_WIFI, e.g. the Pico 2 W). The flight controller raises its own
+// WiFi access point and serves the companion UI from core1, leaving the 1 kHz
+// flight loop on core0. It defaults on for a WiFi board and is meaningless
+// without one. Validate loop jitter on the bench before relying on it.
 
 #define ENABLE_PARAM_PERSIST 1
 #define ENABLE_LIVE_TUNE     1
 #define ENABLE_CONFIG_CLI    1
 #define ENABLE_COMPANION_CLI 1
+
+#ifndef ENABLE_ONBOARD_WIFI
+  #define ENABLE_ONBOARD_WIFI BOARD_HAS_WIFI
+#endif
+#if ENABLE_ONBOARD_WIFI && !BOARD_HAS_WIFI
+  #error "ENABLE_ONBOARD_WIFI needs a board with an integrated radio (BOARD_PICO2W)."
+#endif
 
 namespace cp {
 

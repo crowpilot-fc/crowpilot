@@ -17,7 +17,7 @@ are `constexpr` constants in namespace `cp`.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `BOARD` | `BOARD_WEACT_RP2350A_V10` | Selects the pin map. The other choice is `BOARD_WAVESHARE_RP2350_TINY`. |
+| `BOARD` | `BOARD_WEACT_RP2350A_V10` | Selects the pin map. Other choices: `BOARD_WAVESHARE_RP2350_TINY`, and `BOARD_PICO2W` (RP2350A with an onboard WiFi radio). Overridable from a build flag (`-DBOARD=...`). |
 
 ## Build target
 
@@ -103,6 +103,7 @@ are `constexpr` constants in namespace `cp`.
 | `ENABLE_LIVE_TUNE` | `1` | Enables transmitter-channel live tuning. |
 | `ENABLE_CONFIG_CLI` | `1` | Enables the `cp` serial command interface the browser-based configurator speaks. A bench tool; a flight-only build can drop it. |
 | `ENABLE_COMPANION_CLI` | `1` | Also runs the `cp` interface on the companion UART (native builds), so an ESP WiFi module can bridge it to a phone. |
+| `ENABLE_ONBOARD_WIFI` | `BOARD_HAS_WIFI` | No-ESP path for boards with an integrated radio (e.g. `BOARD_PICO2W`). The flight controller raises its own WiFi access point and serves the companion UI from core1. Defaults on for a WiFi board, errors on a board without one. Validate loop jitter on the bench first. |
 | `LIVE_TUNE_CH_KP` | `11` | Channel for the live P-gain knob. |
 | `LIVE_TUNE_CH_KD` | `12` | Channel for the live D-gain knob. |
 | `LIVE_TUNE_RANGE` | `0.5` | Fractional tuning range, plus or minus. |
