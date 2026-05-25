@@ -461,12 +461,20 @@ constexpr uint32_t USER_HOOK_HARD_LIMIT_US = 250;
 // derivative term, which amplifies high-frequency noise the most. A lower
 // cutoff filters harder but adds phase lag. 0 disables it. A clean prop-free
 // bench needs little filtering; a vibrating multirotor needs more.
+//
+// GYRO_NOTCH_CENTER_HZ adds a narrow notch on the gyro at a known vibration
+// peak (the dominant motor or propeller frequency, read from a flight-log
+// FFT). It runs before the low-pass. 0 disables it, which is the right
+// default until a peak has been measured for the airframe. GYRO_NOTCH_Q sets
+// the width: higher is narrower and adds less phase lag away from the peak.
 
 namespace cp {
 
 constexpr float MADGWICK_BETA = 0.10f;
 
-constexpr float GYRO_LPF_CUTOFF_HZ = 90.0f;
+constexpr float GYRO_LPF_CUTOFF_HZ   = 90.0f;
+constexpr float GYRO_NOTCH_CENTER_HZ = 0.0f;  // 0 = disabled until measured.
+constexpr float GYRO_NOTCH_Q         = 3.0f;
 
 }  // namespace cp
 
@@ -538,6 +546,12 @@ constexpr float Ki_yaw   = 0.0f;
 // times the accumulated error, as a fraction of the normalized output
 // range. Provisional.
 constexpr float PID_INTEGRAL_LIMIT = 0.5f;
+
+// Extra low-pass on the derivative path, on top of the gyro low-pass in the
+// estimator. The derivative amplifies high-frequency noise the most, so it
+// gets its own, usually lower, cutoff. 0 disables it and the D term then uses
+// the estimator-filtered rate directly.
+constexpr float DTERM_LPF_CUTOFF_HZ = 60.0f;
 
 }  // namespace cp
 

@@ -6,6 +6,7 @@
 #include <math.h>
 
 #include "src/Config.h"
+#include "src/libs/Filter.h"
 
 // Madgwick AHRS, six-degree-of-freedom variant, implemented from
 // S. O. H. Madgwick, "An efficient orientation filter for inertial and
@@ -109,37 +110,15 @@ Quaternion seedFromAccel(float ax, float ay, float az) {
   return fromEulerRad(roll, pitch, 0.0f);
 }
 
-// First-order (PT1) low-pass. One instance per gyro axis. Seeds on the first
-// sample to avoid a startup transient, then tracks at the configured cutoff.
-// A zero cutoff or non-positive dt passes the input through unfiltered.
-struct Pt1 {
-  float y      = 0.0f;
-  bool  seeded = false;
-
-  float apply(float x, float cutoff_hz, float dt_s) {
-    if (cutoff_hz <= 0.0f || dt_s <= 0.0f) {
-      return x;
-    }
-    if (!seeded) {
-      y      = x;
-      seeded = true;
-      return y;
-    }
-    const float rc    = 1.0f / (2.0f * kPi * cutoff_hz);
-    const float alpha = dt_s / (rc + dt_s);
-    y += alpha * (x - y);
-    return y;
-  }
-
-  void reset() {
-    y      = 0.0f;
-    seeded = false;
-  }
-};
-
-Pt1 s_gyro_lpf_x;
-Pt1 s_gyro_lpf_y;
-Pt1 s_gyro_lpf_z;
+// Gyro pre-filtering, one instance per axis. An optional notch removes a
+// known vibration peak, then a first-order low-pass smooths the rest. Applied
+// once in update() so the estimator and every controller share one signal.
+cp::libs::filter::BiquadNotch s_gyro_notch_x;
+cp::libs::filter::BiquadNotch s_gyro_notch_y;
+cp::libs::filter::BiquadNotch s_gyro_notch_z;
+cp::libs::filter::Pt1 s_gyro_lpf_x;
+cp::libs::filter::Pt1 s_gyro_lpf_y;
+cp::libs::filter::Pt1 s_gyro_lpf_z;
 
 }  // anonymous namespace
 
@@ -150,16 +129,21 @@ void init() {
   s_gyro_lpf_x.reset();
   s_gyro_lpf_y.reset();
   s_gyro_lpf_z.reset();
+  const float fs = static_cast<float>(LOOP_HZ);
+  s_gyro_notch_x.configure(GYRO_NOTCH_CENTER_HZ, fs, GYRO_NOTCH_Q);
+  s_gyro_notch_y.configure(GYRO_NOTCH_CENTER_HZ, fs, GYRO_NOTCH_Q);
+  s_gyro_notch_z.configure(GYRO_NOTCH_CENTER_HZ, fs, GYRO_NOTCH_Q);
 }
 
 void update(float gx_dps, float gy_dps, float gz_dps,
             float ax_g, float ay_g, float az_g,
             float dt_s) {
-  // Low-pass the gyro once, here, so the Madgwick integration below and the
-  // body rates the controllers read are the same filtered signal.
-  gx_dps = s_gyro_lpf_x.apply(gx_dps, GYRO_LPF_CUTOFF_HZ, dt_s);
-  gy_dps = s_gyro_lpf_y.apply(gy_dps, GYRO_LPF_CUTOFF_HZ, dt_s);
-  gz_dps = s_gyro_lpf_z.apply(gz_dps, GYRO_LPF_CUTOFF_HZ, dt_s);
+  // Filter the gyro once, here, so the Madgwick integration below and the
+  // body rates the controllers read are the same signal: notch first to pull
+  // out a vibration peak, then the low-pass.
+  gx_dps = s_gyro_lpf_x.apply(s_gyro_notch_x.apply(gx_dps), GYRO_LPF_CUTOFF_HZ, dt_s);
+  gy_dps = s_gyro_lpf_y.apply(s_gyro_notch_y.apply(gy_dps), GYRO_LPF_CUTOFF_HZ, dt_s);
+  gz_dps = s_gyro_lpf_z.apply(s_gyro_notch_z.apply(gz_dps), GYRO_LPF_CUTOFF_HZ, dt_s);
 
   s_rates = BodyRates{gx_dps, gy_dps, gz_dps};
 

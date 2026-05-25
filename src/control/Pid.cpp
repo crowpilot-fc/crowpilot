@@ -4,6 +4,7 @@
 #include "src/control/Pid.h"
 
 #include "src/Config.h"
+#include "src/libs/Filter.h"
 #include "src/params/LiveTune.h"
 #include "src/params/Params.h"
 
@@ -18,6 +19,13 @@ constexpr float kOutputLimit = 1.0f;
 float s_integral_roll  = 0.0f;
 float s_integral_pitch = 0.0f;
 float s_integral_yaw   = 0.0f;
+
+// Per-axis low-pass on the derivative path. The gyro is already filtered in
+// the estimator; this is the extra, lower-cutoff stage on the rate the D term
+// reads. See DTERM_LPF_CUTOFF_HZ in Config.h.
+cp::libs::filter::Pt1 s_dterm_lpf_roll;
+cp::libs::filter::Pt1 s_dterm_lpf_pitch;
+cp::libs::filter::Pt1 s_dterm_lpf_yaw;
 
 Output s_out = {0.0f, 0.0f, 0.0f};
 
@@ -64,6 +72,9 @@ void init() {
   s_integral_roll  = 0.0f;
   s_integral_pitch = 0.0f;
   s_integral_yaw   = 0.0f;
+  s_dterm_lpf_roll.reset();
+  s_dterm_lpf_pitch.reset();
+  s_dterm_lpf_yaw.reset();
   s_out = Output{0.0f, 0.0f, 0.0f};
 }
 
@@ -100,17 +111,24 @@ void update(const cp::estimation::attitude::Euler& attitude_error,
   const float ki_pitch = pr::get(pr::KI_PITCH);
   const float ki_yaw   = pr::get(pr::KI_YAW);
 
+  // Derivative-path rates: the estimator-filtered body rates passed through
+  // the extra D-term low-pass. The error terms still use the unfiltered
+  // (estimator-level) rates so only the D contribution gets the extra lag.
+  const float d_roll  = s_dterm_lpf_roll.apply(body_rates.roll_dps, DTERM_LPF_CUTOFF_HZ, dt_s);
+  const float d_pitch = s_dterm_lpf_pitch.apply(body_rates.pitch_dps, DTERM_LPF_CUTOFF_HZ, dt_s);
+  const float d_yaw   = s_dterm_lpf_yaw.apply(body_rates.yaw_dps, DTERM_LPF_CUTOFF_HZ, dt_s);
+
   // Roll and pitch stabilize on attitude error.
-  s_out.roll = axisStep(attitude_error.roll_deg, body_rates.roll_dps,
+  s_out.roll = axisStep(attitude_error.roll_deg, d_roll,
                         kp_roll, ki_roll, kd_roll,
                         flying, dt_s, s_integral_roll);
-  s_out.pitch = axisStep(attitude_error.pitch_deg, body_rates.pitch_dps,
+  s_out.pitch = axisStep(attitude_error.pitch_deg, d_pitch,
                          kp_pitch, ki_pitch, kd_pitch,
                          flying, dt_s, s_integral_pitch);
 
   // Yaw stabilizes on rate error.
   const float yaw_rate_error = yaw_rate_setpoint_dps - body_rates.yaw_dps;
-  s_out.yaw = axisStep(yaw_rate_error, body_rates.yaw_dps,
+  s_out.yaw = axisStep(yaw_rate_error, d_yaw,
                        kp_yaw, ki_yaw, kd_yaw,
                        flying, dt_s, s_integral_yaw);
 }
