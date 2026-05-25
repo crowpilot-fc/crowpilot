@@ -13,6 +13,10 @@
 #include "src/actuators/Output.h"
 #include "src/params/Params.h"
 
+#if ENABLE_ONBOARD_WIFI
+#include "src/comms/OnboardWifi.h"
+#endif
+
 namespace cp::cli {
 
 #if ENABLE_CONFIG_CLI
@@ -48,7 +52,8 @@ struct Channel {
   bool       overflow;
 };
 
-Channel s_chan[2];
+// USB, the companion UART, and (on a WiFi board) the onboard WiFi bridge.
+Channel s_chan[3];
 uint8_t s_chan_count = 0;
 
 // The channel stream that last issued "cp stream on", or nullptr. The
@@ -271,6 +276,15 @@ void init() {
   s_chan[1].len      = 0;
   s_chan[1].overflow = false;
   s_chan_count       = 2;
+#endif
+
+#if ENABLE_ONBOARD_WIFI
+  // Onboard WiFi (boards with an integrated radio). The bridge stream is
+  // serviced on core1; the CLI reads and writes it like any other channel.
+  s_chan[s_chan_count].io       = cp::comms::onboard_wifi::cli_stream();
+  s_chan[s_chan_count].len      = 0;
+  s_chan[s_chan_count].overflow = false;
+  ++s_chan_count;
 #endif
 
   s_stream_out = nullptr;
