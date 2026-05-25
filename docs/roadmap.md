@@ -3,53 +3,52 @@
 
 # Roadmap
 
-CrowPilot ships in versioned releases. Each release has a defined acceptance airframe and a published bench-verification queue. v1.0 is the tailsitter bicopter target; v1.1 and v1.2 broaden the airframe support; v2 adds GPS-aware features.
+CrowPilot ships in versioned releases. Each release has a defined acceptance airframe and a published bench-verification queue. v1.0 is the DHC-4 Caribou first flight. v1.1 brings up the single-engine Gee Bee. v2 adds GPS-aware features.
 
 This page tracks scope, not dates. Items in **complete** have landed on main. Items in **in progress** are actively under work. Items in **next** are queued for the current release. Items in **later** are scoped but unscheduled.
 
-**Note (May 2026).** The DHC-4 Caribou twin-engine plane is the active first-flight bring-up airframe, and the firmware currently ships configured for it. The version milestones below predate that decision; the airframe sequencing will be revisited once the Caribou has flown.
+The tailsitter VTOL bicopter, CrowPilot's origin airframe, stays fully supported as a carried airframe and shares the same control core as the planes. It is no longer the first-flight target.
 
-## v1.0: Tailsitter bicopter (Eclipson E-VTOL-1 reference)
+## v1.0: DHC-4 Caribou cargo plane (first flight)
 
-The first acceptance airframe is a 3D-printed tailsitter bicopter sized for two small brushless motors and two elevon servos.
+The initial release. The first-flight aircraft is the DHC-4 Caribou twin-engine cargo plane, based on the open-source Caribou STL set, and the firmware ships configured for it.
 
 **Complete.**
 
 - Repo scaffolding, GPL-3.0-or-later code license, CC-BY-SA-4.0 docs license.
 - 1 kHz cooperative superloop with regulator and busy-wait period pinning.
 - MPU-6500 and MPU-6050 IMU drivers (datasheet-derived, clean-build) with an IMU facade and gyro/accel bias calibration.
-- Madgwick 6-DOF AHRS with hover and forward Euler conventions.
+- BMP388 and BMP280 barometer drivers with relative altitude. The barometer is optional.
+- Madgwick 6-DOF AHRS.
 - SBUS receiver via PIO inverted UART. No external inverter.
 - Failsafe controlled-fall override on link loss.
-- Transition fader and FlightMode enum.
-- BMP388 and BMP280 barometer drivers with relative altitude.
-- Desired-state generation and angle PID controller (D on measurement, anti-windup by saturation, hover and forward gain blend).
-- Tailsitter bicopter mixer.
-- OneShot125 ESC bit-bang, 50 Hz servo PWM, arm logic, throttle cut, ESC calibration.
-- SD card binary telemetry logger plus host-side CSV decoder (`tools/decode_log.py`).
-- HAL boundary with a native implementation and a simulated implementation for the SITL build.
-- Public documentation pass (`docs/` tree).
-- The CrowPilot Configurator, a browser-based setup tool (parameter editor, live telemetry, log viewer, firmware flashing) and the `cp` serial command interface it speaks.
-- SITL host build: the firmware logic compiled and run as a host executable against the simulated HAL.
-
-**In progress.**
-
-- Runtime parameter system with LittleFS persistence. Two TX channels scale Kp and Kd by ±50 percent in real time without reflashing.
-- Log analyzer tool (`tools/log_analyzer/`).
+- Desired-state generation and angle PID controller (D on measurement, anti-windup by saturation, gain blend).
+- Fixed-wing stabilization subsystem: wing leveler, pitch hold, and yaw damper.
+- Twin-engine cargo plane mixer (Caribou), single-engine plane mixer, and the tailsitter bicopter mixer with its transition fader and flight-mode enum.
+- PWM and OneShot125 ESC output, 50 Hz servo PWM, arm logic, and ESC calibration.
+- User extension hook (pin-claim, read-only sensor API, three-strike disable, per-tick time budget) and the Caribou aux user sketch.
+- SD card binary telemetry logger plus host-side decoder and log analyzer. Logging is optional.
+- Runtime parameter registry, transmitter live tuning, and LittleFS persistence. All optional.
+- Board profiles for the WeAct RP2350A_V10 (default), the Waveshare RP2350-Tiny, and the Raspberry Pi Pico 2 W.
+- A minimal IMU-only build profile (no SD card, barometer, or WiFi) for a simple plane on a small board.
+- The CrowPilot Configurator (parameter editor, live telemetry, log viewer, firmware flashing) and the `cp` serial command interface it speaks.
+- The ESP32-C3 wireless companion and the Pico 2 W onboard-WiFi companion, both serving a phone web UI with a cockpit instrument panel over the `cp` protocol.
+- HAL boundary with a native RP2350 implementation and a closed-loop SITL implementation carrying plane and tailsitter rigid-body models.
+- Public documentation set (`docs/` tree) and a monochrome brand identity with the Crow Teal accent and a vectorized logo.
 
 **Next.**
 
-- Bench verification (one-shot, all phases) on the reference build per [docs/getting-started/first-bench-test.md](getting-started/first-bench-test.md).
-- Tethered hover (v1.0 acceptance flight). Deprioritized behind the Caribou first flight, per the note above.
-
-The closed-loop SITL physics model has since landed for both airframes (see v1.1). HIL validation depends on the external host runtime.
+- Reference user-sketch examples (e.g. a payload-drop hook).
+- Caribou bench verification, per [docs/getting-started/caribou-bench-test.md](getting-started/caribou-bench-test.md).
+- Caribou first flight (v1.0 acceptance).
 
 **Later.**
 
-Control-core refinements, scoped for after v1.0 bench verification and
-added one at a time against a proven baseline. Each is standard
-practice, derived from public control-theory and signal-processing
-references.
+- Tailsitter tethered hover, the carried airframe's acceptance, deprioritized behind the Caribou maiden.
+
+Control-core refinements, scoped for after bench verification and added one
+at a time against a proven baseline. Each is standard practice, derived from
+public control-theory and signal-processing references.
 
 - A low-pass or biquad filter on the PID derivative path, so gyro noise
   is not amplified into the actuators. Reference: Astrom and Murray,
@@ -65,37 +64,15 @@ references.
   Reference: Bristow-Johnson, Audio EQ Cookbook, or Oppenheim and
   Schafer, Discrete-Time Signal Processing.
 
-## v1.1: Caribou cargo plane
+## v1.1: Gee Bee single-engine plane
 
-A two-engine cargo plane based on the open-source Caribou STL set. This is
-the active first-flight bring-up airframe, and the firmware ships configured
-for it.
-
-**Complete.**
-
-- Plane stabilization subsystem (replaces the tailsitter PID for plane airframes).
-- Twin-engine cargo plane mixer.
-- User extension hook with pin-claim, sensor read-only API, three-strike disable, and per-tick time budget, plus the Caribou aux `user-sketch.ino`.
-- ESP companion firmware (Wi-Fi bridge for the `cp` protocol).
-- Phone UI (browser-based, served by the ESP, with a cockpit instrument panel).
-- Closed-loop fixed-wing SITL with a plane physics model.
-
-**Next.**
-
-- Reference user-sketch examples (e.g. a payload-drop hook).
-- Caribou bench verification.
-- Caribou first flight (v1.1 acceptance).
-
-## v1.2: Gee Bee single-engine plane
-
-A short, fat, racing-style single-engine plane based on the open-source Gee Bee STL set.
+A short, fat, racing-style single-engine plane based on the open-source Gee Bee STL set. The single-engine plane mixer ships in v1.0. v1.1 brings the airframe up.
 
 **Later.**
 
-- Single-engine plane mixer.
-- EDF-specific tuning notes (an option for power plants for the same airframe).
+- EDF-specific tuning notes, an option for the same airframe's power plant.
 - Gee Bee bench verification.
-- Gee Bee first flight (v1.2 acceptance).
+- Gee Bee first flight (v1.1 acceptance).
 
 ## v2: GPS-aware
 
