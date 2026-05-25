@@ -454,10 +454,19 @@ constexpr uint32_t USER_HOOK_HARD_LIMIT_US = 250;
 // beta tracks the accelerometer faster and is noisier, a lower beta
 // trusts the gyro longer and drifts more. Provisional, refined by bench
 // observation per spec section 3.
+//
+// GYRO_LPF_CUTOFF_HZ is a first-order low-pass on the gyro, applied once in
+// the estimator so the attitude filter and every controller see the same
+// filtered body rates. It keeps motor and propeller vibration off the
+// derivative term, which amplifies high-frequency noise the most. A lower
+// cutoff filters harder but adds phase lag. 0 disables it. A clean prop-free
+// bench needs little filtering; a vibrating multirotor needs more.
 
 namespace cp {
 
 constexpr float MADGWICK_BETA = 0.10f;
+
+constexpr float GYRO_LPF_CUTOFF_HZ = 90.0f;
 
 }  // namespace cp
 
