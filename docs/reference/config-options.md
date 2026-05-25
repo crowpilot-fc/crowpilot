@@ -203,3 +203,39 @@ connection.
 | `DEBUG_DEV_INTERVAL_TICKS` | `200` | Ticks between DEV summary lines. |
 | `DEBUG_STREAM_INTERVAL_TICKS` | `100` | Ticks between diagnostic stream lines. |
 | `DEBUG_LOOP_REPORT_TICKS` | `1000` | Ticks between loop-period reports. |
+
+## Minimal IMU-only build
+
+CrowPilot scales down to a bare flight controller: a small RP2350 board and an MPU IMU, with no SD card, no barometer, and no WiFi. This suits a simple fixed-wing plane on a 5-channel transmitter, and compiles to about 5 percent of flash.
+
+Hardware: a Waveshare RP2350-Tiny (or any RP2350 board) plus an MPU-6500 or MPU-6050 on I2C0 (GP4/GP5). SBUS receiver on GP1. One ESC on GP10 and the control-surface servos on the servo pins. No SD module, no barometer, no ESP.
+
+Set these in `Config.h`:
+
+| Option | Minimal value | Why |
+|---|---|---|
+| `BOARD` | `BOARD_WAVESHARE_RP2350_TINY` | Smallest board. |
+| `AIRFRAME` | `AIRFRAME_PLANE_SINGLE` | One motor plus aileron, elevator, rudder. |
+| `BARO_TYPE` | `BARO_NONE` | No barometer. |
+| `ENABLE_TELEMETRY_LOG` | `0` | No SD logging. |
+| `ENABLE_PARAM_PERSIST` | `0` | No flash parameter store. |
+| `ENABLE_LIVE_TUNE` | `0` | No spare channels for tuning knobs. |
+| `ENABLE_COMPANION_CLI` | `0` | No ESP companion. |
+| `ENABLE_ALT_HOLD` | `0` | Needs a barometer. |
+| `CHANNEL_ARM` | `5` | Arm on the fifth channel of a 5-channel TX. |
+
+`ENABLE_CONFIG_CLI` can stay `1`: the USB `cp` interface still tunes over a cable with no extra hardware. With persistence off, `cp save` and `cp load` return an error and gains revert to the `Config.h` defaults on reboot.
+
+Channel map for a 5-channel transmitter (AETR plus arm):
+
+| Channel | Function |
+|---|---|
+| 1 | Roll (aileron) |
+| 2 | Pitch (elevator) |
+| 3 | Throttle |
+| 4 | Yaw (rudder) |
+| 5 | Arm switch |
+
+Leave the stabilizer channel (`CHANNEL_STAB`) unassigned on a 5-channel radio. An undriven channel sits at center, which the firmware reads as stabilized, so the wing leveler stays on. Assign a sixth channel to `CHANNEL_STAB` if you want a manual-passthrough switch.
+
+Multirotors (a quadcopter and the like) are not supported yet. The `AIRFRAME_QUAD_X` selector and the other multirotor frames are reserved and halt the build. A multirotor mixer and its rate and angle control modes are a v2.x item.
