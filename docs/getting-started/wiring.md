@@ -3,9 +3,49 @@
 
 # Wiring
 
-Pin assignments and wiring for the Waveshare RP2350-Tiny reference build. For the WeAct RP2350A_V10 and other board profiles, see [docs/reference/pin-maps.md](../reference/pin-maps.md).
+Pin assignments and wiring for CrowPilot. The default first-flight build is the DHC-4 Caribou on a WeAct RP2350A_V10, shown first. The Waveshare RP2350-Tiny is the smaller alternate, shown after it. The full per-board pin reference is [docs/reference/pin-maps.md](../reference/pin-maps.md), and the annotated Caribou diagram is [docs/reference/caribou-pinmap.svg](../reference/caribou-pinmap.svg).
 
-## Pin map (Waveshare RP2350-Tiny, canonical)
+## Pin map (WeAct RP2350A_V10, DHC-4 Caribou)
+
+This is the default build. The four control-surface servos are on GP6 to GP9. The I2C, SD, ESC, and companion pins are the same as on the Tiny.
+
+Firmware-driven pins:
+
+| Function | GP pin | Notes |
+|---|---|---|
+| I2C SDA | GP4 | I2C0. IMU and barometer. |
+| I2C SCL | GP5 | I2C0. |
+| Aileron servo, left | GP6 | 50 Hz servo PWM. |
+| Aileron servo, right | GP7 | 50 Hz servo PWM. |
+| Elevator servo | GP8 | 50 Hz servo PWM. |
+| Rudder servo | GP9 | 50 Hz servo PWM. |
+| ESC, right engine | GP10 | Motor signal. PWM or OneShot125. |
+| ESC, left engine | GP11 | Motor signal. |
+| SBUS receiver | GP1 | PIO inverted UART. No external inverter. |
+| SD MOSI | GP19 | SPI0. |
+| SD MISO | GP16 | SPI0. |
+| SD CLK | GP18 | SPI0. Module pin reads CLK. |
+| SD CS | GP17 | SPI0. |
+| Companion UART TX | GP20 | UART1 to the ESP companion. |
+| Companion UART RX | GP21 | UART1. |
+| Status LED, external | GP14 | Optional, with a 470 Ω resistor. |
+| Onboard LED | GP25 | Boot heartbeat. Built in (the board's LED2). |
+
+Caribou aux pins, driven by `user-sketch.ino` rather than the firmware mixer:
+
+| Function | GP pin | Notes |
+|---|---|---|
+| Nav lights, LED2 | GP2 | 1 Hz blink. |
+| Nose-wheel steering | GP3 | Follows the rudder when the gear is down. |
+| Flap servo 1 | GP12 | Both wings on one channel. |
+| Flap servo 2 | GP13 | |
+| Bay door 1 | GP15 | |
+| Retracts, all three | GP22 | All three gear legs on one channel. |
+| Bay door 2 | GP28 | |
+
+GP23, GP24, GP26, GP27, and GP29 are spare. On a Pico 2 W, GP23, GP24, GP25, and GP29 are taken by the on-board radio instead, and the heartbeat LED moves to the external GP14.
+
+## Pin map (Waveshare RP2350-Tiny, alternate)
 
 | Function | GP pin | Notes |
 |---|---|---|
@@ -107,11 +147,9 @@ The SD card must be FAT32 formatted. FAT16 and exFAT are not supported by the Ar
 
 ## Servos
 
-Servos go on GP12 (left elevon) and GP13 (right elevon) for the Eclipson-style tailsitter. Standard 1 ms to 2 ms pulse range at 50 Hz. The Pi Pico Arduino core's `Servo.h` handles the PWM hardware internally.
+On the WeAct Caribou build the four control-surface servos are on GP6 (left aileron), GP7 (right aileron), GP8 (elevator), and GP9 (rudder). On the Waveshare-Tiny tailsitter build the two elevons are on GP12 and GP13, with GP8 and GP9 free for the user extension hook. All servos run standard 1 ms to 2 ms pulses at 50 Hz, handled by the Pi Pico Arduino core's `Servo.h`.
 
-A twin-cargo plane build uses four servos and additionally drives GP8 and GP9. On the tailsitter those two pins are unused and free for the user extension hook.
-
-Power servos from the 5 V UBEC rail. Servo current can spike during stall; size the UBEC for at least 3 A.
+Power servos from the 5 V UBEC rail. Servo current can spike during stall, so size the UBEC for at least 3 A.
 
 ## ESCs
 
