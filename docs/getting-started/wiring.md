@@ -48,38 +48,60 @@ CrowPilot v1 supports inverted SBUS only. The PIO program is fixed to the invert
 
 ## I2C bus
 
-Both the IMU and the barometer sit on I2C0 at 400 kHz, sharing GP4 (SDA) and GP5 (SCL). Pull-ups are usually on the breakout boards; if you wire bare chips, add 4.7 kΩ pull-ups to 3.3 V.
+The IMU and the barometer both sit on the I2C0 bus. They share two signal lines: every module's SDA-type pin goes to GP4, and every module's SCL-type pin goes to GP5. Wire each module from its own table below. Find the label on your module, then run a wire to the listed flight-controller pin. A pin marked "not used" is left open (no wire).
 
-Breakouts do not all silkscreen these pins the same way, so wire by the labels on your module. The BMP388 board in particular labels its I2C clock SCK and its data SDI, not SCL and SDA:
+Both modules also connect to the same 3.3 V and GND pins on the flight controller. That is correct, the bus is shared.
 
-| FC pin | MPU-6500 / 6050 module | BMP388 module |
-|---|---|---|
-| GP5 (SCL) | SCL | SCK |
-| GP4 (SDA) | SDA | SDI |
-| 3.3 V | VCC | VIN (or VCC) |
-| GND | GND | GND |
-| address select | ADO: low 0x68, high 0x69 | SDO: low 0x76, high 0x77 |
-| mode | not used | CS: tie to 3.3 V for I2C |
+If you wire bare chips instead of breakout boards, add a 4.7 kΩ resistor from GP4 to 3.3 V and another from GP5 to 3.3 V. Most breakout boards already have these.
 
-On the BMP388 module, tie CS high or the chip stays in SPI mode and never answers on I2C. Leave the BMP388 INT pin and its 3Vo output (a regulated 3.3 V output, not an input) unconnected. The MPU board's EDA, ECL, INT, NCS, and FSYNC pins are also unused.
+### IMU module: MPU-6500 or MPU-6050
 
-- IMU default address: 0x68 (ADO low). Set `IMU_I2C_ADDR` for 0x69.
-- Barometer default address: 0x77 (SDO high on most breakouts). Set `BARO_I2C_ADDR` for 0x76.
+| Pin on the IMU module | Wire it to (flight controller) |
+|---|---|
+| VCC | 3.3 V |
+| GND | GND |
+| SCL | GP5 |
+| SDA | GP4 |
+| EDA | not used |
+| ECL | not used |
+| ADO | GND (this sets I2C address 0x68, the firmware default) |
+| INT | not used |
+| NCS | not used |
+| FSYNC | not used |
+
+To use address 0x69 instead, wire ADO to 3.3 V and set `IMU_I2C_ADDR` to 0x69 in `src/Config.h`.
+
+An MPU-6050 GY-521 board labels three of these pins differently: XDA, XCL, and AD0 in place of EDA, ECL, and ADO. Wire VCC, GND, SCL, SDA, and AD0 (to GND) the same way, and leave XDA, XCL, and INT not used.
+
+### Barometer module: BMP388
+
+| Pin on the BMP388 module | Wire it to (flight controller) |
+|---|---|
+| VIN | 3.3 V |
+| 3Vo | not used (this is the module's 3.3 V output, not an input) |
+| GND | GND |
+| SCK | GP5 |
+| SDO | 3.3 V (this sets I2C address 0x77, the firmware default) |
+| SDI | GP4 |
+| CS | 3.3 V (this selects I2C mode) |
+| INT | not used |
+
+On the BMP388 the I2C clock is the pin marked SCK and the I2C data is the pin marked SDI, not SCL and SDA. The CS pin must go to 3.3 V, or the chip stays in SPI mode and never answers on I2C. To use address 0x76 instead, wire SDO to GND and set `BARO_I2C_ADDR` to 0x76 in `src/Config.h`.
 
 ## SD card
 
-The SD module sits on SPI0. Wire it by the module silkscreen. Note the clock pin is labeled CLK on the module, which is the same line the RP2350 pin map calls SPI SCK:
+The SD module sits on the SPI0 bus. Wire each module pin to the listed flight-controller pin. The clock pin is labeled CLK on the module, which is the same line the RP2350 pin map calls SPI SCK.
 
-| FC pin | SD module |
+| Pin on the SD module | Wire it to (flight controller) |
 |---|---|
-| GP19 | MOSI |
-| GP16 | MISO |
-| GP18 | CLK |
-| GP17 | CS |
-| 3.3 V | 3V3 |
+| 3V3 | 3.3 V |
 | GND | GND |
+| MOSI | GP19 |
+| MISO | GP16 |
+| CLK | GP18 |
+| CS | GP17 |
 
-Power the module from the 3.3 V rail (most microSD breakouts are 3.3 V-native and do not need a level shifter).
+Most microSD breakouts are 3.3 V-native and do not need a level shifter.
 
 The SD card must be FAT32 formatted. FAT16 and exFAT are not supported by the Arduino-Pico `SD.h` library used in v1.
 
