@@ -68,8 +68,9 @@ sit on high channels (14 and 16) so they never collide with a primary or
 an aux assignment. `CHANNEL_ALT_HOLD` (13) and the live-tune knobs (11 and
 12) are optional and unassigned by default.
 
-Aux channels 5-9 are read by `user-sketch.ino`, not the firmware mixer:
-ch5 throttle 2, ch6 aileron 2, ch7 landing gear, ch8 flap, ch9 bay door.
+Aux channels 5-10 are read by `user-sketch.ino`, not the firmware mixer:
+ch5 throttle 2, ch6 aileron 2, ch7 landing gear, ch8 flap 1, ch9 bay door,
+ch10 flap 2.
 The nose wheel is steered mechanically off the rudder servo (it shares the
 rudder signal), so it needs no separate output. The LED2 nav-blink is driven
 by the sketch directly.
@@ -82,7 +83,7 @@ before the firmware will arm.
 
 **Pass:** the TX is mapped so the firmware sees the right value on the
 right channel, and the spare TX switches are assigned to ARM, STAB,
-ALT_HOLD, gear, flap, bay door, and steering.
+ALT_HOLD, gear, flap 1, flap 2, and bay door.
 
 ---
 
@@ -279,11 +280,11 @@ With the user-sketch built and `ENABLE_USER_HOOK 1`:
 - [ ] **Landing gear** switch toggles the retracts. If the sequenced
   retract logic is on, the nose leg moves first, then the wing legs
   with a delay.
-- [ ] **Flap** channel moves the flap servos to up / half / down.
-  Both flap1 servos (and both flap2 servos) move together.
+- [ ] **Flap 1** channel (ch8) moves both flap 1 servos to up / half / down.
+- [ ] **Flap 2** channel (ch10) moves both flap 2 servos to up / half / down.
 - [ ] **Bay door** channel opens and closes both bay door servos.
-- [ ] **Nose-wheel steering** stick moves the nose wheel left and
-  right (or follows the rudder, depending on the sketch's logic).
+- [ ] **Nose wheel** moves with the rudder stick. It is tied to the rudder
+  servo, so it tracks the rudder on the ground and in the air.
 - [ ] **LED2 nav blink** is blinking on both wings (red on the left
   wing, green on the right wing, blinking in sync if the GPIO is
   shared).

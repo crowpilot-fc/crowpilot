@@ -22,8 +22,9 @@
 //   ch1, 2, 3, 4   AETR primaries  (firmware mixer, not this sketch)
 //   ch5, 6         throttle 2 and aileron 2  (firmware-side)
 //   ch7            landing gear switch
-//   ch8            flap switch  (three-position: up / half / full)
+//   ch8            flap 1 switch  (three-position: up / half / full)
 //   ch9            cargo bay door switch
+//   ch10           flap 2 switch  (three-position: up / half / full)
 //
 // Pins below are firmware-free on the WeAct RP2350A_V10 for the Caribou
 // airframe. Writes to a firmware-claimed pin are ignored with a warning.
@@ -45,8 +46,9 @@ constexpr uint8_t GP_LED2     =  2;  // nav blink, red left wing / green right w
 // --- Transmitter channels -------------------------------------------------
 
 constexpr uint8_t CH_GEAR   = 7;
-constexpr uint8_t CH_FLAP   = 8;
+constexpr uint8_t CH_FLAP_1 = 8;   // flap 1 three-position switch
 constexpr uint8_t CH_BAY    = 9;
+constexpr uint8_t CH_FLAP_2 = 10;  // flap 2 three-position switch, independent
 
 // --- Servo pulse widths ---------------------------------------------------
 
@@ -70,6 +72,19 @@ static Servo s_bay2;
 
 static uint32_t s_led_last_toggle_ms = 0;
 static bool     s_led_state          = false;
+
+// --- Helpers -------------------------------------------------------------
+
+// Map a three-position switch channel to the up, half, or full flap setting.
+static uint16_t flapPosition(uint16_t ch_us) {
+  if (ch_us < SWITCH_LOW_US) {
+    return SERVO_UP_US;
+  }
+  if (ch_us > SWITCH_HIGH_US) {
+    return SERVO_DOWN_US;
+  }
+  return SERVO_MID_US;
+}
 
 // --- Entry points --------------------------------------------------------
 
@@ -100,20 +115,13 @@ void user_tick() {
   const bool gear_down = cp::user::channel(CH_GEAR) > 1500;
   s_retracts.writeMicroseconds(gear_down ? SERVO_DOWN_US : SERVO_UP_US);
 
-  // Flaps. Three-position switch on ch8 maps to up, half, full. Both
-  // flap servos on each wing share the channel via the Y-harness, so
-  // flap1 and flap2 outputs always carry the same pulse width.
-  const uint16_t flap_sw = cp::user::channel(CH_FLAP);
-  uint16_t flap_us;
-  if (flap_sw < SWITCH_LOW_US) {
-    flap_us = SERVO_UP_US;
-  } else if (flap_sw > SWITCH_HIGH_US) {
-    flap_us = SERVO_DOWN_US;
-  } else {
-    flap_us = SERVO_MID_US;
-  }
-  s_flap1.writeMicroseconds(flap_us);
-  s_flap2.writeMicroseconds(flap_us);
+  // Flaps. Flap 1 and flap 2 are independent, each a three-position switch
+  // (up, half, full) on its own channel. Each output drives that flap on
+  // both wings, since the left and right servos are tied together. To move
+  // the two flaps together, send one flap switch on both channels at the
+  // transmitter.
+  s_flap1.writeMicroseconds(flapPosition(cp::user::channel(CH_FLAP_1)));
+  s_flap2.writeMicroseconds(flapPosition(cp::user::channel(CH_FLAP_2)));
 
   // Cargo bay doors. Both doors share the ch9 switch.
   const uint16_t bay_us =

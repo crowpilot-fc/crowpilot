@@ -40,8 +40,11 @@ These channels are read by `user-sketch.ino`, not the firmware mixer.
 | ch5 | Throttle 2 (second engine) |
 | ch6 | Aileron 2 (second aileron) |
 | ch7 | Landing gear, both retracts |
-| ch8 | Flap, both flaps on one channel |
+| ch8 | Flap 1, both wings tied |
 | ch9 | Bay door, both doors on one channel |
+| ch10 | Flap 2, both wings tied |
+
+Flap 1 (ch8) and flap 2 (ch10) are independent. To work them together, assign one flap switch to both channels on the transmitter.
 
 ## Throws, deadband, expo
 
