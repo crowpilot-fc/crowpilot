@@ -121,6 +121,23 @@ When disarmed, CrowPilot holds the motors at the disarm pulse so they stay stopp
 
 For ESCs that require explicit calibration (less common with BLHeli, more common with older ESCs), see [docs/user-guide/tuning.md](../user-guide/tuning.md) and set `ENABLE_ESC_CALIBRATION = 1` in `src/Config.h`.
 
+## ESP32-C3 wireless companion (optional)
+
+The WiFi companion is optional. It connects to the flight controller's companion UART (GP20 and GP21) and serves the phone UI over the cp protocol. Skip this section if you are not using WiFi. Skip it too if you use a Raspberry Pi Pico 2 W as the flight controller, since its radio is on-board and needs no separate module.
+
+The transmit and receive lines cross over: the flight controller's transmit pin goes to the ESP's receive pin, and the ESP's transmit pin goes to the flight controller's receive pin. Both sides are 3.3 V logic, so no level shifter is needed.
+
+| Pin on the ESP32-C3 board | Wire it to (flight controller) | What it does |
+|---|---|---|
+| GPIO20 | GP20 | ESP receive, FC transmit |
+| GPIO21 | GP21 | ESP transmit, FC receive |
+| 5V | 5 V rail | powers the ESP |
+| GND | GND | common ground, required |
+
+The pin numbers line up (20 to 20, 21 to 21), but this is still the correct cross: GP20 is the flight controller's transmit line and ESP GPIO20 is the ESP's receive line, and likewise for 21. Connect transmit to receive, not transmit to transmit.
+
+The ESP-side pins (GPIO20 for receive, GPIO21 for transmit) are set in `esp-companion/esp-companion.ino` and can move to any free ESP32-C3 GPIO. Power the ESP from the 5 V rail, not the flight controller's 3.3 V regulator: WiFi transmit current peaks above what the RP2350's on-board regulator should supply, and the ESP board makes its own 3.3 V.
+
 ## Wiring checklist before first power-on
 
 - Battery DISCONNECTED.
