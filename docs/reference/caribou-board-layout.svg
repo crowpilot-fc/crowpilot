@@ -1,0 +1,112 @@
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- Copyright (C) 2026 Nitin Kumar -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1140 1180" font-family="Inter, system-ui, -apple-system, sans-serif">
+  <rect width="1140" height="1180" fill="#ffffff"/>
+
+  <text x="40" y="40" font-size="22" font-weight="700" fill="#1B2127">CrowPilot Caribou prototype board</text>
+  <text x="40" y="62" font-size="13" fill="#6B7280">First pass from the hand sketch. Module placement follows the board photo. Connections are from the verified pin map. "NC" means leave unconnected.</text>
+
+  <!-- ============ BOARD PANEL ============ -->
+  <rect x="30" y="82" width="1080" height="500" rx="10" fill="#F5F7F8" stroke="#9CA3AF"/>
+  <text x="46" y="104" font-size="12" font-weight="700" fill="#6B7280" letter-spacing="1">PROTOTYPE BOARD</text>
+
+  <!-- FC (WeAct), top left, USB-C on the left -->
+  <rect x="55" y="118" width="455" height="206" rx="8" fill="#ffffff" stroke="#1B2127" stroke-width="1.5"/>
+  <rect x="47" y="150" width="10" height="34" rx="2" fill="#374151"/>
+  <text x="72" y="142" font-size="14" font-weight="700" fill="#1B2127">WeAct RP2350A_V10  (flight controller)</text>
+  <text x="72" y="166" font-size="12" fill="#1B2127">GP4 SDA, GP5 SCL  to IMU + baro</text>
+  <text x="72" y="186" font-size="12" fill="#1B2127">GP6/7/8/9  ail-L, ail-R, elevator, rudder</text>
+  <text x="72" y="206" font-size="12" fill="#1B2127">GP10 ESC right, GP11 ESC left  (to wings)</text>
+  <text x="72" y="226" font-size="12" fill="#1B2127">GP1 SBUS in   GP16/17/18/19 SD (SPI0)</text>
+  <text x="72" y="246" font-size="12" fill="#1B2127">GP20 TX, GP21 RX  to ESP32-C3</text>
+  <text x="72" y="266" font-size="12" fill="#1B2127">GP2,12,13,15,22,28  aux (to MPX + body)</text>
+  <text x="72" y="286" font-size="12" fill="#1B2127">5V in on VSYS, 3V3 out to the sensors</text>
+  <text x="72" y="308" font-size="11" fill="#6B7280">GP3, 23, 24, 26, 27, 29 spare</text>
+
+  <!-- ESP32-C3, top right, USB-C + antenna on the right -->
+  <rect x="690" y="118" width="370" height="206" rx="8" fill="#ffffff" stroke="#1B2127" stroke-width="1.5"/>
+  <rect x="1058" y="150" width="10" height="34" rx="2" fill="#374151"/>
+  <line x1="1045" y1="118" x2="1045" y2="92" stroke="#374151" stroke-width="2"/>
+  <text x="706" y="142" font-size="14" font-weight="700" fill="#1B2127">Seeed XIAO ESP32-C3</text>
+  <text x="706" y="162" font-size="12" fill="#6B7280">WiFi companion (optional)</text>
+  <text x="706" y="190" font-size="12" fill="#1B2127">D7 (GPIO20) RX  &#8592;  FC GP20</text>
+  <text x="706" y="212" font-size="12" fill="#1B2127">D6 (GPIO21) TX  &#8594;  FC GP21</text>
+  <text x="706" y="234" font-size="12" fill="#1B2127">5V  &#8592;  5V rail</text>
+  <text x="706" y="256" font-size="12" fill="#1B2127">GND  &#8592;  common GND</text>
+  <text x="706" y="284" font-size="11" fill="#6B7280">TX and RX cross. The pin numbers match,</text>
+  <text x="706" y="300" font-size="11" fill="#6B7280">but each is the opposite role.</text>
+
+  <!-- BARO, bottom left -->
+  <rect x="55" y="360" width="300" height="196" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="72" y="384" font-size="14" font-weight="700" fill="#1B2127">CJMCU-388  (BMP388 baro)</text>
+  <text x="72" y="410" font-size="12" fill="#1B2127">VIN  &#8594;  3V3</text>
+  <text x="72" y="430" font-size="12" fill="#1B2127">GND  &#8594;  GND</text>
+  <text x="72" y="450" font-size="12" fill="#1B2127">SCK  &#8594;  GP5 (SCL)</text>
+  <text x="72" y="470" font-size="12" fill="#1B2127">SDI  &#8594;  GP4 (SDA)</text>
+  <text x="72" y="490" font-size="12" fill="#1B2127">SDO  &#8594;  3V3   (addr 0x77)</text>
+  <text x="72" y="510" font-size="12" fill="#1B2127">CS   &#8594;  3V3   (I2C mode)</text>
+  <text x="72" y="532" font-size="11" fill="#6B7280">INT, 3Vo  NC</text>
+
+  <!-- MPU, bottom center -->
+  <rect x="385" y="360" width="300" height="196" rx="8" fill="#ffffff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="402" y="384" font-size="14" font-weight="700" fill="#1B2127">MPU6500  (IMU)</text>
+  <text x="402" y="410" font-size="12" fill="#1B2127">VCC  &#8594;  3V3</text>
+  <text x="402" y="430" font-size="12" fill="#1B2127">GND  &#8594;  GND</text>
+  <text x="402" y="450" font-size="12" fill="#1B2127">SCL  &#8594;  GP5</text>
+  <text x="402" y="470" font-size="12" fill="#1B2127">SDA  &#8594;  GP4</text>
+  <text x="402" y="490" font-size="12" fill="#1B2127">ADO  &#8594;  GND   (addr 0x68)</text>
+  <text x="402" y="532" font-size="11" fill="#6B7280">EDA, ECL, INT, NCS, FSYNC  NC</text>
+
+  <!-- microSD, bottom right -->
+  <rect x="715" y="360" width="300" height="196" rx="8" fill="#ffffff" stroke="#0d9488" stroke-width="1.5"/>
+  <text x="732" y="384" font-size="14" font-weight="700" fill="#1B2127">microSD  (SPI0)</text>
+  <text x="732" y="410" font-size="12" fill="#1B2127">3V3  &#8594;  3V3</text>
+  <text x="732" y="430" font-size="12" fill="#1B2127">GND  &#8594;  GND</text>
+  <text x="732" y="450" font-size="12" fill="#1B2127">MOSI &#8594;  GP19</text>
+  <text x="732" y="470" font-size="12" fill="#1B2127">MISO &#8594;  GP16</text>
+  <text x="732" y="490" font-size="12" fill="#1B2127">CLK  &#8594;  GP18   (module pin reads CLK)</text>
+  <text x="732" y="510" font-size="12" fill="#1B2127">CS   &#8594;  GP17</text>
+
+  <!-- ============ HARNESS PANEL ============ -->
+  <text x="40" y="628" font-size="16" font-weight="700" fill="#1B2127">Wing harness: 8x2 MPX on the board</text>
+  <text x="40" y="648" font-size="12" fill="#6B7280">One MPX per wing, 8 signals each. ESC and aileron differ per wing; flaps, retract, and LED are shared signals split to both wings.</text>
+
+  <!-- Wing L breakout -->
+  <rect x="40" y="668" width="510" height="232" rx="8" fill="#F5F7F8" stroke="#9CA3AF"/>
+  <text x="58" y="692" font-size="14" font-weight="700" fill="#1B2127">Wing L (left)  MPX</text>
+  <text x="58" y="718" font-size="12" fill="#1B2127">ESC1     &#8594;  FC GP11  (ESC, left engine)</text>
+  <text x="58" y="740" font-size="12" fill="#1B2127">AIL1     &#8594;  FC GP6   (aileron, left)</text>
+  <text x="58" y="762" font-size="12" fill="#1B2127">FLAP1    &#8594;  FC GP12  (shared)</text>
+  <text x="58" y="784" font-size="12" fill="#1B2127">FLAP2    &#8594;  FC GP13  (shared)</text>
+  <text x="58" y="806" font-size="12" fill="#1B2127">RETRACT  &#8594;  FC GP22  (shared)</text>
+  <text x="58" y="828" font-size="12" fill="#1B2127">LED      &#8594;  FC GP2   (shared)</text>
+  <text x="58" y="850" font-size="12" fill="#1B2127">5V       &#8594;  5V rail (wing BEC)</text>
+  <text x="58" y="872" font-size="12" fill="#1B2127">GND      &#8594;  common GND</text>
+
+  <!-- Wing R breakout -->
+  <rect x="570" y="668" width="510" height="232" rx="8" fill="#F5F7F8" stroke="#9CA3AF"/>
+  <text x="588" y="692" font-size="14" font-weight="700" fill="#1B2127">Wing R (right)  MPX</text>
+  <text x="588" y="718" font-size="12" fill="#1B2127">ESC2     &#8594;  FC GP10  (ESC, right engine)</text>
+  <text x="588" y="740" font-size="12" fill="#1B2127">AIL2     &#8594;  FC GP7   (aileron, right)</text>
+  <text x="588" y="762" font-size="12" fill="#1B2127">FLAP1    &#8594;  FC GP12  (shared)</text>
+  <text x="588" y="784" font-size="12" fill="#1B2127">FLAP2    &#8594;  FC GP13  (shared)</text>
+  <text x="588" y="806" font-size="12" fill="#1B2127">RETRACT  &#8594;  FC GP22  (shared)</text>
+  <text x="588" y="828" font-size="12" fill="#1B2127">LED      &#8594;  FC GP2   (shared)</text>
+  <text x="588" y="850" font-size="12" fill="#1B2127">5V       &#8594;  5V rail (wing BEC)</text>
+  <text x="588" y="872" font-size="12" fill="#1B2127">GND      &#8594;  common GND</text>
+
+  <!-- Body servo / aux headers -->
+  <text x="40" y="942" font-size="16" font-weight="700" fill="#1B2127">Body servo and aux headers (fuselage, not via MPX)</text>
+  <rect x="40" y="958" width="1040" height="180" rx="8" fill="#F5F7F8" stroke="#9CA3AF"/>
+  <text x="58" y="986" font-size="12" fill="#1B2127">Elevator        &#8594;  FC GP8</text>
+  <text x="58" y="1008" font-size="12" fill="#1B2127">Rudder + nose wheel  &#8594;  FC GP9  (one signal to both servos)</text>
+  <text x="58" y="1030" font-size="12" fill="#1B2127">Nose retract    &#8594;  FC GP22  (same channel as the wing retracts)</text>
+  <text x="58" y="1052" font-size="12" fill="#1B2127">Bay door 1      &#8594;  FC GP15</text>
+  <text x="560" y="986" font-size="12" fill="#1B2127">Bay door 2      &#8594;  FC GP28</text>
+  <text x="560" y="1008" font-size="12" fill="#1B2127">SBUS receiver   &#8594;  FC GP1</text>
+  <text x="560" y="1030" font-size="12" fill="#1B2127">Servo power     &#8594;  5V rail</text>
+  <text x="560" y="1052" font-size="12" fill="#1B2127">All grounds tied to common GND</text>
+  <text x="58" y="1090" font-size="11" fill="#6B7280">Power split: one BEC feeds the tail surfaces (elevator, nose wheel, rudder), the other feeds the FC, sensors, ESP,</text>
+  <text x="58" y="1106" font-size="11" fill="#6B7280">nose retract, and the two bay doors. Each wing ESC BEC powers its own wing. All grounds are one common node.</text>
+  <text x="58" y="1126" font-size="11" fill="#9CA3AF">To confirm: your sketch labels both wing ailerons AIL2. Here AIL1 is the left wing (GP6) and AIL2 the right (GP7).</text>
+</svg>

@@ -3,7 +3,7 @@
 
 # Wiring
 
-Pin assignments and wiring for CrowPilot. The default first-flight build is the DHC-4 Caribou on a WeAct RP2350A_V10, shown first. The Waveshare RP2350-Tiny is the smaller alternate, shown after it. The full per-board pin reference is [docs/reference/pin-maps.md](../reference/pin-maps.md), and the annotated Caribou diagram is [docs/reference/caribou-pinmap.svg](../reference/caribou-pinmap.svg).
+Pin assignments and wiring for CrowPilot. The default first-flight build is the DHC-4 Caribou on a WeAct RP2350A_V10, shown first. The Waveshare RP2350-Tiny is the smaller alternate, shown after it. The full per-board pin reference is [docs/reference/pin-maps.md](../reference/pin-maps.md), the annotated Caribou pin diagram is [docs/reference/caribou-pinmap.svg](../reference/caribou-pinmap.svg), and a prototype board layout (module placement plus the MPX and wing connectors) is [docs/reference/caribou-board-layout.svg](../reference/caribou-board-layout.svg).
 
 ## Pin map (WeAct RP2350A_V10, DHC-4 Caribou)
 
