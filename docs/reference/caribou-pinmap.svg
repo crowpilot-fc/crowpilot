@@ -107,7 +107,7 @@
 <text x="397" y="611" font-size="9" text-anchor="middle" fill="#cbd5e1">17</text>
 <text x="523" y="611" font-size="9" text-anchor="middle" fill="#cbd5e1">24</text>
 <rect x="60" y="596" width="304" height="24" rx="5" fill="#e0e7ff" stroke="#6366f1"/><text x="74" y="612" font-size="11" fill="#3730a3">GP13:  aux  flap 2</text>
-<rect x="556" y="596" width="304" height="24" rx="5" fill="#ccfbf1" stroke="#14b8a6"/><text x="570" y="612" font-size="11" fill="#115e59">GP18:  SD SCK</text>
+<rect x="556" y="596" width="304" height="24" rx="5" fill="#ccfbf1" stroke="#14b8a6"/><text x="570" y="612" font-size="11" fill="#115e59">GP18:  SD CLK (SCK)</text>
 <line x1="382" y1="640" x2="372" y2="640" stroke="#6b7280"/>
 <line x1="538" y1="640" x2="548" y2="640" stroke="#6b7280"/>
 <text x="397" y="643" font-size="9" text-anchor="middle" fill="#cbd5e1">18</text>

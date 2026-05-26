@@ -20,7 +20,7 @@ Pin assignments and wiring for the Waveshare RP2350-Tiny reference build. For th
 | SBUS receiver | GP1 | PIO inverted UART. Wire the receiver SBUS line directly. No external inverter. |
 | SD card MOSI | GP19 | SPI0 TX. |
 | SD card MISO | GP16 | SPI0 RX. |
-| SD card SCK | GP18 | SPI0 SCK. |
+| SD card CLK | GP18 | SPI0 SCK. The SD module silkscreens this pin CLK. |
 | SD card CS | GP17 | Standard chip-select. |
 | Onboard LED (boot indicator) | GP25 | Built-in. Heartbeat blink during normal operation. Fast 5 Hz blink indicates an init failure. |
 | Status LED (external, optional) | GP14 | Reserved for an external 3 mm status LED with a 470 Ω current-limiting resistor. |
@@ -48,16 +48,38 @@ CrowPilot v1 supports inverted SBUS only. The PIO program is fixed to the invert
 
 ## I2C bus
 
-Both the IMU and the barometer sit on I2C0 at 400 kHz. SDA and SCL pull-ups are typically on the breakout boards themselves; if you are wiring chips directly, add 4.7 kΩ pull-ups to 3.3 V.
+Both the IMU and the barometer sit on I2C0 at 400 kHz, sharing GP4 (SDA) and GP5 (SCL). Pull-ups are usually on the breakout boards; if you wire bare chips, add 4.7 kΩ pull-ups to 3.3 V.
 
-- IMU default address: 0x68 (AD0 tied low).
-- Barometer default address: 0x77 (SDO tied high on most breakouts).
+Breakouts do not all silkscreen these pins the same way, so wire by the labels on your module. The BMP388 board in particular labels its I2C clock SCK and its data SDI, not SCL and SDA:
 
-If either sensor's address differs on your specific breakout, update `IMU_I2C_ADDR` or `BARO_I2C_ADDR` in `src/Config.h`.
+| FC pin | MPU-6500 / 6050 module | BMP388 module |
+|---|---|---|
+| GP5 (SCL) | SCL | SCK |
+| GP4 (SDA) | SDA | SDI |
+| 3.3 V | VCC | VIN (or VCC) |
+| GND | GND | GND |
+| address select | ADO: low 0x68, high 0x69 | SDO: low 0x76, high 0x77 |
+| mode | not used | CS: tie to 3.3 V for I2C |
+
+On the BMP388 module, tie CS high or the chip stays in SPI mode and never answers on I2C. Leave the BMP388 INT pin and its 3Vo output (a regulated 3.3 V output, not an input) unconnected. The MPU board's EDA, ECL, INT, NCS, and FSYNC pins are also unused.
+
+- IMU default address: 0x68 (ADO low). Set `IMU_I2C_ADDR` for 0x69.
+- Barometer default address: 0x77 (SDO high on most breakouts). Set `BARO_I2C_ADDR` for 0x76.
 
 ## SD card
 
-The SD module sits on SPI0. Wire MOSI, MISO, SCK, and CS to GP19, GP16, GP18, and GP17 respectively. Power the module from the 3.3 V rail (most SD modules are 3.3 V-native and do not need a level shifter).
+The SD module sits on SPI0. Wire it by the module silkscreen. Note the clock pin is labeled CLK on the module, which is the same line the RP2350 pin map calls SPI SCK:
+
+| FC pin | SD module |
+|---|---|
+| GP19 | MOSI |
+| GP16 | MISO |
+| GP18 | CLK |
+| GP17 | CS |
+| 3.3 V | 3V3 |
+| GND | GND |
+
+Power the module from the 3.3 V rail (most microSD breakouts are 3.3 V-native and do not need a level shifter).
 
 The SD card must be FAT32 formatted. FAT16 and exFAT are not supported by the Arduino-Pico `SD.h` library used in v1.
 

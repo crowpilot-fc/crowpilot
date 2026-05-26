@@ -22,7 +22,7 @@ This is the primary v1 target. The pin layout was chosen to keep ESC and servo l
 | SBUS receiver | GP1 | PIO SM 0 | Inverted UART in PIO. No external inverter. |
 | SD MOSI | GP19 | SPI0 TX | |
 | SD MISO | GP16 | SPI0 RX | |
-| SD SCK | GP18 | SPI0 SCK | |
+| SD CLK | GP18 | SPI0 SCK | Module pin is silkscreened CLK. |
 | SD CS | GP17 | GPIO | Standard chip-select. |
 | Onboard LED | GP25 | GPIO | Boot heartbeat. Fast 5 Hz = init failed. |
 | Status LED (external) | GP14 | GPIO | Optional 3 mm LED with 470 Ω current limit. |
@@ -48,7 +48,7 @@ The WeAct RP2350A is functionally equivalent to the Waveshare RP2350-One and use
 | SBUS receiver | GP1 | PIO SM 0 | |
 | SD MOSI | GP19 | SPI0 TX | |
 | SD MISO | GP16 | SPI0 RX | |
-| SD SCK | GP18 | SPI0 SCK | |
+| SD CLK | GP18 | SPI0 SCK | Module pin is silkscreened CLK. |
 | SD CS | GP17 | GPIO | |
 | Onboard LED | GP25 | GPIO | |
 | Status LED (external) | GP14 | GPIO | Optional. |
@@ -72,7 +72,7 @@ The same RP2350A as the WeAct profile, plus an onboard Infineon CYW43439 radio. 
 | Servo 3 | GP8 | PWM slice | Twin-cargo plane only. |
 | Servo 4 | GP9 | PWM slice | Twin-cargo plane only. |
 | SBUS receiver | GP1 | PIO SM 0 | |
-| SD MOSI / MISO / SCK / CS | GP19 / GP16 / GP18 / GP17 | SPI0 | |
+| SD MOSI / MISO / CLK / CS | GP19 / GP16 / GP18 / GP17 | SPI0. The clock pin is silkscreened CLK (SPI SCK). |
 | Status LED (external) | GP14 | GPIO | Carries the boot heartbeat and panic blink. |
 | Companion UART TX / RX | GP20 / GP21 | UART1 | Free for an ESP companion or GPS when onboard WiFi is unused. |
 | Radio (reserved) | GP23 / GP24 / GP25 / GP29 | CYW43439 | Do not use for flight or aux. |
