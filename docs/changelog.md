@@ -53,7 +53,8 @@ control-core tuning constant is provisional.
 - A minimal IMU-only build profile (no SD card, barometer, or WiFi) for a
   simple fixed-wing plane on a small board.
 - The DHC-4 Caribou as the first-flight airframe, with its aux user sketch
-  (retracts, flaps, bay doors, nose steering, navigation lights).
+  (retracts, flaps, bay doors, navigation lights). The nose wheel is steered
+  mechanically off the rudder.
 - The ESP32-C3 wireless companion: a WiFi access point that serves a phone
   web UI and bridges the cp protocol to the flight controller's companion UART.
 - Onboard WiFi for the Raspberry Pi Pico 2 W: the flight controller raises

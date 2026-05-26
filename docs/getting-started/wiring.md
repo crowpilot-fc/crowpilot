@@ -18,7 +18,7 @@ Firmware-driven pins:
 | Aileron servo, left | GP6 | 50 Hz servo PWM. |
 | Aileron servo, right | GP7 | 50 Hz servo PWM. |
 | Elevator servo | GP8 | 50 Hz servo PWM. |
-| Rudder servo | GP9 | 50 Hz servo PWM. |
+| Rudder servo | GP9 | 50 Hz servo PWM. Also drives the nose-wheel servo, wired to the same signal. |
 | ESC, right engine | GP10 | Motor signal. PWM or OneShot125. |
 | ESC, left engine | GP11 | Motor signal. |
 | SBUS receiver | GP1 | PIO inverted UART. No external inverter. |
@@ -36,14 +36,13 @@ Caribou aux pins, driven by `user-sketch.ino` rather than the firmware mixer:
 | Function | GP pin | Notes |
 |---|---|---|
 | Nav lights, LED2 | GP2 | 1 Hz blink. |
-| Nose-wheel steering | GP3 | Follows the rudder when the gear is down. |
 | Flap servo 1 | GP12 | Both wings on one channel. |
 | Flap servo 2 | GP13 | |
 | Bay door 1 | GP15 | |
 | Retracts, all three | GP22 | All three gear legs on one channel. |
 | Bay door 2 | GP28 | |
 
-GP23, GP24, GP26, GP27, and GP29 are spare. On a Pico 2 W, GP23, GP24, GP25, and GP29 are taken by the on-board radio instead, and the heartbeat LED moves to the external GP14.
+GP3, GP23, GP24, GP26, GP27, and GP29 are spare. GP3 used to drive the nose-wheel steering, which is now mechanical off the rudder. On a Pico 2 W, GP23, GP24, GP25, and GP29 are taken by the on-board radio instead, and the heartbeat LED moves to the external GP14.
 
 ## Pin map (Waveshare RP2350-Tiny, alternate)
 

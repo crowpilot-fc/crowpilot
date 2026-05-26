@@ -70,8 +70,9 @@ an aux assignment. `CHANNEL_ALT_HOLD` (13) and the live-tune knobs (11 and
 
 Aux channels 5-9 are read by `user-sketch.ino`, not the firmware mixer:
 ch5 throttle 2, ch6 aileron 2, ch7 landing gear, ch8 flap, ch9 bay door.
-Nose-wheel steering follows the rudder and the LED2 nav-blink is driven by
-the sketch directly.
+The nose wheel is steered mechanically off the rudder servo (it shares the
+rudder signal), so it needs no separate output. The LED2 nav-blink is driven
+by the sketch directly.
 
 **Important:** assign physical switches to ch14 and ch16 on the
 transmitter. They sit above the nine Caribou functions, so a TX that only

@@ -57,8 +57,9 @@ active.
 
 The Caribou's other functions are handled by `user-sketch.ino`, not the
 firmware mixer: the second engine and second aileron, the landing-gear
-retracts, the flaps, the cargo-bay doors, the nose-wheel steering, and the
-navigation lights. See the [User sketch](../user-guide/user-sketch.md) and the
+retracts, the flaps, the cargo-bay doors, and the navigation lights. The
+nose wheel is steered mechanically off the rudder servo, so it needs no
+separate output. See the [User sketch](../user-guide/user-sketch.md) and the
 [Transmitter setup](../user-guide/transmitter-setup.md) channel map.
 
 ## Build notes
