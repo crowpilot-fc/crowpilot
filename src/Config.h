@@ -121,7 +121,9 @@
 #define AIRFRAME_TRICOPTER           5
 #define AIRFRAME_TAILSITTER_QUAD     6
 
-#define AIRFRAME AIRFRAME_PLANE_TWIN_CARGO
+#ifndef AIRFRAME
+  #define AIRFRAME AIRFRAME_PLANE_TWIN_CARGO
+#endif
 
 // ===========================================================================
 // IMU

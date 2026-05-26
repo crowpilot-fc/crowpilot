@@ -34,7 +34,7 @@ enum class ArmState {
 // reflects the arm gate (motors at the disarm pulse when NOT_ARMED).
 struct LatestPulses {
   uint16_t motor_us[cp::airframes::N_MOTORS];
-  uint16_t servo_us[cp::airframes::N_SERVOS];
+  uint16_t servo_us[cp::airframes::N_SERVO_SLOTS];
 };
 
 // Configure motor pins as outputs (driven LOW) and attach the servo

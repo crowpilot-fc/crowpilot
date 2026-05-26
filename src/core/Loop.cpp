@@ -26,7 +26,7 @@
 #include "src/telemetry/SdLogger.h"
 #include "src/user_hook/UserHook.h"
 
-#if AIRFRAME != AIRFRAME_TAILSITTER_BICOPTER
+#if AIRFRAME != AIRFRAME_TAILSITTER_BICOPTER && AIRFRAME != AIRFRAME_QUAD_X
 #include "src/control/PlaneStab.h"
 #endif
 
@@ -377,7 +377,7 @@ void init() {
 #if ENABLE_CONFIG_CLI
   cp::cli::init();
 #endif
-#if AIRFRAME != AIRFRAME_TAILSITTER_BICOPTER
+#if AIRFRAME != AIRFRAME_TAILSITTER_BICOPTER && AIRFRAME != AIRFRAME_QUAD_X
   cp::control::plane_stab::init();
 #endif
 }
@@ -445,6 +445,31 @@ void tick() {
                         pid.roll, pid.pitch, pid.yaw,
                         desired.roll_passthru, desired.pitch_passthru,
                         desired.yaw_passthru, fader);
+#elif AIRFRAME == AIRFRAME_QUAD_X
+  // Quadcopter: self-leveling angle mode. The stick angle setpoints minus the
+  // measured attitude form the roll and pitch error for the angle PID; yaw is
+  // a rate loop. fader = 1.0 selects the hover gain set, the right regime for
+  // a quad. Rate (acro) mode is a later addition.
+  constexpr float kFlyingThrottleMin =
+      static_cast<float>(ARM_THROTTLE_MAX_US - RC_MIN_US) /
+      static_cast<float>(RC_MAX_US - RC_MIN_US);
+
+  const cp::estimation::attitude::Euler att =
+      cp::estimation::attitude::eulerForwardFlight();
+  const cp::estimation::attitude::Euler error{
+      desired.roll_deg - att.roll_deg,
+      desired.pitch_deg - att.pitch_deg,
+      0.0f};
+
+  const bool flying = armed && desired.throttle > kFlyingThrottleMin;
+
+  cp::control::pid::update(error, cp::estimation::attitude::bodyRates(),
+                           desired.yaw_rate_dps, 1.0f, flying, dt_s);
+
+  const cp::control::pid::Output& pid = cp::control::pid::output();
+  cp::airframes::update(desired.throttle,
+                        pid.roll, pid.pitch, pid.yaw,
+                        0.0f, 0.0f, 0.0f, 1.0f);
 #else
   // Fixed-wing: the plane stabilizer feeds the plane mixer, which reads
   // the stabilizer output directly.

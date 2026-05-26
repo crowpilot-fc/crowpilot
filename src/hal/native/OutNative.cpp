@@ -30,12 +30,24 @@ namespace {
 
 // Motor index to GPIO pin. The index order matches the airframe motor
 // constants (MOTOR_RIGHT is 0, MOTOR_LEFT is 1).
+#if AIRFRAME == AIRFRAME_QUAD_X
+// A quad has no servos, so the two servo pins carry motors 3 and 4. Order
+// matches MOTOR_FRONT_RIGHT, MOTOR_FRONT_LEFT, MOTOR_REAR_RIGHT,
+// MOTOR_REAR_LEFT. Wire each ESC to the pin for its position.
+const uint8_t kMotorPins[cp::airframes::N_MOTORS] = {
+  PIN_MOTOR_RIGHT,
+  PIN_MOTOR_LEFT,
+  PIN_SERVOS[0],
+  PIN_SERVOS[1],
+};
+#else
 const uint8_t kMotorPins[cp::airframes::N_MOTORS] = {
   PIN_MOTOR_RIGHT,
   PIN_MOTOR_LEFT,
 };
+#endif
 
-Servo s_servos[cp::airframes::N_SERVOS];
+Servo s_servos[cp::airframes::N_SERVO_SLOTS];
 
 #if MOTOR_PROTOCOL == MOTOR_PROTOCOL_PWM
 Servo s_motors[cp::airframes::N_MOTORS];

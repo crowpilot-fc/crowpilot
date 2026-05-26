@@ -225,10 +225,22 @@ void buildRecord(TelemetryRecord& r) {
   r.fader = cp::modes::fader();
 
   const auto& pulses = cp::actuators::latest_pulses();
-  r.motor1_us      = pulses.motor_us[cp::airframes::MOTOR_RIGHT];
-  r.motor2_us      = pulses.motor_us[cp::airframes::MOTOR_LEFT];
-  r.servo_left_us  = pulses.servo_us[cp::airframes::SERVO_LEFT];
-  r.servo_right_us = pulses.servo_us[cp::airframes::SERVO_RIGHT];
+  // Motors 0 and 1 are the first two on every airframe (MOTOR_RIGHT and
+  // MOTOR_LEFT where those are named).
+  r.motor1_us = pulses.motor_us[0];
+  r.motor2_us = pulses.motor_us[1];
+  if (cp::airframes::N_SERVOS >= 2) {
+    r.servo_left_us  = pulses.servo_us[cp::airframes::SERVO_LEFT];
+    r.servo_right_us = pulses.servo_us[cp::airframes::SERVO_RIGHT];
+  } else {
+    // Servo-less airframe (multirotor): log the rear motors in the servo
+    // fields so a quad's four motors are all captured. The indices are held
+    // in variables so a two-motor airframe's dead branch stays in bounds.
+    const uint8_t i2 = (cp::airframes::N_MOTORS > 2) ? 2 : 0;
+    const uint8_t i3 = (cp::airframes::N_MOTORS > 3) ? 3 : 0;
+    r.servo_left_us  = pulses.motor_us[i2];
+    r.servo_right_us = pulses.motor_us[i3];
+  }
 
   const auto& pid = cp::control::pid::output();
   r.pid_roll_q7  = toQ7(pid.roll);

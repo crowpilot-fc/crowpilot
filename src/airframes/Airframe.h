@@ -67,7 +67,26 @@ constexpr uint8_t SERVO_LEFT  = SERVO_AILERON_LEFT;
 constexpr uint8_t SERVO_RIGHT = SERVO_AILERON_RIGHT;
 
 #elif AIRFRAME == AIRFRAME_QUAD_X
-  #error "AIRFRAME_QUAD_X is a v2.x deliverable."
+
+// Quadcopter in the X configuration: four motors, no control surfaces.
+// Viewed from above with x out the nose (the FLU body frame the estimator
+// uses), the motors sit at the four arm tips. Diagonal pairs spin opposite
+// directions so their reaction torques cancel in a hover and differential
+// spin gives yaw.
+constexpr uint8_t N_MOTORS = 4;
+constexpr uint8_t N_SERVOS = 0;
+
+constexpr uint8_t MOTOR_FRONT_RIGHT = 0;
+constexpr uint8_t MOTOR_FRONT_LEFT  = 1;
+constexpr uint8_t MOTOR_REAR_RIGHT  = 2;
+constexpr uint8_t MOTOR_REAR_LEFT   = 3;
+
+// The telemetry logger names SERVO_LEFT and SERVO_RIGHT. A quad has no
+// servos, so they are placeholders only; the logger detects a servo-less
+// airframe and logs the rear motors in those two fields instead.
+constexpr uint8_t SERVO_LEFT  = 0;
+constexpr uint8_t SERVO_RIGHT = 0;
+
 #elif AIRFRAME == AIRFRAME_HEX_X
   #error "AIRFRAME_HEX_X is a v2.x deliverable."
 #elif AIRFRAME == AIRFRAME_TRICOPTER
@@ -78,13 +97,21 @@ constexpr uint8_t SERVO_RIGHT = SERVO_AILERON_RIGHT;
   #error "Unknown AIRFRAME. Pick AIRFRAME_TAILSITTER_BICOPTER for v1.0."
 #endif
 
+// Array sizing for the servo arrays. A servo-less airframe (a multirotor,
+// N_SERVOS = 0) would otherwise declare zero-size arrays, which are not
+// standard C++. Sizing by this floor-of-1 constant keeps one unused slot in
+// that case; the loops that touch servos iterate N_SERVOS, so they simply do
+// not run. For every airframe with servos this equals N_SERVOS, so nothing
+// changes.
+constexpr uint8_t N_SERVO_SLOTS = (N_SERVOS > 0) ? N_SERVOS : 1;
+
 // Per-actuator command output from the mixer. Motor values are clamped to
 // [0, 1] (0 idle, 1 full thrust). Servo values are clamped to [0, 1] with
 // 0.5 as geometric center. The actuator stage turns these into OneShot125
 // pulses and servo PWM.
 struct Output {
   float motor[N_MOTORS];
-  float servo[N_SERVOS];
+  float servo[N_SERVO_SLOTS];
 };
 
 // Reset the latest output to safe defaults (motors at zero, servos at
