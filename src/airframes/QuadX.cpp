@@ -24,10 +24,11 @@
 //   front/rear differential thrust  -> pitch (moment about y)
 //   diagonal (CW vs CCW) differential -> yaw (moment about z)
 //
-// The per-axis signs below are the conventional X-mix. They are PROVISIONAL
-// until validated against the SITL quad model: a wrong sign flips the craft
-// on arm, so each axis is verified in simulation (and on a tethered bench)
-// before flight. There are no regime gains and no fader; a quad has one
+// The per-axis signs below are validated in the SITL quad model: from a roll
+// and pitch upset the closed loop converges to level with body rates settling
+// to zero. A wrong sign flips the craft on arm, so this still needs a
+// tethered-bench check before flight (the sim is a plausible plant, not the
+// real airframe). There are no regime gains and no fader; a quad has one
 // flight regime.
 
 #if AIRFRAME == AIRFRAME_QUAD_X
@@ -75,10 +76,10 @@ void update(float throttle,
   // roll, pitch, and yaw demands. Simple clamping for now: at low throttle a
   // large correction can hit the 0 floor and lose authority on that motor.
   // Airmode-style desaturation is a later refinement.
-  s_out.motor[MOTOR_FRONT_RIGHT] = clampf(throttle - r + p - y, 0.0f, 1.0f);
-  s_out.motor[MOTOR_FRONT_LEFT]  = clampf(throttle + r + p + y, 0.0f, 1.0f);
-  s_out.motor[MOTOR_REAR_RIGHT]  = clampf(throttle - r - p + y, 0.0f, 1.0f);
-  s_out.motor[MOTOR_REAR_LEFT]   = clampf(throttle + r - p - y, 0.0f, 1.0f);
+  s_out.motor[MOTOR_FRONT_RIGHT] = clampf(throttle - r - p + y, 0.0f, 1.0f);
+  s_out.motor[MOTOR_FRONT_LEFT]  = clampf(throttle + r - p - y, 0.0f, 1.0f);
+  s_out.motor[MOTOR_REAR_RIGHT]  = clampf(throttle - r + p - y, 0.0f, 1.0f);
+  s_out.motor[MOTOR_REAR_LEFT]   = clampf(throttle + r + p + y, 0.0f, 1.0f);
 }
 
 const Output& output() {

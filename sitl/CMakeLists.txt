@@ -32,6 +32,7 @@ add_executable(crowpilot_sitl
   ${REPO_ROOT}/src/hal/sim/LedSim.cpp
   ${REPO_ROOT}/src/hal/sim/SimPhysicsTailsitter.cpp
   ${REPO_ROOT}/src/hal/sim/SimPhysicsPlane.cpp
+  ${REPO_ROOT}/src/hal/sim/SimPhysicsQuad.cpp
 
   # Firmware logic, identical to the Arduino build.
   ${REPO_ROOT}/src/core/Loop.cpp
@@ -48,6 +49,7 @@ add_executable(crowpilot_sitl
   ${REPO_ROOT}/src/airframes/Airframe.cpp
   ${REPO_ROOT}/src/airframes/PlaneSingle.cpp
   ${REPO_ROOT}/src/airframes/PlaneTwinCargo.cpp
+  ${REPO_ROOT}/src/airframes/QuadX.cpp
   ${REPO_ROOT}/src/actuators/Output.cpp
   ${REPO_ROOT}/src/actuators/EscCalibrate.cpp
   ${REPO_ROOT}/src/params/Params.cpp
@@ -67,5 +69,12 @@ target_include_directories(crowpilot_sitl PRIVATE
 target_compile_definitions(crowpilot_sitl PRIVATE
   BUILD_TARGET=BUILD_TARGET_SITL
 )
+
+# Optional airframe override for the host build, e.g.
+#   cmake -B build -S . -DSITL_AIRFRAME=AIRFRAME_QUAD_X
+# Defaults to the AIRFRAME selected in Config.h.
+if(DEFINED SITL_AIRFRAME)
+  target_compile_definitions(crowpilot_sitl PRIVATE AIRFRAME=${SITL_AIRFRAME})
+endif()
 
 target_compile_options(crowpilot_sitl PRIVATE -Wall)
