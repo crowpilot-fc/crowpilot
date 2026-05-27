@@ -138,12 +138,22 @@ void physics_set_servo(int idx, float deflection) {
 }
 
 void physics_step(float dt_s) {
-  // Recover the surface commands. Servo indices per Airframe.h: 0 and 1
-  // are the left and right ailerons (differential is roll), 2 is the
-  // elevator, 3 is the rudder.
+  // Recover the surface commands from the servo deflections.
+#if AIRFRAME == AIRFRAME_PLANE_FLYING_WING
+  // Two elevons on servos 0 and 1. Roll is the differential, pitch is the
+  // common mode, no rudder. Signs match the conventional case so the same
+  // aerodynamic gains apply.
+  const float aileron  = 0.5f * (s_servo[0] - s_servo[1]);
+  const float elevator = 0.5f * (s_servo[0] + s_servo[1]);
+  const float rudder   = 0.0f;
+#else
+  // Conventional layout. Servo indices per Airframe.h: 0 and 1 are the left
+  // and right ailerons (differential is roll), 2 is the elevator, 3 is the
+  // rudder.
   const float aileron  = 0.5f * (s_servo[0] - s_servo[1]);
   const float elevator = s_servo[2];
   const float rudder   = s_servo[3];
+#endif
 
   // sin(pitch): the world-up z-component of the body x-axis.
   const float sin_pitch =

@@ -29,7 +29,7 @@ are `constexpr` constants in namespace `cp`.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `AIRFRAME` | `AIRFRAME_PLANE_TWIN_CARGO` | Selects the mixer. The plane airframes (`AIRFRAME_PLANE_TWIN_CARGO`, the Caribou first-flight target, and `AIRFRAME_PLANE_SINGLE`) require `ENABLE_PLANE_STAB`. `AIRFRAME_TAILSITTER_BICOPTER` is the carried alternative. `AIRFRAME_QUAD_X` is a four-motor X quad with self-leveling angle and acro rate modes. The remaining frames (`AIRFRAME_HEX_X`, `AIRFRAME_TRICOPTER`, `AIRFRAME_TAILSITTER_QUAD`) are reserved and halt the build. |
+| `AIRFRAME` | `AIRFRAME_PLANE_TWIN_CARGO` | Selects the mixer. The plane airframes (`AIRFRAME_PLANE_TWIN_CARGO`, the Caribou first-flight target, and `AIRFRAME_PLANE_SINGLE`) require `ENABLE_PLANE_STAB`. `AIRFRAME_TAILSITTER_BICOPTER` is the carried alternative. `AIRFRAME_QUAD_X` is a four-motor X quad with self-leveling angle and acro rate modes. `AIRFRAME_PLANE_FLYING_WING` is a one-motor delta with two elevons and no rudder, driven by the plane stabilizer (needs `ENABLE_PLANE_STAB`). The remaining frames (`AIRFRAME_HEX_X`, `AIRFRAME_TRICOPTER`, `AIRFRAME_TAILSITTER_QUAD`) are reserved and halt the build. |
 
 ## IMU
 

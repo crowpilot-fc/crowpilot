@@ -94,6 +94,8 @@ The rest of the stack is shared.
   transitions to forward flight.
 - Quad X. Four motors, with a self-leveling angle mode and an acro rate mode
   selected by the stabilizer switch.
+- Flying wing (delta). One motor and two elevons, no rudder, driven by the
+  fixed-wing stabilizer. Reuses the tailsitter's forward-flight elevon mixing.
 
 ## Documentation
 

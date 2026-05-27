@@ -87,6 +87,25 @@ constexpr uint8_t MOTOR_REAR_LEFT   = 3;
 constexpr uint8_t SERVO_LEFT  = 0;
 constexpr uint8_t SERVO_RIGHT = 0;
 
+#elif AIRFRAME == AIRFRAME_PLANE_FLYING_WING
+
+// Flying wing (delta): one engine plus two elevons, no rudder. Each elevon
+// carries both pitch (the two move together) and roll (they move opposite),
+// the same allocation the tailsitter uses in forward flight. Driven by the
+// plane stabilizer. The firmware drives both motor pins with the same signal;
+// a single-engine build connects one ESC and leaves the other pin idle.
+constexpr uint8_t N_MOTORS = 2;
+constexpr uint8_t N_SERVOS = 2;
+
+constexpr uint8_t MOTOR_RIGHT = 0;
+constexpr uint8_t MOTOR_LEFT  = 1;
+
+constexpr uint8_t SERVO_ELEVON_LEFT  = 0;
+constexpr uint8_t SERVO_ELEVON_RIGHT = 1;
+
+constexpr uint8_t SERVO_LEFT  = SERVO_ELEVON_LEFT;
+constexpr uint8_t SERVO_RIGHT = SERVO_ELEVON_RIGHT;
+
 #elif AIRFRAME == AIRFRAME_HEX_X
   #error "AIRFRAME_HEX_X is a v2.x deliverable."
 #elif AIRFRAME == AIRFRAME_TRICOPTER

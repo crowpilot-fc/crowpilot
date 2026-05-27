@@ -43,6 +43,7 @@ Select one with `AIRFRAME` in `src/Config.h`. The plane airframes require `ENABL
 | Single-engine plane | `AIRFRAME_PLANE_SINGLE` | 1 motor, two ailerons, elevator, rudder. |
 | Tailsitter VTOL bicopter | `AIRFRAME_TAILSITTER_BICOPTER` | 2 motors, 2 elevons, continuous hover-to-forward transition. See [Tailsitter bicopter](airframes/tailsitter-bicopter.md). |
 | Quad X | `AIRFRAME_QUAD_X` | 4 motors, no servos. Self-leveling angle mode and an acro rate mode, selected by the stabilizer switch (`CHANNEL_STAB`). |
+| Flying wing (delta) | `AIRFRAME_PLANE_FLYING_WING` | 1 motor, two elevons, no rudder. Driven by the plane stabilizer. |
 
 The remaining multirotor selectors (hexacopter, tricopter, tailsitter-quad) are reserved and halt the build. Their mixers are a later item on the [Roadmap](roadmap.md).
 

@@ -25,7 +25,7 @@ The initial release. The first-flight aircraft is the DHC-4 Caribou twin-engine 
 - Failsafe controlled-fall override on link loss.
 - Desired-state generation and angle PID controller (D on measurement, anti-windup by saturation, gain blend).
 - Fixed-wing stabilization subsystem: wing leveler, pitch hold, and yaw damper.
-- Twin-engine cargo plane mixer (Caribou), single-engine plane mixer, the tailsitter bicopter mixer with its transition fader and flight-mode enum, and the Quad X mixer with self-leveling angle and acro rate modes.
+- Twin-engine cargo plane mixer (Caribou), single-engine plane mixer, flying-wing elevon mixer, the tailsitter bicopter mixer with its transition fader and flight-mode enum, and the Quad X mixer with self-leveling angle and acro rate modes.
 - PWM, OneShot125, and DShot300/600 ESC output, with optional bidirectional DShot eRPM telemetry, 50 Hz servo PWM, arm logic, and ESC calibration.
 - User extension hook (pin-claim, read-only sensor API, three-strike disable, per-tick time budget) and the Caribou aux user sketch.
 - SD card binary telemetry logger plus host-side decoder and log analyzer. Logging is optional.
