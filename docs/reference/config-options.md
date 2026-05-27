@@ -150,10 +150,11 @@ integral set. All ship provisional.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `MOTOR_PROTOCOL` | `MOTOR_PROTOCOL_PWM` | Motor signal protocol. `MOTOR_PROTOCOL_ONESHOT125` is the 125-250 us synchronous burst. `MOTOR_PROTOCOL_PWM` is standard 1000-2000 us hobby PWM, for ESCs that do not support OneShot. |
-| `ENABLE_ESC_CALIBRATION` | `0` | When `1`, the boot ESC calibration routine runs and halts. |
-| `ESC_MAX_PULSE_US` / `ESC_IDLE_PULSE_US` | `2000` / `1000` | Motor full and zero throttle. Values depend on `MOTOR_PROTOCOL` (`250` / `125` for OneShot125). |
-| `ESC_DISARM_PULSE_US` | `1000` | Disarmed motor pulse. The motor-stopped width (`120` for OneShot125, below the valid range). |
+| `MOTOR_PROTOCOL` | `MOTOR_PROTOCOL_PWM` | Motor signal protocol. `MOTOR_PROTOCOL_PWM` is standard 1000-2000 us hobby PWM. `MOTOR_PROTOCOL_ONESHOT125` is the 125-250 us synchronous burst. `MOTOR_PROTOCOL_DSHOT300` and `MOTOR_PROTOCOL_DSHOT600` are the digital 300 and 600 kbit/s frame protocols, clocked out in PIO (native builds only). |
+| `ENABLE_ESC_CALIBRATION` | `0` | When `1`, the boot ESC calibration routine runs and halts. Meaningless for DShot, which has no analog endpoints. |
+| `ESC_MAX_PULSE_US` / `ESC_IDLE_PULSE_US` | `2000` / `1000` | Motor full and zero throttle. Values depend on `MOTOR_PROTOCOL` (`250` / `125` for OneShot125). For DShot these microsecond bounds map onto the 48-2047 throttle range. |
+| `ESC_DISARM_PULSE_US` | `1000` | Disarmed motor pulse. The motor-stopped width (`120` for OneShot125, `0` for DShot which maps to the motor-stop command, both below the valid running range). |
+| `DSHOT_BITRATE_HZ` | (per protocol) | DShot line rate, `300000` or `600000`. Defined only for the DShot protocols and used to set the PIO clock divider. |
 | `ARM_THROTTLE_MAX_US` | `1050` | Throttle-idle gate for arming. |
 | `SERVO_MIN_US` / `SERVO_MAX_US` | `1000` / `2000` | Servo PWM endpoints. |
 

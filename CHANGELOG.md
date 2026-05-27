@@ -30,8 +30,8 @@ is provisional.
 - Pilot desired-state generation.
 - The per-axis PID stabilizer with regime gain scheduling and anti-windup.
 - The tailsitter bicopter mixer.
-- The actuator output stage with arm and disarm safety logic and the
-  synchronous OneShot125 emit.
+- The actuator output stage with arm and disarm safety logic, the
+  synchronous OneShot125 emit, and a PIO-clocked DShot300/600 path.
 - SD card binary telemetry and a host-side log decoder and analyzer.
 - The runtime parameter registry, transmitter live tuning, and flash
   persistence.

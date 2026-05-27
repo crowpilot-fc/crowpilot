@@ -34,7 +34,8 @@ control-core tuning constant is provisional.
 - The per-axis PID stabilizer with regime gain scheduling and anti-windup.
 - The tailsitter bicopter mixer.
 - The actuator output stage with arm and disarm safety logic, driving PWM
-  (default) or OneShot125 ESCs and 50 Hz servos.
+  (default), OneShot125, or DShot300/600 ESCs and 50 Hz servos. DShot
+  clocks a 16-bit CRC-checked frame to each motor from a PIO state machine.
 - SD card binary telemetry and a host-side log decoder and analyzer.
 - The runtime parameter registry, transmitter live tuning, and flash
   persistence.

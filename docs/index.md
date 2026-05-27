@@ -17,7 +17,7 @@ CrowPilot is an open-source flight controller firmware for the Raspberry Pi RP23
 | Control loop | 1 kHz cooperative super-loop |
 | Attitude estimate | Madgwick 6-DOF AHRS (gyro and accelerometer) |
 | Receiver | SBUS, decoded in PIO, no external inverter |
-| Motors | PWM or OneShot125 ESCs |
+| Motors | PWM, OneShot125, or DShot300/600 ESCs |
 | Configuration | one file, `src/Config.h` |
 | Footprint | well under 10 percent of flash on a 2 MB board |
 | Code license | GPL-3.0-or-later |
@@ -77,6 +77,10 @@ The mixer drives ESCs on the motor pins and standard servos on the surface pins.
 |---|---|---|
 | Hobby PWM | `MOTOR_PROTOCOL_PWM` | 1000 to 2000 us, disarm at 1000 us. Default. |
 | OneShot125 | `MOTOR_PROTOCOL_ONESHOT125` | 125 to 250 us, disarm below 125 us. |
+| DShot300 | `MOTOR_PROTOCOL_DSHOT300` | Digital, 300 kbit/s, clocked out in PIO. |
+| DShot600 | `MOTOR_PROTOCOL_DSHOT600` | Digital, 600 kbit/s, clocked out in PIO. |
+
+DShot is a digital protocol: each motor update is a 16-bit, CRC-checked frame, so there is no pulse-width drift and no ESC calibration. A PIO state machine clocks the frame to each motor, on PIO1, leaving the SBUS receiver's PIO0 untouched. The control core still works in microseconds for every protocol, and the native output stage converts that to a DShot throttle value.
 
 Servos run standard 50 Hz, 1 to 2 ms PWM. When disarmed the motor outputs hold the disarm value so the ESCs stay stopped, while servos stay live so you can check control surfaces on the bench. See [Wiring](getting-started/wiring.md) and [Arming and failsafe](user-guide/arming-and-failsafe.md).
 

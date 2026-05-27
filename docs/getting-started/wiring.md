@@ -19,7 +19,7 @@ Firmware-driven pins:
 | Aileron servo, right | GP7 | 50 Hz servo PWM. |
 | Elevator servo | GP8 | 50 Hz servo PWM. |
 | Rudder servo | GP9 | 50 Hz servo PWM. Also drives the nose-wheel servo, wired to the same signal. |
-| ESC, right engine | GP10 | Motor signal. PWM or OneShot125. |
+| ESC, right engine | GP10 | Motor signal. PWM, OneShot125, or DShot300/600. |
 | ESC, left engine | GP11 | Motor signal. |
 | SBUS receiver | GP1 | PIO inverted UART. No external inverter. |
 | SD MOSI | GP19 | SPI0. |
@@ -154,9 +154,11 @@ Power servos from the 5 V UBEC rail. Servo current can spike during stall, so si
 
 ESCs go on GP10 (motor 1, right) and GP11 (motor 2, left). The default `MOTOR_PROTOCOL` is standard hobby PWM: pulses fall in the 1000 to 2000 microsecond range during normal operation and sit at `ESC_DISARM_PULSE_US` (1000 microseconds, idle) when CrowPilot is in the NOT_ARMED state. Set `MOTOR_PROTOCOL_ONESHOT125` for OneShot ESCs, where the running range is 125 to 250 microseconds and the disarm pulse drops below 125.
 
-When disarmed, CrowPilot holds the motors at the disarm pulse so they stay stopped. Once CrowPilot arms (`CHANNEL_ARM` LOW and the throttle stick at idle), the pulses follow the throttle command.
+For BLHeli_S or BLHeli_32 ESCs, set `MOTOR_PROTOCOL_DSHOT300` or `MOTOR_PROTOCOL_DSHOT600`. DShot is a digital protocol: a PIO state machine clocks a 16-bit, CRC-checked frame to each motor pin, so the same GP10 and GP11 lines carry the digital signal instead of a pulse width. DShot needs no ESC calibration and is immune to pulse-width drift. The DShot output uses PIO1, which does not collide with the SBUS receiver's PIO0. Match the rate the ESC is flashed for: DShot600 is the common choice and DShot300 is the more tolerant of long or noisy signal leads.
 
-For ESCs that require explicit calibration (less common with BLHeli, more common with older ESCs), see [docs/user-guide/tuning.md](../user-guide/tuning.md) and set `ENABLE_ESC_CALIBRATION = 1` in `src/Config.h`.
+When disarmed, CrowPilot holds the motors stopped (the disarm pulse for PWM and OneShot, the motor-stop command for DShot). Once CrowPilot arms (`CHANNEL_ARM` LOW and the throttle stick at idle), the outputs follow the throttle command.
+
+For ESCs that require explicit calibration (less common with BLHeli, more common with older ESCs, and never for DShot), see [docs/user-guide/tuning.md](../user-guide/tuning.md) and set `ENABLE_ESC_CALIBRATION = 1` in `src/Config.h`.
 
 ## ESP32-C3 wireless companion (optional)
 

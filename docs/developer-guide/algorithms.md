@@ -138,11 +138,32 @@ accelerometer axes average to the bias directly. The vertical accelerometer
 axis carries one g of gravity, which is removed. The six values are printed
 for pasting into `Config.h`.
 
-## OneShot125 output
+## Motor output
 
-The motors use the OneShot125 ESC protocol, a pulse of 125 to 250
-microseconds repeated once per loop tick. The output stage buffers the per
-motor pulse widths and emits them as one synchronous burst: all motor pins
-are raised together and each is lowered when its own pulse width has elapsed.
-When disarmed the motors emit a sub-valid pulse below 125 microseconds, so
-the ESCs see no signal and stay silent.
+The control core works in microseconds for every motor protocol. The mixer
+produces a normalized motor command, the output stage maps it to a pulse
+width in the configured range, and the native HAL turns that into the signal
+`MOTOR_PROTOCOL` selects. When disarmed every protocol emits its motor-stop
+value, so the ESCs stay silent regardless.
+
+Standard PWM (the default) drives the motor pins through the Servo library at
+1000 to 2000 microseconds on a 50 Hz schedule, the same path as the servos.
+The disarm value is 1000 microseconds.
+
+OneShot125 is a pulse of 125 to 250 microseconds repeated once per loop tick.
+The output stage buffers the per-motor pulse widths and emits them as one
+synchronous burst: all motor pins are raised together and each is lowered
+when its own pulse width has elapsed. When disarmed the motors emit a
+sub-valid pulse below 125 microseconds.
+
+DShot300 and DShot600 are digital. Each motor update is a 16-bit frame: an
+11-bit throttle value (0 stops the motor, 48 to 2047 is the throttle band), a
+telemetry-request bit, and a 4-bit CRC. The native HAL converts the motor
+pulse to a throttle value, builds the frame, and clocks it out bit by bit
+from a PIO state machine, one per motor on PIO1 (the SBUS receiver owns
+PIO0). Each bit is a pulse whose high time encodes its value, the same
+pulse-width scheme as WS2812, at 300 or 600 kbit/s. The line idles low
+between frames, so before the first frame and whenever disarmed the ESCs see
+the motor-stop frame. The frame builder is plain integer code in
+`src/libs/Dshot.*` and is unit-tested on the host; the PIO timing is verified
+on the bench with a logic analyzer or a real ESC.

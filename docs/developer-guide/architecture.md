@@ -81,7 +81,8 @@ through per-module accessor functions rather than shared globals.
 The hardware abstraction layer separates the firmware logic from per-target
 input and output. `src/hal/Hal.h` is a transport-agnostic API. The native
 implementation under `src/hal/native/` drives real hardware: the I2C bus, the
-PIO state machine for SBUS, the OneShot125 emit, and the servo PWM. A simulated
+PIO state machines for SBUS input and DShot output, the OneShot125 and PWM
+motor emit, and the servo PWM. A simulated
 implementation under `src/hal/sim/` backs the SITL build target, which compiles
 the firmware logic as a host executable. That host build lives in `sitl/`. The
 build target is a compile-time selector in `Config.h`.
