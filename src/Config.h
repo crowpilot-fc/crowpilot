@@ -279,11 +279,12 @@ namespace cp {
 // whichever CHANNEL_* the firmware reads for that role. All other slots
 // stay at 1500 (centred). Naming is by role, not by channel index, so
 // the channel map can move without renaming the constants.
-constexpr uint16_t FS_THROTTLE_US = 1300;  // below hover, gentle sink
-constexpr uint16_t FS_ROLL_US     = 1500;  // centred
-constexpr uint16_t FS_PITCH_US    = 1500;  // centred
-constexpr uint16_t FS_YAW_US      = 1500;  // centred
-constexpr uint16_t FS_ARM_US      = 1000;  // armed; descent stays powered
+constexpr uint16_t FS_THROTTLE_US   = 1300;  // below hover, gentle sink
+constexpr uint16_t FS_ROLL_US       = 1500;  // centred
+constexpr uint16_t FS_PITCH_US      = 1500;  // centred
+constexpr uint16_t FS_YAW_US        = 1500;  // centred
+constexpr uint16_t FS_ARM_US        = 1000;  // armed; descent stays powered
+constexpr uint16_t FS_TRANSITION_US = 2000;  // hover end (high pulse is hover)
 
 // Link is considered lost when no fresh receiver frame arrives within
 // this window.

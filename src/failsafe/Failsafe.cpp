@@ -36,8 +36,9 @@ State    s_state    = {
 Channels s_channels = {};
 
 // Fill the effective channel snapshot with the configured failsafe defaults
-// per SPEC.md §5.11. Auxiliary channels (ch7 through ch16) sit at centered
-// 1500 us so any future user-hook consumer sees a benign value.
+// per SPEC.md §5.11. Every channel starts centred at 1500 us, so any aux
+// channel a user-hook consumer reads sees a benign value, then the role
+// channels are written.
 void applyFailsafeDefaults(Channels& out) {
   // Default every channel to a centred 1500 us, then write the role-
   // specific values into whichever channel the firmware currently reads
@@ -45,11 +46,15 @@ void applyFailsafeDefaults(Channels& out) {
   for (uint8_t i = 0; i < cp::radio::MAX_CHANNELS; ++i) {
     out.ch_us[i] = 1500;
   }
-  out.ch_us[CHANNEL_THROTTLE - 1] = FS_THROTTLE_US;
-  out.ch_us[CHANNEL_ROLL     - 1] = FS_ROLL_US;
-  out.ch_us[CHANNEL_PITCH    - 1] = FS_PITCH_US;
-  out.ch_us[CHANNEL_YAW      - 1] = FS_YAW_US;
-  out.ch_us[CHANNEL_ARM      - 1] = FS_ARM_US;
+  out.ch_us[CHANNEL_THROTTLE   - 1] = FS_THROTTLE_US;
+  out.ch_us[CHANNEL_ROLL       - 1] = FS_ROLL_US;
+  out.ch_us[CHANNEL_PITCH      - 1] = FS_PITCH_US;
+  out.ch_us[CHANNEL_YAW        - 1] = FS_YAW_US;
+  out.ch_us[CHANNEL_ARM        - 1] = FS_ARM_US;
+  // Hold the hover end of the transition so a tailsitter that loses link
+  // descends in hover rather than slewing toward mid-transition. The plane
+  // airframes ignore this channel.
+  out.ch_us[CHANNEL_TRANSITION - 1] = FS_TRANSITION_US;
 }
 
 // Copy the raw receiver channels through to the effective snapshot.
