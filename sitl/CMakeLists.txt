@@ -45,6 +45,7 @@ add_executable(crowpilot_sitl
   ${REPO_ROOT}/src/modes/FlightMode.cpp
   ${REPO_ROOT}/src/control/DesiredState.cpp
   ${REPO_ROOT}/src/control/Pid.cpp
+  ${REPO_ROOT}/src/control/RatePid.cpp
   ${REPO_ROOT}/src/control/PlaneStab.cpp
   ${REPO_ROOT}/src/airframes/Airframe.cpp
   ${REPO_ROOT}/src/airframes/PlaneSingle.cpp

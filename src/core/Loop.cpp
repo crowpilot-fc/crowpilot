@@ -13,6 +13,7 @@
 #include "src/cli/Cli.h"
 #include "src/control/DesiredState.h"
 #include "src/control/Pid.h"
+#include "src/control/RatePid.h"
 #include "src/estimation/Attitude.h"
 #include "src/failsafe/Failsafe.h"
 #include "src/hal/Led.h"
@@ -347,6 +348,7 @@ void init() {
   cp::estimation::attitude::init();
   cp::control::desired::init();
   cp::control::pid::init();
+  cp::control::rate::init();
   cp::airframes::init();
   cp::actuators::init();
   if (Serial) {
@@ -446,30 +448,43 @@ void tick() {
                         desired.roll_passthru, desired.pitch_passthru,
                         desired.yaw_passthru, fader);
 #elif AIRFRAME == AIRFRAME_QUAD_X
-  // Quadcopter: self-leveling angle mode. The stick angle setpoints minus the
-  // measured attitude form the roll and pitch error for the angle PID; yaw is
-  // a rate loop. fader = 1.0 selects the hover gain set, the right regime for
-  // a quad. Rate (acro) mode is a later addition.
+  // Quadcopter. The stabilizer-mode switch (CHANNEL_STAB) picks the control
+  // law: low is self-leveling angle mode, the safe default, and high is rate
+  // (acro) mode. Both feed the same X-mixer.
   constexpr float kFlyingThrottleMin =
       static_cast<float>(ARM_THROTTLE_MAX_US - RC_MIN_US) /
       static_cast<float>(RC_MAX_US - RC_MIN_US);
-
-  const cp::estimation::attitude::Euler att =
-      cp::estimation::attitude::eulerForwardFlight();
-  const cp::estimation::attitude::Euler error{
-      desired.roll_deg - att.roll_deg,
-      desired.pitch_deg - att.pitch_deg,
-      0.0f};
-
   const bool flying = armed && desired.throttle > kFlyingThrottleMin;
+  const bool acro = channels[CHANNEL_STAB - 1] > RC_MID_US;
 
-  cp::control::pid::update(error, cp::estimation::attitude::bodyRates(),
-                           desired.yaw_rate_dps, 1.0f, flying, dt_s);
-
-  const cp::control::pid::Output& pid = cp::control::pid::output();
-  cp::airframes::update(desired.throttle,
-                        pid.roll, pid.pitch, pid.yaw,
-                        0.0f, 0.0f, 0.0f, 1.0f);
+  if (acro) {
+    // Rate mode: the sticks command body rates, the rate controller drives
+    // the rate error to zero, and the craft holds no attitude reference.
+    cp::control::rate::update(desired.roll_passthru  * MAX_ACRO_RATE_DPS,
+                              desired.pitch_passthru * MAX_ACRO_RATE_DPS,
+                              desired.yaw_rate_dps,
+                              cp::estimation::attitude::bodyRates(),
+                              flying, dt_s);
+    const cp::control::rate::Output& r = cp::control::rate::output();
+    cp::airframes::update(desired.throttle, r.roll, r.pitch, r.yaw,
+                          0.0f, 0.0f, 0.0f, 1.0f);
+  } else {
+    // Angle mode: the stick angle setpoints minus the measured attitude form
+    // the roll and pitch error for the angle PID; yaw is a rate loop.
+    // fader = 1.0 selects the hover gain set, the right regime for a quad.
+    const cp::estimation::attitude::Euler att =
+        cp::estimation::attitude::eulerForwardFlight();
+    const cp::estimation::attitude::Euler error{
+        desired.roll_deg - att.roll_deg,
+        desired.pitch_deg - att.pitch_deg,
+        0.0f};
+    cp::control::pid::update(error, cp::estimation::attitude::bodyRates(),
+                             desired.yaw_rate_dps, 1.0f, flying, dt_s);
+    const cp::control::pid::Output& pid = cp::control::pid::output();
+    cp::airframes::update(desired.throttle,
+                          pid.roll, pid.pitch, pid.yaw,
+                          0.0f, 0.0f, 0.0f, 1.0f);
+  }
 #else
   // Fixed-wing: the plane stabilizer feeds the plane mixer, which reads
   // the stabilizer output directly.

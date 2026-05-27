@@ -558,6 +558,29 @@ constexpr float DTERM_LPF_CUTOFF_HZ = 60.0f;
 }  // namespace cp
 
 // ===========================================================================
+// Multirotor rate control (quad)
+// ===========================================================================
+// The quad's acro (rate) mode. The sticks command a body rate up to
+// MAX_ACRO_RATE_DPS at full deflection, and a per-axis proportional-plus-
+// integral loop drives the rate error to zero. The stabilizer-mode switch
+// (CHANNEL_STAB) selects it: low is self-leveling angle mode, high is this
+// rate mode. Gains are provisional, set by bench tuning. The integral gains
+// start at zero and are tuned last, the same discipline as the angle PID.
+
+namespace cp {
+
+constexpr float MAX_ACRO_RATE_DPS = 360.0f;  // body rate at full stick.
+
+constexpr float KP_RATE_ROLL  = 0.0025f;
+constexpr float KI_RATE_ROLL  = 0.0f;
+constexpr float KP_RATE_PITCH = 0.0025f;
+constexpr float KI_RATE_PITCH = 0.0f;
+constexpr float KP_RATE_YAW   = 0.0040f;
+constexpr float KI_RATE_YAW   = 0.0f;
+
+}  // namespace cp
+
+// ===========================================================================
 // Tailsitter mixer (provisional)
 // ===========================================================================
 // Allocation of throttle and the stabilized axis demands to the two
