@@ -32,6 +32,9 @@
 
 #if AIRFRAME != AIRFRAME_TAILSITTER_BICOPTER && AIRFRAME != AIRFRAME_QUAD_X
 #include "src/control/PlaneStab.h"
+#if ENABLE_LAUNCH_ASSIST
+#include "src/control/LaunchAssist.h"
+#endif
 #endif
 
 // NATIVE and SITL are implemented (src/hal/native/ and src/hal/sim/).
@@ -420,6 +423,9 @@ void init() {
 #endif
 #if AIRFRAME != AIRFRAME_TAILSITTER_BICOPTER && AIRFRAME != AIRFRAME_QUAD_X
   cp::control::plane_stab::init();
+#if ENABLE_LAUNCH_ASSIST
+  cp::control::launch::init();
+#endif
 #endif
 }
 
@@ -534,15 +540,36 @@ void tick() {
   // Fixed-wing: the plane stabilizer feeds the plane mixer, which reads
   // the stabilizer output directly.
   const cp::sensors::baro::Sample& baro = cp::sensors::baro::latest();
+
+  // Launch assist may override the pilot's throttle and attitude setpoints
+  // during a hand-launch climb-out. It works on a copy of the desired state so
+  // the override is transparent to the rest of the chain.
+  cp::control::desired::State eff_desired = desired;
+#if ENABLE_LAUNCH_ASSIST
+  {
+    const cp::sensors::imu::Sample& imu = cp::sensors::imu::latest();
+    const bool armed_now =
+        cp::actuators::arm_state() == cp::actuators::ArmState::ARMED;
+    const cp::control::launch::Override ov = cp::control::launch::update(
+        armed_now, imu.ax_g, eff_desired.throttle,
+        eff_desired.roll_passthru, eff_desired.pitch_passthru, dt_s);
+    if (ov.active) {
+      eff_desired.throttle  = ov.throttle;
+      eff_desired.roll_deg  = ov.roll_deg;
+      eff_desired.pitch_deg = ov.pitch_deg;
+    }
+  }
+#endif
+
   cp::control::plane_stab::update(
       cp::estimation::attitude::eulerForwardFlight(),
       cp::estimation::attitude::bodyRates(),
-      desired,
+      eff_desired,
       baro.altitude_m,
       cp::sensors::baro::is_present() && baro.valid,
       channels,
       dt_s);
-  cp::airframes::update(desired.throttle, 0.0f, 0.0f, 0.0f,
+  cp::airframes::update(eff_desired.throttle, 0.0f, 0.0f, 0.0f,
                         0.0f, 0.0f, 0.0f, fader);
 #endif
 

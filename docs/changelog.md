@@ -51,6 +51,9 @@ control-core tuning constant is provisional.
 - Optional coordinated-turn assist for the angle and horizon plane modes:
   auto-rudder proportional to bank and a bank-compensated up-elevator to hold
   altitude through a turn. Off by default.
+- Optional hand-launch assist for planes: a forward-acceleration throw detector
+  that commands a wings-level climb-out (launch throttle and a nose-up hold) for
+  a short window, gyro and accelerometer only. Off by default.
 - The Quad X airframe and mixer, with a self-leveling angle mode and an
   acro rate mode (a per-axis rate controller) selected by the stabilizer
   switch, validated against a SITL quad rigid-body model.

@@ -451,6 +451,31 @@ constexpr float DIFF_THRUST_GAIN = 0.20f;
 }  // namespace cp
 
 // ===========================================================================
+// Launch assist (hand-launch)
+// ===========================================================================
+// A hand-launch sequence for the plane airframes, gyro and accelerometer only.
+// The pilot arms with the throttle at idle and throws the plane. A forward
+// acceleration spike marks the throw, after which the assist commands a
+// wings-level climb-out (a launch throttle and a nose-up pitch held by the
+// stabilizer) for a fixed window, so the pilot can let go during the throw.
+// The window ends on a timeout, a stick input, or disarm, and does not
+// re-trigger until the next arm cycle. Intended for the angle and horizon
+// modes. Off by default. Provisional, bench-tuned before use.
+
+#define ENABLE_LAUNCH_ASSIST 0
+
+namespace cp {
+
+constexpr float    LAUNCH_DETECT_ACCEL_G = 2.0f;   // forward accel (g) that marks the throw
+constexpr float    LAUNCH_IDLE_MAX       = 0.15f;  // throttle below which the detector arms
+constexpr float    LAUNCH_THROTTLE       = 0.70f;  // climb-out throttle, normalized
+constexpr float    LAUNCH_PITCH_DEG      = 15.0f;  // climb-out nose-up attitude
+constexpr uint32_t LAUNCH_DURATION_MS    = 1500;   // climb-out window
+constexpr float    LAUNCH_STICK_EXIT     = 0.20f;  // stick deflection that hands control back
+
+}  // namespace cp
+
+// ===========================================================================
 // ESC, servo, and arming
 // ===========================================================================
 // MOTOR_PROTOCOL selects how the motor pins are driven.
