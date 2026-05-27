@@ -397,18 +397,41 @@ constexpr float DIFF_THRUST_GAIN = 0.20f;
 // ===========================================================================
 // ESC, servo, and arming
 // ===========================================================================
-// MOTOR_PROTOCOL selects how the motor pins are driven. ONESHOT125 is a
-// 125 to 250 us synchronous pulse, bit-banged once per loop tick. PWM is
-// standard 1000 to 2000 us hobby PWM at 50 Hz, the same signal a servo
-// takes, for ESCs that do not support OneShot. Servos always take
-// standard PWM. Arming requires the throttle stick at or below
-// ARM_THROTTLE_MAX_US. ESC calibration is a one-shot bench routine,
-// kept off for flight builds.
+// MOTOR_PROTOCOL selects how the motor pins are driven.
+//
+//   ONESHOT125  a 125 to 250 us synchronous pulse, bit-banged once per
+//               loop tick.
+//   PWM         standard 1000 to 2000 us hobby PWM at 50 Hz, the same
+//               signal a servo takes, for ESCs that do not support
+//               OneShot. The default.
+//   DSHOT300    a digital 300 kbit/s frame, 16 bits per motor update,
+//               clocked out by a PIO state machine. No calibration and
+//               no pulse-width drift.
+//   DSHOT600    the same digital frame at 600 kbit/s, for ESCs that
+//               accept the faster rate.
+//
+// DShot is a native-only protocol: it uses a PIO block, which the SITL
+// host build does not have, so the simulated HAL keeps treating the
+// motor command as a pulse width. Servos always take standard PWM.
+// Arming requires the throttle stick at or below ARM_THROTTLE_MAX_US.
+// ESC calibration is a one-shot bench routine, kept off for flight
+// builds, and is meaningless for DShot (which has no analog endpoints).
+//
+// The control core and the arm logic work in microseconds for every
+// protocol. The pulse widths below are the abstraction the rest of the
+// firmware sees. For DShot the native output stage converts that pulse
+// to a 0 or 48 to 2047 throttle value: a width below ESC_IDLE_PULSE_US
+// (the disarm pulse) becomes the DShot motor-stop command 0, and the
+// idle-to-max band maps onto the 48 to 2047 throttle range.
 
 #define MOTOR_PROTOCOL_ONESHOT125 0
 #define MOTOR_PROTOCOL_PWM        1
+#define MOTOR_PROTOCOL_DSHOT300   2
+#define MOTOR_PROTOCOL_DSHOT600   3
 
-#define MOTOR_PROTOCOL MOTOR_PROTOCOL_PWM
+#ifndef MOTOR_PROTOCOL
+  #define MOTOR_PROTOCOL MOTOR_PROTOCOL_PWM
+#endif
 
 #define ENABLE_ESC_CALIBRATION 0
 
@@ -418,12 +441,22 @@ namespace cp {
 constexpr uint16_t ESC_MAX_PULSE_US    = 2000; // Standard PWM full throttle.
 constexpr uint16_t ESC_IDLE_PULSE_US   = 1000; // Standard PWM zero throttle.
 constexpr uint16_t ESC_DISARM_PULSE_US = 1000; // Motor stopped when disarmed.
-#else
+#elif MOTOR_PROTOCOL == MOTOR_PROTOCOL_ONESHOT125
 constexpr uint16_t ESC_MAX_PULSE_US    = 250;  // OneShot125 full throttle.
 constexpr uint16_t ESC_IDLE_PULSE_US   = 125;  // OneShot125 zero throttle.
 constexpr uint16_t ESC_DISARM_PULSE_US = 120;  // Below valid range: no signal.
+#else  // DShot300 or DShot600.
+constexpr uint16_t ESC_MAX_PULSE_US    = 2000; // Maps to DShot throttle 2047.
+constexpr uint16_t ESC_IDLE_PULSE_US   = 1000; // Maps to DShot throttle 48.
+constexpr uint16_t ESC_DISARM_PULSE_US = 0;    // Below idle: DShot motor-stop 0.
 #endif
 constexpr uint16_t ARM_THROTTLE_MAX_US = 1050; // Throttle-idle gate for arming.
+
+#if MOTOR_PROTOCOL == MOTOR_PROTOCOL_DSHOT300
+constexpr uint32_t DSHOT_BITRATE_HZ = 300000;  // DShot300 line rate.
+#elif MOTOR_PROTOCOL == MOTOR_PROTOCOL_DSHOT600
+constexpr uint32_t DSHOT_BITRATE_HZ = 600000;  // DShot600 line rate.
+#endif
 
 constexpr uint16_t SERVO_MIN_US = 1000;        // Servo PWM at command 0.
 constexpr uint16_t SERVO_MAX_US = 2000;        // Servo PWM at command 1.

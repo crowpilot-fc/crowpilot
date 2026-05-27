@@ -1,0 +1,40 @@
+; SPDX-License-Identifier: GPL-3.0-or-later
+; Copyright (C) 2026 Nitin Kumar
+;
+; PIO program to clock out a DShot frame to one ESC.
+;
+; DShot encodes each bit as a pulse. The line goes high at the bit start and
+; the high duration sets the value: a 1 stays high for three quarters of the
+; bit period, a 0 for three eighths. The line idles low between frames. This
+; is the same pulse-width NRZ scheme as WS2812 and the program structure
+; follows the canonical WS2812 PIO example, with side-set driving the output
+; pin.
+;
+; The bit period is eight state-machine cycles:
+;   T1 = 3 cycles  high, common to both values (this is the 0 high time)
+;   T2 = 3 cycles  stays high for a 1, drops low for a 0
+;   T3 = 2 cycles  low, the common bit end
+; A 1 is high for T1 + T2 = 6 of 8 cycles (0.75). A 0 is high for T1 = 3 of 8
+; cycles (0.375). Total period is 8 cycles.
+;
+; clkdiv = sys_clk / (bitrate * 8). DShot300 uses bitrate 300000, DShot600
+; uses 600000. The native HAL sets it.
+;
+; ISR/OSR config: out_shift_dir = left, autopull = true, threshold = 16. The
+; frame sits in the top 16 bits of each 32-bit FIFO word (the HAL pushes
+; frame << 16) so the 16 meaningful bits shift out MSB first before autopull
+; refills. With no frame queued the program stalls on `out` with side 0,
+; holding the line low.
+
+.program dshot
+.side_set 1
+
+.wrap_target
+bitloop:
+    out x, 1       side 0 [1]   ; T3: low bit-end, pull next bit (autopull)
+    jmp !x do_zero side 1 [2]   ; T1: go high, branch on the bit value
+do_one:
+    jmp  bitloop   side 1 [2]   ; T2: stay high for a 1
+do_zero:
+    nop            side 0 [2]   ; T2: drop low for a 0
+.wrap
