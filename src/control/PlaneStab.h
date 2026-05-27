@@ -14,20 +14,24 @@
 // one or the other by airframe. Both compile in; only one feeds the mixer
 // at runtime.
 //
-// The pilot-mode switch (CHANNEL_STAB) forces full passthrough: every
-// stabilization term drops out and the surface commands follow the sticks
-// directly. Altitude hold is a second switch (CHANNEL_ALT_HOLD) and only
-// engages when a healthy barometer is present.
+// The flight-mode switch (CHANNEL_STAB) is read as three positions and mapped
+// to MANUAL, RATE, ANGLE, or HORIZON per the PLANE_MODE_SW_* config. MANUAL is
+// full passthrough, every stabilization term drops out. RATE damps to a
+// commanded body rate without self-leveling. ANGLE self-levels to a commanded
+// attitude. HORIZON blends ANGLE near center stick to RATE at full stick.
+// Altitude hold is a second switch (CHANNEL_ALT_HOLD) and only engages when a
+// healthy barometer is present.
 
 namespace cp::control::plane_stab {
 
 struct Output {
-  float roll;      // normalized aileron command, [-1, +1]
-  float pitch;     // normalized elevator command, [-1, +1]
-  float yaw;       // normalized rudder command, [-1, +1]
-  float throttle;  // normalized throttle, [0, 1]
-  bool  passthrough_active;
-  bool  alt_hold_active;
+  float   roll;      // normalized aileron command, [-1, +1]
+  float   pitch;     // normalized elevator command, [-1, +1]
+  float   yaw;       // normalized rudder command, [-1, +1]
+  float   throttle;  // normalized throttle, [0, 1]
+  uint8_t mode;      // active PLANE_MODE_* this tick
+  bool    passthrough_active;
+  bool    alt_hold_active;
 };
 
 // Reset the stabilizer state (integrators, altitude target, climb-rate

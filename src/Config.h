@@ -368,10 +368,36 @@ constexpr float LIVE_TUNE_RANGE = 0.5f;
 #define ENABLE_ALT_HOLD        0
 #define ENABLE_DIFF_THRUST_YAW 0
 
+// Plane flight modes, selected by the three positions of CHANNEL_STAB.
+//   MANUAL   full passthrough, no stabilization.
+//   RATE     the sticks command a body rate and the gyro damps to it. No
+//            self-level. This is the "gyro" or "3D" mode of a stabilizer.
+//   ANGLE    the sticks command an attitude and the stabilizer self-levels
+//            to it. The beginner-safe mode.
+//   HORIZON  self-levels near center stick and blends to rate at full stick.
+// A two-position switch only reaches the LOW and HIGH positions, so the
+// default mapping keeps LOW = ANGLE and HIGH = MANUAL, matching the older
+// stabilized-or-manual switch. A three-position switch adds the MID position.
+// Remap the three positions below to reach RATE, for example MID = RATE.
+#define PLANE_MODE_MANUAL  0
+#define PLANE_MODE_RATE    1
+#define PLANE_MODE_ANGLE   2
+#define PLANE_MODE_HORIZON 3
+
+#define PLANE_MODE_SW_LOW  PLANE_MODE_ANGLE
+#define PLANE_MODE_SW_MID  PLANE_MODE_HORIZON
+#define PLANE_MODE_SW_HIGH PLANE_MODE_MANUAL
+
 namespace cp {
 
-constexpr uint8_t CHANNEL_STAB     = 14;  // 1-based: stabilization on/off switch (high SBUS channel, away from TX primaries and aux).
+constexpr uint8_t CHANNEL_STAB     = 14;  // 1-based: flight-mode switch (high SBUS channel, away from TX primaries and aux).
 constexpr uint8_t CHANNEL_ALT_HOLD = 13;  // 1-based: altitude-hold on/off switch.
+
+// Mode-switch thresholds on CHANNEL_STAB, in microseconds. Below LOW_MAX is
+// the low position, below MID_MAX is the middle, at or above is the high
+// position.
+constexpr uint16_t PLANE_MODE_SW_LOW_MAX_US = 1300;
+constexpr uint16_t PLANE_MODE_SW_MID_MAX_US = 1700;
 
 // Wing leveler, pitch hold, and yaw damper gains. Provisional.
 constexpr float KP_STAB_ROLL  = 0.50f;
@@ -379,6 +405,13 @@ constexpr float KD_STAB_ROLL  = 0.05f;
 constexpr float KP_STAB_PITCH = 0.50f;
 constexpr float KD_STAB_PITCH = 0.05f;
 constexpr float KD_STAB_YAW   = 0.10f;
+
+// Rate-mode gains and the full-stick body rate. In RATE and HORIZON modes the
+// sticks command a roll or pitch rate up to PLANE_RATE_MAX_DPS, and a
+// proportional law drives the rate error into the surfaces. Provisional.
+constexpr float PLANE_RATE_MAX_DPS  = 180.0f;
+constexpr float KP_PLANE_RATE_ROLL  = 0.005f;
+constexpr float KP_PLANE_RATE_PITCH = 0.005f;
 
 // Scales each stabilizer axis output before the final clamp. Provisional.
 constexpr float STAB_OUTPUT_SCALE = 1.0f;

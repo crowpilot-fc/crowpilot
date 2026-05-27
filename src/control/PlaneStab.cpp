@@ -3,6 +3,8 @@
 
 #include "src/control/PlaneStab.h"
 
+#include <math.h>
+
 #include "src/Config.h"
 
 namespace cp::control::plane_stab {
@@ -37,6 +39,18 @@ inline bool channelHigh(const uint16_t* channels, uint8_t channel_1based) {
   return channels[channel_1based - 1] > 1500;
 }
 
+// Map the three positions of CHANNEL_STAB to the configured flight mode.
+inline uint8_t selectMode(const uint16_t* channels) {
+  const uint16_t us = channels[CHANNEL_STAB - 1];
+  if (us < PLANE_MODE_SW_LOW_MAX_US) {
+    return PLANE_MODE_SW_LOW;
+  }
+  if (us < PLANE_MODE_SW_MID_MAX_US) {
+    return PLANE_MODE_SW_MID;
+  }
+  return PLANE_MODE_SW_HIGH;
+}
+
 }  // anonymous namespace
 
 void init() {
@@ -55,7 +69,9 @@ void update(const cp::estimation::attitude::Euler& euler,
             bool baro_valid,
             const uint16_t* channels,
             float dt_s) {
-  const bool passthrough = channelHigh(channels, CHANNEL_STAB);
+  const uint8_t mode = selectMode(channels);
+  s_output.mode = mode;
+  const bool passthrough = (mode == PLANE_MODE_MANUAL);
   s_output.passthrough_active = passthrough;
 
   if (passthrough) {
@@ -72,23 +88,45 @@ void update(const cp::estimation::attitude::Euler& euler,
     return;
   }
 
-  // Wing leveler. Drive the measured roll toward the pilot's roll-angle
-  // setpoint. D on the measured body rate to avoid derivative kick.
-  {
-    const float err = desired.roll_deg - euler.roll_deg;
-    s_output.roll = clampUnit(STAB_OUTPUT_SCALE *
-        (KP_STAB_ROLL * err - KD_STAB_ROLL * rates.roll_dps));
-  }
+  // Angle-mode command per axis: drive the measured attitude toward the
+  // pilot's angle setpoint, D on the measured body rate to avoid derivative
+  // kick. This is the wing leveler and pitch-attitude hold.
+  const float angle_roll = KP_STAB_ROLL * (desired.roll_deg - euler.roll_deg) -
+                           KD_STAB_ROLL * rates.roll_dps;
+  const float angle_pitch =
+      KP_STAB_PITCH * (desired.pitch_deg - euler.pitch_deg) -
+      KD_STAB_PITCH * rates.pitch_dps;
 
-  // Pitch-attitude hold. Same shape on the pitch axis.
-  {
-    const float err = desired.pitch_deg - euler.pitch_deg;
-    s_output.pitch = clampUnit(STAB_OUTPUT_SCALE *
-        (KP_STAB_PITCH * err - KD_STAB_PITCH * rates.pitch_dps));
-  }
+  // Rate-mode command per axis: the stick commands a body rate up to
+  // PLANE_RATE_MAX_DPS and a proportional law drives the rate error. No
+  // self-leveling.
+  const float rate_roll = KP_PLANE_RATE_ROLL *
+      (desired.roll_passthru * PLANE_RATE_MAX_DPS - rates.roll_dps);
+  const float rate_pitch = KP_PLANE_RATE_PITCH *
+      (desired.pitch_passthru * PLANE_RATE_MAX_DPS - rates.pitch_dps);
 
-  // Yaw damper. No heading hold in v1; the rudder term simply opposes the
-  // measured yaw rate to take the wallow out of the airframe.
+  float roll_cmd;
+  float pitch_cmd;
+  if (mode == PLANE_MODE_RATE) {
+    roll_cmd  = rate_roll;
+    pitch_cmd = rate_pitch;
+  } else if (mode == PLANE_MODE_HORIZON) {
+    // Blend by stick deflection: pure self-level at center, pure rate at full
+    // stick. fabsf of the normalized stick is the rate weight.
+    const float wr = fabsf(desired.roll_passthru);
+    const float wp = fabsf(desired.pitch_passthru);
+    roll_cmd  = (1.0f - wr) * angle_roll  + wr * rate_roll;
+    pitch_cmd = (1.0f - wp) * angle_pitch + wp * rate_pitch;
+  } else {  // PLANE_MODE_ANGLE, and the safe default for any other value.
+    roll_cmd  = angle_roll;
+    pitch_cmd = angle_pitch;
+  }
+  s_output.roll  = clampUnit(STAB_OUTPUT_SCALE * roll_cmd);
+  s_output.pitch = clampUnit(STAB_OUTPUT_SCALE * pitch_cmd);
+
+  // Yaw damper, active in every stabilized mode. No heading hold in v1; the
+  // rudder term simply opposes the measured yaw rate to take the wallow out
+  // of the airframe.
   s_output.yaw = clampUnit(STAB_OUTPUT_SCALE *
       (-KD_STAB_YAW * rates.yaw_dps));
 

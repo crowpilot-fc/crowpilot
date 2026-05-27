@@ -178,8 +178,11 @@ tailsitter.
 | `ENABLE_PLANE_STAB` | `1` | Enables the fixed-wing stabilizer. Required by the plane airframes. |
 | `ENABLE_ALT_HOLD` | `0` | Enables barometric altitude hold. |
 | `ENABLE_DIFF_THRUST_YAW` | `0` | Enables differential-thrust yaw on the twin-engine plane. |
-| `CHANNEL_STAB` / `CHANNEL_ALT_HOLD` | `14` / `13` | Stabilization and altitude-hold switch channels. Parked on high SBUS channels so they cannot collide with TX-side primaries or aux. |
-| `KP_STAB_ROLL` ... `KD_STAB_YAW` | provisional | Wing-leveler, pitch-hold, and yaw-damper gains. |
+| `CHANNEL_STAB` / `CHANNEL_ALT_HOLD` | `14` / `13` | Flight-mode and altitude-hold switch channels. Parked on high SBUS channels so they cannot collide with TX-side primaries or aux. |
+| `PLANE_MODE_SW_LOW/MID/HIGH` | `ANGLE` / `HORIZON` / `MANUAL` | Maps the three positions of `CHANNEL_STAB` to a flight mode: `PLANE_MODE_MANUAL` (passthrough), `PLANE_MODE_RATE` (gyro-damped, no self-level), `PLANE_MODE_ANGLE` (self-level), `PLANE_MODE_HORIZON` (angle near center stick, rate at full stick). A two-position switch reaches LOW and HIGH only. Remap to reach rate, for example MID = `PLANE_MODE_RATE`. |
+| `PLANE_MODE_SW_LOW_MAX_US` / `PLANE_MODE_SW_MID_MAX_US` | `1300` / `1700` | Microsecond thresholds between the low, middle, and high switch positions. |
+| `KP_STAB_ROLL` ... `KD_STAB_YAW` | provisional | Wing-leveler, pitch-hold, and yaw-damper gains (angle mode). |
+| `PLANE_RATE_MAX_DPS`, `KP_PLANE_RATE_ROLL/PITCH` | `180`, provisional | Full-stick body rate and the proportional gains for rate and horizon modes. |
 | `STAB_OUTPUT_SCALE` | `1.0` | Scales each stabilizer axis output. |
 | `ALT_CLIMB_FILTER_ALPHA`, `KP_ALT`, `KD_ALT` | provisional | Altitude-hold filter and gains. |
 | `AILERON_TRAVEL`, `ELEVATOR_TRAVEL`, `RUDDER_TRAVEL` | `0.5` | Control-surface travel. |
@@ -247,6 +250,6 @@ Channel map for a 5-channel transmitter (AETR plus arm):
 | 4 | Yaw (rudder) |
 | 5 | Arm switch |
 
-Leave the stabilizer channel (`CHANNEL_STAB`) unassigned on a 5-channel radio. An undriven channel sits at center, which the firmware reads as stabilized, so the wing leveler stays on. Assign a sixth channel to `CHANNEL_STAB` if you want a manual-passthrough switch.
+Leave the flight-mode channel (`CHANNEL_STAB`) unassigned on a 5-channel radio. An undriven channel sits at center, which falls in the middle switch position and so selects horizon. Horizon self-levels at center stick, so a hands-off plane still rights itself, and it relaxes toward rate as the sticks deflect. For pure self-level with no switch, set `PLANE_MODE_SW_MID` to `PLANE_MODE_ANGLE` (or set all three positions to `PLANE_MODE_ANGLE`). Assign a sixth channel to `CHANNEL_STAB` for a real mode switch.
 
 The `AIRFRAME_QUAD_X` four-motor quad is supported, with self-leveling angle and acro rate modes selected by the stabilizer channel. It is not a 5-channel airframe: it needs the arm and mode switches on top of the four primaries. The other multirotor frames (`AIRFRAME_HEX_X`, `AIRFRAME_TRICOPTER`, `AIRFRAME_TAILSITTER_QUAD`) are reserved and halt the build.

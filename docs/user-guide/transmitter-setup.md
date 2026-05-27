@@ -24,10 +24,10 @@ This is the standard AETR order (Aileron, Elevator, Throttle, Rudder).
 
 | Channel | Function | Control | Range |
 |---|---|---|---|
-| ch14 | Stabilizer | Two-position switch | LOW (<1500) stabilized, HIGH (>1500) full manual passthrough |
+| ch14 | Flight mode | Two or three position switch | LOW angle (self-level), MID horizon, HIGH manual passthrough |
 | ch16 | Arm / cut | Two-position switch | 1000 (LOW, armed) / 2000 (HIGH, disarmed) |
 
-The arm switch on ch16 is mandatory. The stabilizer switch on ch14 selects between the wing leveler and full manual control of the surfaces. These two channels sit above the nine Caribou functions so they cannot collide with a primary or an aux assignment, so you must assign them explicitly on the transmitter. A transmitter that only outputs nine channels will leave ch14 and ch16 undriven, and the aircraft then cannot arm.
+The arm switch on ch16 is mandatory. The flight-mode switch on ch14 picks the stabilizer mode by switch position: LOW is angle (self-leveling), the middle is horizon (self-levels near center stick, full control at full stick), and HIGH is full manual passthrough. A two-position switch reaches only angle and manual, which matches the older stabilized-or-manual behavior. The default position-to-mode mapping is in `Config.h` (`PLANE_MODE_SW_LOW/MID/HIGH`) and can be remapped, for example to put rate mode in the middle. These two channels sit above the nine Caribou functions so they cannot collide with a primary or an aux assignment, so you must assign them explicitly on the transmitter. A transmitter that only outputs nine channels will leave ch14 and ch16 undriven, and the aircraft then cannot arm.
 
 `CHANNEL_ALT_HOLD` (ch13) and the live-tune knobs `LIVE_TUNE_CH_KP` (ch11) and `LIVE_TUNE_CH_KD` (ch12) are optional. Altitude hold is off by default (`ENABLE_ALT_HOLD = 0`). Leave these channels unassigned to skip them.
 
@@ -56,7 +56,7 @@ Flap 1 (ch8) and flap 2 (ch10) are independent. To work them together, assign on
 ## Switch assignments
 
 - **ch16 (arm/cut)** goes to a two-position switch. Pick one with a physical guard if your transmitter has one, or at least a switch you will not knock by accident. HIGH must mean disarmed.
-- **ch14 (stabilizer)** goes to a two-position switch. LOW engages the wing leveler, HIGH gives full manual passthrough. Fly the maiden with the stabilizer engaged.
+- **ch14 (flight mode)** goes to a two or three position switch. LOW is angle (self-level), the middle is horizon, HIGH is full manual passthrough. A two-position switch reaches angle and manual. Fly the maiden in angle (LOW).
 
 ## Channel direction
 
