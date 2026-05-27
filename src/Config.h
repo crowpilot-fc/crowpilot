@@ -364,9 +364,18 @@ constexpr float LIVE_TUNE_RANGE = 0.5f;
 // code compiles. Selecting a plane airframe requires ENABLE_PLANE_STAB
 // to be 1.
 
-#define ENABLE_PLANE_STAB      1
-#define ENABLE_ALT_HOLD        0
-#define ENABLE_DIFF_THRUST_YAW 0
+#define ENABLE_PLANE_STAB        1
+#define ENABLE_ALT_HOLD          0
+#define ENABLE_DIFF_THRUST_YAW   0
+
+// Coordinated-turn assist for the self-leveling plane modes (angle and
+// horizon). Two first-order corrections: an auto-rudder proportional to bank
+// so the turn stays coordinated, and a bank-compensated up-elevator (about
+// 1/cos(bank) - 1) so the plane holds altitude through the turn instead of
+// dropping its nose. Off by default, like the other optional plane assists.
+// True coordination needs a slip sensor, which v1 does not have, so this is a
+// feedforward approximation, not a closed-loop ball-centering.
+#define ENABLE_TURN_COORDINATION 0
 
 // Plane flight modes, selected by the three positions of CHANNEL_STAB.
 //   MANUAL   full passthrough, no stabilization.
@@ -415,6 +424,15 @@ constexpr float KP_PLANE_RATE_PITCH = 0.005f;
 
 // Scales each stabilizer axis output before the final clamp. Provisional.
 constexpr float STAB_OUTPUT_SCALE = 1.0f;
+
+// Coordinated-turn assist gains. Used only when ENABLE_TURN_COORDINATION is 1.
+// TURN_COORD_RUDDER_GAIN scales sin(bank) into the rudder. PITCH_TURN_COMP_GAIN
+// scales the (1/cos(bank) - 1) altitude-hold-in-turn term into the elevator.
+// TURN_COMP_MAX_BANK_DEG clamps the bank used for that term so 1/cos stays
+// bounded near knife-edge. Provisional.
+constexpr float TURN_COORD_RUDDER_GAIN = 0.30f;
+constexpr float PITCH_TURN_COMP_GAIN   = 0.50f;
+constexpr float TURN_COMP_MAX_BANK_DEG = 60.0f;
 
 // Barometric altitude hold. Provisional.
 constexpr float ALT_CLIMB_FILTER_ALPHA = 0.10f;  // climb-rate low-pass alpha.

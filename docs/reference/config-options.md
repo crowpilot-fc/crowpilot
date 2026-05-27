@@ -178,6 +178,8 @@ tailsitter.
 | `ENABLE_PLANE_STAB` | `1` | Enables the fixed-wing stabilizer. Required by the plane airframes. |
 | `ENABLE_ALT_HOLD` | `0` | Enables barometric altitude hold. |
 | `ENABLE_DIFF_THRUST_YAW` | `0` | Enables differential-thrust yaw on the twin-engine plane. |
+| `ENABLE_TURN_COORDINATION` | `0` | Coordinated-turn assist in the angle and horizon modes: auto-rudder proportional to bank, plus bank-compensated up-elevator to hold altitude in a turn. A feedforward approximation, not slip-sensed. |
+| `TURN_COORD_RUDDER_GAIN`, `PITCH_TURN_COMP_GAIN`, `TURN_COMP_MAX_BANK_DEG` | `0.3`, `0.5`, `60` | Auto-rudder gain, bank-compensation pitch gain, and the bank clamp for the 1/cos term. |
 | `CHANNEL_STAB` / `CHANNEL_ALT_HOLD` | `14` / `13` | Flight-mode and altitude-hold switch channels. Parked on high SBUS channels so they cannot collide with TX-side primaries or aux. |
 | `PLANE_MODE_SW_LOW/MID/HIGH` | `ANGLE` / `HORIZON` / `MANUAL` | Maps the three positions of `CHANNEL_STAB` to a flight mode: `PLANE_MODE_MANUAL` (passthrough), `PLANE_MODE_RATE` (gyro-damped, no self-level), `PLANE_MODE_ANGLE` (self-level), `PLANE_MODE_HORIZON` (angle near center stick, rate at full stick). A two-position switch reaches LOW and HIGH only. Remap to reach rate, for example MID = `PLANE_MODE_RATE`. |
 | `PLANE_MODE_SW_LOW_MAX_US` / `PLANE_MODE_SW_MID_MAX_US` | `1300` / `1700` | Microsecond thresholds between the low, middle, and high switch positions. |

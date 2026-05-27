@@ -53,6 +53,20 @@ inline uint8_t selectMode(const uint16_t* channels) {
 
 }  // anonymous namespace
 
+TurnFeedforward turnCoordination(float bank_deg) {
+  constexpr float kDegToRad = 0.0174532925f;
+  float clamped = bank_deg;
+  if (clamped >  TURN_COMP_MAX_BANK_DEG) clamped =  TURN_COMP_MAX_BANK_DEG;
+  if (clamped < -TURN_COMP_MAX_BANK_DEG) clamped = -TURN_COMP_MAX_BANK_DEG;
+  TurnFeedforward ff;
+  // Auto-rudder follows the actual bank (sin is bounded, so no clamp needed).
+  ff.rudder = TURN_COORD_RUDDER_GAIN * sinf(bank_deg * kDegToRad);
+  // Up-elevator to hold altitude in the turn, with the clamped bank so 1/cos
+  // stays bounded near knife-edge.
+  ff.pitch = PITCH_TURN_COMP_GAIN * (1.0f / cosf(clamped * kDegToRad) - 1.0f);
+  return ff;
+}
+
 void init() {
   s_output         = {};
   s_alt_target_m   = 0.0f;
@@ -121,14 +135,24 @@ void update(const cp::estimation::attitude::Euler& euler,
     roll_cmd  = angle_roll;
     pitch_cmd = angle_pitch;
   }
-  s_output.roll  = clampUnit(STAB_OUTPUT_SCALE * roll_cmd);
-  s_output.pitch = clampUnit(STAB_OUTPUT_SCALE * pitch_cmd);
-
   // Yaw damper, active in every stabilized mode. No heading hold in v1; the
   // rudder term simply opposes the measured yaw rate to take the wallow out
   // of the airframe.
-  s_output.yaw = clampUnit(STAB_OUTPUT_SCALE *
-      (-KD_STAB_YAW * rates.yaw_dps));
+  float yaw_cmd = -KD_STAB_YAW * rates.yaw_dps;
+
+#if ENABLE_TURN_COORDINATION
+  // Coordinated-turn feedforward in the self-leveling modes: auto-rudder plus
+  // bank-compensated up-elevator. Rate and manual get no coordination.
+  if (mode == PLANE_MODE_ANGLE || mode == PLANE_MODE_HORIZON) {
+    const TurnFeedforward ff = turnCoordination(euler.roll_deg);
+    yaw_cmd   += ff.rudder;
+    pitch_cmd += ff.pitch;
+  }
+#endif
+
+  s_output.roll  = clampUnit(STAB_OUTPUT_SCALE * roll_cmd);
+  s_output.pitch = clampUnit(STAB_OUTPUT_SCALE * pitch_cmd);
+  s_output.yaw   = clampUnit(STAB_OUTPUT_SCALE * yaw_cmd);
 
   // Altitude hold. Optional, and only meaningful with a healthy baro.
   float throttle_out = clamp01(desired.throttle);

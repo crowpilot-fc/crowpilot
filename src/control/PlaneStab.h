@@ -34,6 +34,16 @@ struct Output {
   bool    alt_hold_active;
 };
 
+// Coordinated-turn feedforward for a given bank angle in degrees. Returns the
+// rudder feedforward (auto-rudder, proportional to sin(bank)) and the pitch
+// up-elevator compensation (about 1/cos(bank) - 1, with the bank clamped to
+// TURN_COMP_MAX_BANK_DEG). Pure and side-effect-free, exposed for testing.
+struct TurnFeedforward {
+  float rudder;
+  float pitch;
+};
+TurnFeedforward turnCoordination(float bank_deg);
+
 // Reset the stabilizer state (integrators, altitude target, climb-rate
 // filter).
 void init();

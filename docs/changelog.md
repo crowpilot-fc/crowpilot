@@ -48,6 +48,9 @@ control-core tuning constant is provisional.
 - Plane flight modes on the ch14 switch: manual passthrough, rate
   (gyro-damped), angle (self-level), and horizon (angle near center stick,
   rate at full stick), with the three switch positions mapped in Config.h.
+- Optional coordinated-turn assist for the angle and horizon plane modes:
+  auto-rudder proportional to bank and a bank-compensated up-elevator to hold
+  altitude through a turn. Off by default.
 - The Quad X airframe and mixer, with a self-leveling angle mode and an
   acro rate mode (a per-axis rate controller) selected by the stabilizer
   switch, validated against a SITL quad rigid-body model.
