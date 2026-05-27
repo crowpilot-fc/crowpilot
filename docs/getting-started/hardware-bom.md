@@ -51,7 +51,7 @@ For the Eclipson 1 kg class:
 - 2× 9 g metal-gear servos. EMAX ES08MD II class.
 - 4S LiPo battery 1500 to 2200 mAh, 50 C or higher.
 - 5 V / 3 A switching UBEC for the FC, RX, and servos.
-- Any ELRS or SBUS receiver. No external inverter required (CrowPilot handles SBUS inversion in PIO).
+- Any SBUS or CRSF (Crossfire / ELRS) receiver, selected with `RX_PROTOCOL`. No external inverter required: SBUS is read inverted in PIO, and CRSF is a plain UART.
 - Propellers: 10 × 4.5 or 11 × 4.7, one CW + one CCW pair.
 
 Scale these for heavier airframes. The mixer and PID code do not care about the specific parts; tune the gains in [docs/user-guide/tuning.md](../user-guide/tuning.md).

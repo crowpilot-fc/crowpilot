@@ -68,6 +68,6 @@ Set `DEBUG_PRINT_RX = 1` in `Config.h`, reflash, and open the serial monitor. Mo
 
 ## Transmitter-specific notes
 
-CrowPilot does not care which transmitter you use, only that it outputs SBUS (directly, or via an SBUS-capable receiver). RadioMaster, Jumper, FrSky, and Flysky transmitters paired with an SBUS or ELRS receiver all work. For ELRS receivers that output non-inverted SBUS, set `RX_SBUS_INVERTED = 0` in `Config.h`.
+CrowPilot reads SBUS or CRSF, selected by `RX_PROTOCOL` in `Config.h`. RadioMaster, Jumper, FrSky, and Flysky transmitters paired with an SBUS or ELRS receiver all work. ELRS and Crossfire receivers output CRSF natively, so set `RX_PROTOCOL = RX_CRSF` and wire the receiver to the GP1 input. An ELRS receiver set to SBUS output also works, but CRSF is the better fit and is the path that later gains a telemetry uplink.
 
 Transmitter-by-transmitter walkthroughs are a good contribution target. If you set up a specific model, consider opening a pull request adding it here.

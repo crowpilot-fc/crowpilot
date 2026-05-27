@@ -63,7 +63,7 @@ are `constexpr` constants in namespace `cp`.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `RX_PROTOCOL` | `RX_SBUS` | Receiver protocol. `RX_PPM`, `RX_PWM`, and `RX_CRSF` are reserved. |
+| `RX_PROTOCOL` | `RX_SBUS` | Receiver protocol. `RX_SBUS` (PIO, inverted) or `RX_CRSF` (Crossfire / ELRS, a 420 kbaud UART on the receiver pin). `RX_PPM` and `RX_PWM` are reserved and halt the build. |
 | `RX_SBUS_INVERTED` | `1` | When `1`, the PIO program reads SBUS inverted with no external inverter. |
 
 ## Pilot channel map

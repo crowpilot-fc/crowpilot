@@ -20,7 +20,7 @@ The initial release. The first-flight aircraft is the DHC-4 Caribou twin-engine 
 - MPU-6500 and MPU-6050 IMU drivers (datasheet-derived, clean-build) with an IMU facade and gyro/accel bias calibration.
 - BMP388 and BMP280 barometer drivers with relative altitude. The barometer is optional.
 - Madgwick 6-DOF AHRS.
-- SBUS receiver via PIO inverted UART. No external inverter.
+- SBUS receiver via PIO inverted UART (no external inverter) and a CRSF receiver over UART (Crossfire / ELRS), selected by RX_PROTOCOL.
 - Failsafe controlled-fall override on link loss.
 - Desired-state generation and angle PID controller (D on measurement, anti-windup by saturation, gain blend).
 - Fixed-wing stabilization subsystem: wing leveler, pitch hold, and yaw damper.

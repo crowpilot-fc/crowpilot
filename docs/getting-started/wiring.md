@@ -77,13 +77,13 @@ The reference build uses OPTO ESCs (no built-in BEC) plus a standalone 5 V switc
 
 If the ESC has an integrated BEC instead of being OPTO, omit the external UBEC. Do not run two BECs in parallel; that is a documented failure mode.
 
-## SBUS receiver wiring
+## Receiver wiring
 
-The RP2350 hardware UART cannot invert the SBUS signal in silicon. CrowPilot handles inversion in a PIO state machine. No transistor inverter is required.
+Wire the receiver signal line directly to GP1 either way. Power the receiver from the 5 V UBEC rail and ground to the FC common ground. Pick the protocol with `RX_PROTOCOL` in `Config.h`.
 
-Wire the SBUS line from the receiver directly to GP1. Power the receiver from the 5 V UBEC rail and ground to the FC common ground.
+**SBUS** (`RX_SBUS`). The RP2350 hardware UART cannot invert the SBUS signal in silicon, so CrowPilot handles inversion in a PIO state machine. No transistor inverter is required. CrowPilot reads inverted SBUS only: the PIO is fixed to the inverted-SBUS line polarity (idle low, start bit high), which is what FrSky and most SBUS receivers output. `RX_SBUS_INVERTED` flips only the captured data bits, not the start-bit detection, so a receiver emitting non-inverted SBUS will not decode. Set such a receiver to inverted SBUS, or use CRSF.
 
-CrowPilot v1 supports inverted SBUS only. The PIO program is fixed to the inverted-SBUS line polarity (idle low, start bit high), which is what FrSky and most SBUS receivers output. `RX_SBUS_INVERTED` only flips the captured data bits, not the start-bit detection, so a receiver that emits non-inverted SBUS will not decode. If your ELRS receiver outputs non-inverted SBUS, configure it for inverted SBUS output instead.
+**CRSF** (`RX_CRSF`), for Crossfire and ELRS. A plain 420 kbaud UART on GP1, not inverted, so no PIO and no inverter. This is the native output of ELRS receivers and the recommended path for them.
 
 ## I2C bus
 

@@ -67,7 +67,7 @@ A pressure sensor on the same I2C0 bus, for altitude hold and logging. Set `BARO
 
 ### Receiver
 
-SBUS, decoded by an RP2350 PIO state machine with no external inverter. Set `RX_SBUS_INVERTED` to match your receiver's polarity (FrSky and most SBUS receivers are inverted, some ELRS receivers are not). The `RX_PPM`, `RX_PWM`, and `RX_CRSF` selectors exist but are scaffolded and halt the build. See [Transmitter setup](user-guide/transmitter-setup.md).
+SBUS or CRSF, selected by `RX_PROTOCOL`. SBUS is decoded by an RP2350 PIO state machine with no external inverter (`RX_SBUS_INVERTED` matches the receiver polarity). CRSF (Crossfire and ELRS) is a 420 kbaud UART on the same receiver pin, no inversion. `RX_PPM` and `RX_PWM` are reserved and halt the build. See [Transmitter setup](user-guide/transmitter-setup.md).
 
 ## Motors, servos, and ESCs
 

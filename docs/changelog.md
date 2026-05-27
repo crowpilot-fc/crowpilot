@@ -20,9 +20,10 @@ control-core tuning constant is provisional.
 - The 1 kHz cooperative super-loop and the Arduino entry shim.
 - Hardware abstraction layer with a native implementation for the RP2350.
 - Datasheet-derived drivers: MPU-6500 and MPU-6050 IMUs, BMP388 and BMP280
-  barometers, and the SBUS frame decoder with a PIO program for the inverted
-  UART.
-- IMU and barometer sensor facades and the SBUS receiver facade.
+  barometers, the SBUS frame decoder with a PIO program for the inverted
+  UART, and a CRSF (Crossfire / ELRS) frame decoder over UART.
+- IMU and barometer sensor facades and the SBUS and CRSF receiver paths,
+  selected by RX_PROTOCOL.
 - Lost-link failsafe that holds a level, powered descent.
 - Madgwick six-degree-of-freedom attitude estimation, with a quaternion
   attitude error that stays continuous across the hover-to-forward
