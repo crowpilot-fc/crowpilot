@@ -37,6 +37,25 @@ the right wing, z completing the triad so a level airframe at rest reads one g
 on the z accelerometer. There is one physical body frame regardless of flight
 regime, so the body-rate signal needs no per-regime remapping.
 
+### Gyro filtering
+
+The gyro is filtered once, in the estimator, so the Madgwick integration and
+every controller see the same body-rate signal. Each axis runs an optional
+notch then a first-order low-pass (`GYRO_NOTCH_*` then `GYRO_LPF_CUTOFF_HZ`).
+The low-pass keeps motor and propeller vibration off the derivative term,
+which amplifies high-frequency noise the most. The notch removes a single
+narrow vibration peak with less broadband phase lag than the low-pass.
+
+The motor vibration peak is the motor rotation frequency, which moves with
+throttle, so a fixed notch only catches one RPM. With `ENABLE_DYNAMIC_NOTCH`
+the notch tracks it. The dynamic-notch module reads the per-motor electrical
+RPM that bidirectional DShot reports through the HAL, converts it to a mean
+mechanical frequency through `MOTOR_POLE_PAIRS`, clamps it to a configured
+band, slew-rate limits the center, and retunes the notch every few ticks
+through a coefficient update that preserves the filter state so the move is
+glitch-free. With no eRPM telemetry the notch falls back to the fixed center.
+See [Motor output](#motor-output) for the bidirectional DShot side.
+
 ## The attitude reference across the transition
 
 A tailsitter flies at roughly zero degrees pitch in forward flight and roughly
@@ -167,3 +186,14 @@ between frames, so before the first frame and whenever disarmed the ESCs see
 the motor-stop frame. The frame builder is plain integer code in
 `src/libs/Dshot.*` and is unit-tested on the host; the PIO timing is verified
 on the bench with a logic analyzer or a real ESC.
+
+Bidirectional DShot (`ENABLE_DSHOT_BIDIR`) makes the ESC report its electrical
+RPM. The signaling is inverted (line idles high) and the command CRC is
+inverted, which is what requests the reply. The transmit program is the same
+bit scheme with flipped polarity on PIO1. After each frame the HAL releases
+the pin and a sampler on PIO2 oversamples the reply, which the HAL reconstructs
+into the 21-bit GCR frame and decodes with the host-tested `decodeErpm` (GCR
+quintet map, 4-bit checksum, exponent-mantissa period to eRPM). That eRPM
+feeds the dynamic notch. The decode math is unit-tested, but the receive
+timing (turnaround, telemetry bit rate, oversample) is bench-tuned and
+unverified in v1, so the path is off by default.

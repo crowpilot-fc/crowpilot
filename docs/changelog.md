@@ -28,6 +28,9 @@ control-core tuning constant is provisional.
 - Madgwick six-degree-of-freedom attitude estimation, with a quaternion
   attitude error that stays continuous across the hover-to-forward
   transition.
+- Gyro filtering in the estimator: a per-axis low-pass and a notch, with an
+  optional dynamic notch that tracks the motor frequency from bidirectional
+  DShot eRPM.
 - IMU gyro and accelerometer bias calibration.
 - The transition fader and the flight-mode enumeration.
 - Pilot desired-state generation.
@@ -35,7 +38,8 @@ control-core tuning constant is provisional.
 - The tailsitter bicopter mixer.
 - The actuator output stage with arm and disarm safety logic, driving PWM
   (default), OneShot125, or DShot300/600 ESCs and 50 Hz servos. DShot
-  clocks a 16-bit CRC-checked frame to each motor from a PIO state machine.
+  clocks a 16-bit CRC-checked frame to each motor from a PIO state machine,
+  with an optional bidirectional mode (bench-tuned) that reads ESC eRPM back.
 - SD card binary telemetry and a host-side log decoder and analyzer.
 - The runtime parameter registry, transmitter live tuning, and flash
   persistence.

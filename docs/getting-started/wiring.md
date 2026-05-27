@@ -156,6 +156,8 @@ ESCs go on GP10 (motor 1, right) and GP11 (motor 2, left). The default `MOTOR_PR
 
 For BLHeli_S or BLHeli_32 ESCs, set `MOTOR_PROTOCOL_DSHOT300` or `MOTOR_PROTOCOL_DSHOT600`. DShot is a digital protocol: a PIO state machine clocks a 16-bit, CRC-checked frame to each motor pin, so the same GP10 and GP11 lines carry the digital signal instead of a pulse width. DShot needs no ESC calibration and is immune to pulse-width drift. The DShot output uses PIO1, which does not collide with the SBUS receiver's PIO0. Match the rate the ESC is flashed for: DShot600 is the common choice and DShot300 is the more tolerant of long or noisy signal leads.
 
+Bidirectional DShot (`ENABLE_DSHOT_BIDIR`) adds no wires: the ESC reports its RPM back on the same signal lead, between command frames. It needs an ESC flashed for bidirectional telemetry, and the RPM feeds the dynamic gyro notch (`ENABLE_DYNAMIC_NOTCH`). The receive timing is bench-tuned and unverified in v1, so leave both options off until you have checked the telemetry on the bench with a logic analyzer or a known-good ESC. Set `MOTOR_POLE_PAIRS` to your motor's magnet pole-pair count (7 for a typical 14-magnet outrunner) so the reported eRPM converts to the right frequency.
+
 When disarmed, CrowPilot holds the motors stopped (the disarm pulse for PWM and OneShot, the motor-stop command for DShot). Once CrowPilot arms (`CHANNEL_ARM` LOW and the throttle stick at idle), the outputs follow the throttle command.
 
 For ESCs that require explicit calibration (less common with BLHeli, more common with older ESCs, and never for DShot), see [docs/user-guide/tuning.md](../user-guide/tuning.md) and set `ENABLE_ESC_CALIBRATION = 1` in `src/Config.h`.

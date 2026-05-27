@@ -113,6 +113,14 @@ are `constexpr` constants in namespace `cp`.
 | Option | Default | Meaning |
 |---|---|---|
 | `MADGWICK_BETA` | `0.10` | Madgwick filter gain. Higher tracks the accelerometer faster and noisier. |
+| `GYRO_LPF_CUTOFF_HZ` | `90.0` | First-order low-pass on the gyro, applied once in the estimator. 0 disables it. Lower filters harder but adds phase lag. |
+| `GYRO_NOTCH_CENTER_HZ` | `0.0` | Fixed gyro notch center, at a measured vibration peak. 0 disables it (the default until a peak is known). |
+| `GYRO_NOTCH_Q` | `3.0` | Fixed notch width. Higher is narrower, with less phase lag away from the peak. |
+| `ENABLE_DYNAMIC_NOTCH` | `0` | When `1`, the gyro notch tracks the motor frequency from bidirectional DShot instead of sitting at `GYRO_NOTCH_CENTER_HZ`. Needs `ENABLE_DSHOT_BIDIR`. |
+| `DYN_NOTCH_MIN_HZ` / `DYN_NOTCH_MAX_HZ` | `80.0` / `500.0` | Clamp on the tracked notch center. The floor ignores ground idle, the ceiling stays below the loop Nyquist. |
+| `DYN_NOTCH_Q` | `3.0` | Width of the tracking notch. |
+| `DYN_NOTCH_MAX_SLEW_HZ_PER_S` | `2000.0` | How fast the tracked center may move, so the notch glides rather than jumps. |
+| `DYN_NOTCH_UPDATE_DIV` | `4` | Retune the notch every Nth loop tick. |
 
 ## Transition and pilot setpoints
 
@@ -155,6 +163,8 @@ integral set. All ship provisional.
 | `ESC_MAX_PULSE_US` / `ESC_IDLE_PULSE_US` | `2000` / `1000` | Motor full and zero throttle. Values depend on `MOTOR_PROTOCOL` (`250` / `125` for OneShot125). For DShot these microsecond bounds map onto the 48-2047 throttle range. |
 | `ESC_DISARM_PULSE_US` | `1000` | Disarmed motor pulse. The motor-stopped width (`120` for OneShot125, `0` for DShot which maps to the motor-stop command, both below the valid running range). |
 | `DSHOT_BITRATE_HZ` | (per protocol) | DShot line rate, `300000` or `600000`. Defined only for the DShot protocols and used to set the PIO clock divider. |
+| `ENABLE_DSHOT_BIDIR` | `0` | When `1`, bidirectional DShot: the ESC replies with eRPM after each frame, feeding the dynamic notch. Needs a DShot protocol and a telemetry-capable ESC. The receive timing is bench-tuned (see the wiring guide). |
+| `MOTOR_POLE_PAIRS` | `7` | Magnet pole pairs of the motors, for converting bidirectional-DShot eRPM to mechanical RPM. A 14-magnet outrunner has 7. |
 | `ARM_THROTTLE_MAX_US` | `1050` | Throttle-idle gate for arming. |
 | `SERVO_MIN_US` / `SERVO_MAX_US` | `1000` / `2000` | Servo PWM endpoints. |
 

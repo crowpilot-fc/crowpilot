@@ -25,13 +25,16 @@ is provisional.
 - Madgwick six-degree-of-freedom attitude estimation, with a quaternion
   attitude error that stays continuous across the hover-to-forward
   transition.
+- Gyro low-pass and notch filtering in the estimator, with an optional
+  dynamic notch that tracks motor RPM from bidirectional DShot.
 - IMU gyro and accelerometer bias calibration.
 - The transition fader and the flight-mode enumeration.
 - Pilot desired-state generation.
 - The per-axis PID stabilizer with regime gain scheduling and anti-windup.
 - The tailsitter bicopter mixer.
 - The actuator output stage with arm and disarm safety logic, the
-  synchronous OneShot125 emit, and a PIO-clocked DShot300/600 path.
+  synchronous OneShot125 emit, and a PIO-clocked DShot300/600 path with an
+  optional bidirectional (eRPM telemetry) mode.
 - SD card binary telemetry and a host-side log decoder and analyzer.
 - The runtime parameter registry, transmitter live tuning, and flash
   persistence.

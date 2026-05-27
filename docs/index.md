@@ -82,6 +82,8 @@ The mixer drives ESCs on the motor pins and standard servos on the surface pins.
 
 DShot is a digital protocol: each motor update is a 16-bit, CRC-checked frame, so there is no pulse-width drift and no ESC calibration. A PIO state machine clocks the frame to each motor, on PIO1, leaving the SBUS receiver's PIO0 untouched. The control core still works in microseconds for every protocol, and the native output stage converts that to a DShot throttle value.
 
+With `ENABLE_DSHOT_BIDIR` and a telemetry-capable ESC, the ESC reports its electrical RPM back after each frame. That feeds an optional dynamic gyro notch (`ENABLE_DYNAMIC_NOTCH`) that tracks the motor vibration frequency as throttle changes, where a fixed notch only catches one RPM. The bidirectional receive timing is bench-tuned and both options are off by default.
+
 Servos run standard 50 Hz, 1 to 2 ms PWM. When disarmed the motor outputs hold the disarm value so the ESCs stay stopped, while servos stay live so you can check control surfaces on the bench. See [Wiring](getting-started/wiring.md) and [Arming and failsafe](user-guide/arming-and-failsafe.md).
 
 ## Pin configuration
