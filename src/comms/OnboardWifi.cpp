@@ -34,8 +34,10 @@ constexpr uint32_t kLinkBlinkMs    = 500;  // 1 Hz radio-LED heartbeat.
 constexpr size_t   kLineMax        = 256;  // longest cp line (a telemetry line).
 
 // Lock-free single-producer / single-consumer byte ring. One core pushes, the
-// other pops, so no lock is needed: a full barrier orders the data write
-// against the index publish. Size must be a power of two.
+// other pops, so no lock is needed. Each side pairs a barrier with its index
+// publish: the producer orders the data write before it advances head_
+// (release), and the consumer orders the data read after it observes head_
+// (acquire) and before it advances tail_. Size must be a power of two.
 template <uint32_t N>
 class ByteRing {
  public:
@@ -46,7 +48,7 @@ class ByteRing {
       return false;  // full, drop
     }
     buf_[h] = b;
-    __sync_synchronize();
+    __sync_synchronize();  // release: publish the data before advancing head_
     head_ = next;
     return true;
   }
@@ -55,8 +57,9 @@ class ByteRing {
     if (t == head_) {
       return -1;  // empty
     }
+    __sync_synchronize();  // acquire: order the data read after the head_ load
     const uint8_t b = buf_[t];
-    __sync_synchronize();
+    __sync_synchronize();  // release: finish the read before freeing the slot
     tail_ = (t + 1) & (N - 1);
     return b;
   }
@@ -68,6 +71,11 @@ class ByteRing {
   }
   int available() const {
     return static_cast<int>((head_ - tail_) & (N - 1));
+  }
+  // Free byte slots. One slot is always reserved to tell full from empty, so
+  // the usable capacity is N - 1.
+  uint32_t freeSpace() const {
+    return (N - 1) - ((head_ - tail_) & (N - 1));
   }
 
  private:
@@ -116,12 +124,17 @@ void handleRoot() {
 void onWsEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
   (void)num;
   if (type == WStype_TEXT) {
-    // One cp command line from the browser. Hand it to core0 and terminate it
-    // so the CLI's line parser dispatches it, exactly as the ESP bridge does.
-    for (size_t i = 0; i < length; ++i) {
-      s_rx.push(payload[i]);
+    // One cp command line from the browser. Push the whole line plus its
+    // terminator only if it fits, so a full ring drops the command cleanly
+    // rather than handing core0 a truncated line. cp commands are short, well
+    // under the ring size, so this only guards against a flood or a runaway
+    // frame.
+    if (s_rx.freeSpace() >= length + 1) {
+      for (size_t i = 0; i < length; ++i) {
+        s_rx.push(payload[i]);
+      }
+      s_rx.push('\n');  // terminate so the CLI line parser dispatches it
     }
-    s_rx.push('\n');
   }
 }
 
