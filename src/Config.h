@@ -449,8 +449,9 @@ constexpr float DIFF_THRUST_GAIN = 0.20f;
 // the ESC replies on the same wire with its electrical RPM, which feeds the
 // RPM-tracking dynamic notch. It needs a DShot protocol and a BLHeli_S or
 // BLHeli_32 ESC flashed for bidirectional telemetry. MOTOR_POLE_PAIRS (below)
-// converts the reported eRPM to a mechanical frequency. Native-only and
-// bench-verified.
+// converts the reported eRPM to a mechanical frequency. Native-only. The
+// frame encode and the eRPM decode are unit-tested, but the PIO receive
+// timing is bench-pending and unverified in v1, so this defaults off.
 #define ENABLE_DSHOT_BIDIR 0
 
 #if ENABLE_DSHOT_BIDIR && !MOTOR_PROTOCOL_IS_DSHOT

@@ -55,7 +55,7 @@ It emits one CSV row per record. Column order follows the field table below, wit
 | 67 | 12 | `roll/pitch/yaw_hover_deg` | float32 x3 | Euler angles, hover convention, degrees. |
 | 79 | 12 | `rc_ch1..ch6_us` | uint16 x6 | RC channel pulse widths in microseconds. |
 | 91 | 4 | `fader` | float32 | Transition fader. 0.0 forward, 1.0 hover. |
-| 95 | 4 | `motor1/2_us` | uint16 x2 | Commanded motor pulse widths (OneShot125, 125 to 250 us). |
+| 95 | 4 | `motor1/2_us` | uint16 x2 | Commanded motor pulse widths in the configured `MOTOR_PROTOCOL` range: 1000 to 2000 us for PWM (the default) and DShot, or 125 to 250 us for OneShot125. |
 | 99 | 4 | `servo_left/right_us` | uint16 x2 | Commanded servo pulse widths (1000 to 2000 us). |
 | 103 | 3 | `pid_roll/pitch/yaw_q7` | int8 x3 | PID output in Q1.7. Divide by 127.0 to recover the normalized value. |
 | 106 | 1 | `reserved` | uint8 | Always 0. |

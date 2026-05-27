@@ -40,7 +40,16 @@ FLAG_THROTTLE_CUT = 0x04
 # Thresholds for the saturation and overrun counters.
 LOOP_OVERRUN_US = 1100        # loop period above this counts as an overrun
 PID_SATURATION = 0.95         # normalized PID output magnitude
-MOTOR_SATURATION_US = 248     # OneShot125 commanded pulse close to the 250 max
+
+# Motor saturation is a commanded pulse within MOTOR_SATURATION_FRACTION of the
+# protocol's full-scale width. The binary log records the commanded
+# microseconds but not MOTOR_PROTOCOL, so the full scale is inferred from the
+# pulse magnitude: the 1000-2000 us band (PWM, and DShot which the output stage
+# also expresses in microseconds) versus the 125-250 us OneShot125 band.
+MOTOR_FULL_SCALE_PWM_US = 2000
+MOTOR_FULL_SCALE_ONESHOT_US = 250
+MOTOR_SATURATION_FRACTION = 0.99
+MOTOR_BAND_SPLIT_US = 500     # pulses above this are the 1000-2000 us band
 
 # Goertzel oscillation scan band, in Hz. Tuning oscillation on a small
 # airframe lives between a slow wobble and a fast buzz; scanning 1 to 40 Hz
@@ -194,9 +203,14 @@ def extract_features(path):
         "pitch": sum(1 for r in armed if abs(r.pid_pitch) > PID_SATURATION),
         "yaw": sum(1 for r in armed if abs(r.pid_yaw) > PID_SATURATION),
     }
+    motor_peak = max(
+        (max(r.motor1_us, r.motor2_us) for r in armed), default=0)
+    motor_full_scale = (MOTOR_FULL_SCALE_PWM_US if motor_peak > MOTOR_BAND_SPLIT_US
+                        else MOTOR_FULL_SCALE_ONESHOT_US)
+    motor_sat_us = MOTOR_SATURATION_FRACTION * motor_full_scale
     motor_sat = sum(
         1 for r in armed
-        if r.motor1_us >= MOTOR_SATURATION_US or r.motor2_us >= MOTOR_SATURATION_US
+        if r.motor1_us >= motor_sat_us or r.motor2_us >= motor_sat_us
     )
 
     mode_counts = {0: 0, 1: 0, 2: 0}
