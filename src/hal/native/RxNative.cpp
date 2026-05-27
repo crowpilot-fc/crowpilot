@@ -112,7 +112,66 @@ void rx_poll(RxState& out) {
 #elif RX_PROTOCOL == RX_PWM
   #error "RX_PWM is scaffolded in v1.0. Implementation lands in a later phase."
 #elif RX_PROTOCOL == RX_CRSF
-  #error "RX_CRSF is scaffolded in v1.0. Implementation lands in a later phase."
+
+#include "src/libs/Crsf.h"
+
+namespace cp::hal {
+
+namespace {
+
+// CRSF is a 420 kbaud, 8N1, non-inverted UART, so it uses a hardware UART
+// rather than the inverted-SBUS PIO. UART0 (Serial1 on the arduino-pico
+// core) receives on PIN_SBUS_RX, the same pin the receiver signal lands on.
+// The transmit pin (GP0) is reserved for CRSF telemetry back to the
+// receiver, unused in v1.
+constexpr uint32_t kCrsfBaud  = 420000;
+constexpr uint8_t  kCrsfTxPin = 0;
+
+RxState s_state = {};
+
+}  // anonymous namespace
+
+bool rx_init() {
+  s_state = {};
+  for (uint8_t i = 0; i < 16; ++i) {
+    s_state.channel_us[i] = 1500;
+  }
+  Serial1.setRX(PIN_SBUS_RX);
+  Serial1.setTX(kCrsfTxPin);
+  Serial1.begin(kCrsfBaud);
+  cp::libs::crsf::reset();
+  return true;
+}
+
+void rx_poll(RxState& out) {
+  while (Serial1.available() > 0) {
+    const int b = Serial1.read();
+    if (b < 0) {
+      break;
+    }
+    cp::libs::crsf::DecodedFrame frame;
+    if (!cp::libs::crsf::feed(static_cast<uint8_t>(b), frame)) {
+      s_state.lost_frames_count = cp::libs::crsf::lostFrameCount();
+      continue;
+    }
+    for (uint8_t i = 0; i < cp::libs::crsf::kNumChannels; ++i) {
+      s_state.channel_us[i] = cp::libs::crsf::rawToMicroseconds(frame.channel[i]);
+    }
+    s_state.ch17            = false;
+    s_state.ch18            = false;
+    s_state.frame_lost_flag = false;
+    // CRSF has no per-frame failsafe bit in the RC frame. Link loss is caught
+    // by the firmware's link-timeout failsafe when fresh frames stop arriving.
+    s_state.failsafe_active   = false;
+    s_state.channels_valid    = true;
+    s_state.last_frame_us     = micros();
+    s_state.lost_frames_count = cp::libs::crsf::lostFrameCount();
+  }
+  out = s_state;
+}
+
+}  // namespace cp::hal
+
 #else
   #error "Unknown RX_PROTOCOL. Pick RX_SBUS for v1.0."
 #endif

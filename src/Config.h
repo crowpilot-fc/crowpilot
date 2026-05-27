@@ -215,16 +215,20 @@ constexpr uint32_t I2C_BUS_HZ = 400000;  // 400 kHz fast mode on I2C0.
 // ===========================================================================
 // Receiver
 // ===========================================================================
-// v1.0 decodes SBUS with an RP2350 PIO state machine. SBUS is an
-// inverted serial signal, so the PIO program reads it inverted with no
-// external hardware inverter. The other protocols are reserved.
+// SBUS is decoded by an RP2350 PIO state machine: SBUS is an inverted serial
+// signal, so the PIO reads it inverted with no external hardware inverter.
+// CRSF (Crossfire / ELRS) is decoded from a 420 kbaud UART on the same
+// receiver pin (it is not inverted, so no PIO). PPM and PWM are reserved and
+// halt the build.
 
 #define RX_SBUS 0
 #define RX_PPM  1
 #define RX_PWM  2
 #define RX_CRSF 3
 
-#define RX_PROTOCOL RX_SBUS
+#ifndef RX_PROTOCOL
+  #define RX_PROTOCOL RX_SBUS
+#endif
 
 // v1 supports inverted SBUS only. The PIO program is fixed to the
 // inverted-SBUS line polarity; this flag only XORs the captured data
