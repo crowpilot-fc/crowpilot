@@ -45,6 +45,9 @@ control-core tuning constant is provisional.
   persistence.
 - The fixed-wing stabilization subsystem and the twin-engine and
   single-engine plane mixers.
+- The Quad X airframe and mixer, with a self-leveling angle mode and an
+  acro rate mode (a per-axis rate controller) selected by the stabilizer
+  switch, validated against a SITL quad rigid-body model.
 - The user extension hook.
 - The CrowPilot Configurator, a browser-based setup tool that edits the
   parameter registry, shows live telemetry, decodes binary flight logs,

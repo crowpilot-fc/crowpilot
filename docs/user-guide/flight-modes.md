@@ -17,9 +17,9 @@ fader.
 ## The transition channel
 
 One transmitter channel, `CHANNEL_TRANSITION` (channel 15 by default),
-commands the transition. The low end of the channel commands hover and the
-high end commands forward flight. Assign it to a switch or a knob on your
-transmitter.
+commands the transition. The high end of the channel commands hover and the
+low end commands forward flight, matching the fader convention below (1.0 at
+hover). Assign it to a switch or a knob on your transmitter.
 
 A snapped switch is fine. The firmware does not act on the channel directly.
 

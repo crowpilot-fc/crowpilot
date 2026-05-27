@@ -29,7 +29,7 @@ are `constexpr` constants in namespace `cp`.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `AIRFRAME` | `AIRFRAME_PLANE_TWIN_CARGO` | Selects the mixer. The plane airframes (`AIRFRAME_PLANE_TWIN_CARGO`, the Caribou first-flight target, and `AIRFRAME_PLANE_SINGLE`) require `ENABLE_PLANE_STAB`. `AIRFRAME_TAILSITTER_BICOPTER` is the carried alternative. The remaining values are reserved and halt the build. |
+| `AIRFRAME` | `AIRFRAME_PLANE_TWIN_CARGO` | Selects the mixer. The plane airframes (`AIRFRAME_PLANE_TWIN_CARGO`, the Caribou first-flight target, and `AIRFRAME_PLANE_SINGLE`) require `ENABLE_PLANE_STAB`. `AIRFRAME_TAILSITTER_BICOPTER` is the carried alternative. `AIRFRAME_QUAD_X` is a four-motor X quad with self-leveling angle and acro rate modes. The remaining frames (`AIRFRAME_HEX_X`, `AIRFRAME_TRICOPTER`, `AIRFRAME_TAILSITTER_QUAD`) are reserved and halt the build. |
 
 ## IMU
 
@@ -249,4 +249,4 @@ Channel map for a 5-channel transmitter (AETR plus arm):
 
 Leave the stabilizer channel (`CHANNEL_STAB`) unassigned on a 5-channel radio. An undriven channel sits at center, which the firmware reads as stabilized, so the wing leveler stays on. Assign a sixth channel to `CHANNEL_STAB` if you want a manual-passthrough switch.
 
-Multirotors (a quadcopter and the like) are not supported yet. The `AIRFRAME_QUAD_X` selector and the other multirotor frames are reserved and halt the build. A multirotor mixer and its rate and angle control modes are a v2.x item.
+The `AIRFRAME_QUAD_X` four-motor quad is supported, with self-leveling angle and acro rate modes selected by the stabilizer channel. It is not a 5-channel airframe: it needs the arm and mode switches on top of the four primaries. The other multirotor frames (`AIRFRAME_HEX_X`, `AIRFRAME_TRICOPTER`, `AIRFRAME_TAILSITTER_QUAD`) are reserved and halt the build.

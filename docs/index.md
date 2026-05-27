@@ -41,8 +41,9 @@ Select one with `AIRFRAME` in `src/Config.h`. The plane airframes require `ENABL
 | Twin-engine cargo plane (DHC-4 Caribou) | `AIRFRAME_PLANE_TWIN_CARGO` | 2 motors, two ailerons, elevator, rudder. Default and first-flight target. See [Fixed-wing plane](airframes/fixed-wing-plane.md). |
 | Single-engine plane | `AIRFRAME_PLANE_SINGLE` | 1 motor, two ailerons, elevator, rudder. |
 | Tailsitter VTOL bicopter | `AIRFRAME_TAILSITTER_BICOPTER` | 2 motors, 2 elevons, continuous hover-to-forward transition. See [Tailsitter bicopter](airframes/tailsitter-bicopter.md). |
+| Quad X | `AIRFRAME_QUAD_X` | 4 motors, no servos. Self-leveling angle mode and an acro rate mode, selected by the stabilizer switch (`CHANNEL_STAB`). |
 
-Multirotors (quadcopter, hexacopter, tricopter, tailsitter-quad) are reserved selectors that halt the build. A multirotor mixer with its rate and angle control modes is a v2.x item on the [Roadmap](roadmap.md).
+The remaining multirotor selectors (hexacopter, tricopter, tailsitter-quad) are reserved and halt the build. Their mixers are a later item on the [Roadmap](roadmap.md).
 
 ## Sensors and radio
 

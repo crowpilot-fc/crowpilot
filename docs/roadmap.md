@@ -20,12 +20,13 @@ The initial release. The first-flight aircraft is the DHC-4 Caribou twin-engine 
 - MPU-6500 and MPU-6050 IMU drivers (datasheet-derived, clean-build) with an IMU facade and gyro/accel bias calibration.
 - BMP388 and BMP280 barometer drivers with relative altitude. The barometer is optional.
 - Madgwick 6-DOF AHRS.
+- Gyro filtering in the estimator: a per-axis low-pass and a notch, with an optional RPM-tracking dynamic notch fed by bidirectional-DShot eRPM, plus a D-term low-pass on the PID derivative path.
 - SBUS receiver via PIO inverted UART (no external inverter) and a CRSF receiver over UART (Crossfire / ELRS), selected by RX_PROTOCOL.
 - Failsafe controlled-fall override on link loss.
 - Desired-state generation and angle PID controller (D on measurement, anti-windup by saturation, gain blend).
 - Fixed-wing stabilization subsystem: wing leveler, pitch hold, and yaw damper.
-- Twin-engine cargo plane mixer (Caribou), single-engine plane mixer, and the tailsitter bicopter mixer with its transition fader and flight-mode enum.
-- PWM and OneShot125 ESC output, 50 Hz servo PWM, arm logic, and ESC calibration.
+- Twin-engine cargo plane mixer (Caribou), single-engine plane mixer, the tailsitter bicopter mixer with its transition fader and flight-mode enum, and the Quad X mixer with self-leveling angle and acro rate modes.
+- PWM, OneShot125, and DShot300/600 ESC output, with optional bidirectional DShot eRPM telemetry, 50 Hz servo PWM, arm logic, and ESC calibration.
 - User extension hook (pin-claim, read-only sensor API, three-strike disable, per-tick time budget) and the Caribou aux user sketch.
 - SD card binary telemetry logger plus host-side decoder and log analyzer. Logging is optional.
 - Runtime parameter registry, transmitter live tuning, and LittleFS persistence. All optional.
@@ -48,21 +49,16 @@ The initial release. The first-flight aircraft is the DHC-4 Caribou twin-engine 
 
 Control-core refinements, scoped for after bench verification and added one
 at a time against a proven baseline. Each is standard practice, derived from
-public control-theory and signal-processing references.
+public control-theory and signal-processing references. The gyro low-pass,
+the gyro notch (static and RPM-tracking dynamic), and the D-term low-pass
+have already landed and moved to the complete list above.
 
-- A low-pass or biquad filter on the PID derivative path, so gyro noise
-  is not amplified into the actuators. Reference: Astrom and Murray,
-  Feedback Systems.
 - Back-calculation, or tracking, anti-windup in place of the present
   integral-term clamp, for better behavior at the saturation limit.
   Reference: Astrom and Hagglund, PID Controllers (1995).
 - Setpoint weighting on the proportional term, to trade setpoint
   tracking against disturbance rejection independently. Reference:
   Astrom and Hagglund, PID Controllers (1995).
-- A gyro notch filter at the airframe's dominant propeller and motor
-  vibration frequency, identified from flight-log FFT analysis.
-  Reference: Bristow-Johnson, Audio EQ Cookbook, or Oppenheim and
-  Schafer, Discrete-Time Signal Processing.
 
 ## v1.1: Gee Bee single-engine plane
 
