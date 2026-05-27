@@ -31,6 +31,7 @@ All boards are RP2350-based. Select one with `BOARD` in `src/Config.h`. Full per
 | WeAct RP2350A_V10 | `BOARD_WEACT_RP2350A_V10` | Default. Pi-Pico form factor. |
 | Waveshare RP2350-Tiny | `BOARD_WAVESHARE_RP2350_TINY` | Smallest footprint. |
 | Raspberry Pi Pico 2 W | `BOARD_PICO2W` | Onboard WiFi radio, serves the companion UI itself, no separate ESP. |
+| SmartElex RP2350A NEO | `BOARD_SMARTELEX_RP2350A_NEO` | Small castellated board, 16 GPIO. Good for a basic plane. Onboard LED is a WS2812, so use an external status LED. |
 
 ## Supported airframes
 

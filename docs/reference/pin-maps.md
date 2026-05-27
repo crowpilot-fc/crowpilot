@@ -87,6 +87,33 @@ arduino-cli compile --fqbn rp2040:rp2040:rpipico2w . \
   --build-property "compiler.c.extra_flags=-DBOARD=BOARD_PICO2W -I{build.source.path}"
 ```
 
+## SmartElex RP2350A NEO
+
+A small castellated RP2350A board (Waveshare RP2350-Zero class) that breaks out 16 GPIO. It does not expose the pins the RP2350-Tiny profile uses, so it has its own map. The onboard LED is a WS2812, which the simple LED HAL does not drive, so the boot heartbeat and panic blink move to an external status LED.
+
+With only 16 GPIO, the full output set plus SD plus the companion UART cannot all coexist. The core plane path below is conflict-free. SD CLK reuses GP2, which is the Servo 3 (elevator) slot, so SD logging works on a two-servo airframe such as a flying wing (elevons on GP26/GP27, GP2 free) but not on a four-servo conventional plane. Keep `ENABLE_TELEMETRY_LOG` off on a four-servo build here.
+
+| Function | GP pin | Bus / peripheral | Notes |
+|---|---|---|---|
+| I2C SDA | GP28 | I2C0 | IMU + barometer shared. |
+| I2C SCL | GP29 | I2C0 | |
+| Motor 1 (right) | GP14 | PWM (Servo lib) | Single-engine plane uses this one. |
+| Motor 2 (left) | GP15 | PWM (Servo lib) | |
+| Servo 1 | GP26 | PWM slice (Servo lib) | Left aileron, or left elevon on a flying wing. |
+| Servo 2 | GP27 | PWM slice (Servo lib) | Right aileron, or right elevon on a flying wing. |
+| Servo 3 | GP2 | PWM slice (Servo lib) | Elevator. Shared with SD CLK, see the note above. |
+| Servo 4 | GP3 | PWM slice (Servo lib) | Rudder. |
+| SBUS / CRSF receiver | GP1 | PIO SM 0 / UART0 RX | SBUS in PIO, or CRSF on UART0. CRSF TX is GP0. |
+| SD MOSI | GP19 | SPI0 TX | |
+| SD MISO | GP16 | SPI0 RX | |
+| SD CLK | GP2 | SPI0 SCK | Shared with Servo 3. Module pin is silkscreened CLK. |
+| SD CS | GP17 | GPIO | |
+| Status LED (external) | GP24 | GPIO | Boot heartbeat. The onboard WS2812 is not used. |
+| Companion UART TX | GP20 | UART1 TX | ESP companion or GPS. |
+| Companion UART RX | GP25 | UART1 RX | |
+
+Select with `#define BOARD BOARD_SMARTELEX_RP2350A_NEO` in `src/Config.h`.
+
 ## RP2350-One (Waveshare, Pi-Pico form)
 
 Use the WeAct profile. The two boards are pin-compatible.

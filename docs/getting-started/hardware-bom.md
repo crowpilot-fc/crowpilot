@@ -31,6 +31,9 @@ Buy a genuine MPU-6500 or MPU-6050. The IMU driver gates initialization on the c
 | Waveshare RP2350-One | $5 | Pi-Pico form factor. Easy to breadboard for development. |
 | WeAct RP2350A_V10 | $6 | Pi-Pico form factor. Legacy alternate. |
 | Raspberry Pi Pico 2 W | $7 | RP2350A with an onboard WiFi radio. Serves the companion UI itself, so no separate ESP is needed. Same flight pins as the WeAct profile. |
+| SmartElex RP2350A NEO | $5 | Small castellated board, 16 GPIO. Good for a basic plane. The onboard LED is a WS2812, so use an external status LED. |
+
+Board profiles ship for the Waveshare RP2350-Tiny, the WeAct RP2350A_V10, the Raspberry Pi Pico 2 W, and the SmartElex RP2350A NEO. The Waveshare RP2350-Zero and RP2350-One are pin-similar and supported in principle, but they do not ship a profile header yet, so they need a small `src/boards/*.h` pin map added before use.
 
 The Seeed XIAO RP2350 is **not supported** because it only breaks out 11 GPIO, which is too few for the v1 flight controller.
 

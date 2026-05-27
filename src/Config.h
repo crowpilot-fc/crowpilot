@@ -42,6 +42,7 @@
 #define BOARD_WAVESHARE_RP2350_TINY 0
 #define BOARD_WEACT_RP2350A_V10     1
 #define BOARD_PICO2W                2
+#define BOARD_SMARTELEX_RP2350A_NEO 3
 
 #ifndef BOARD
   #define BOARD BOARD_WEACT_RP2350A_V10
@@ -53,8 +54,10 @@
   #include "src/boards/weact_rp2350a_v10.h"
 #elif BOARD == BOARD_PICO2W
   #include "src/boards/pico2w.h"
+#elif BOARD == BOARD_SMARTELEX_RP2350A_NEO
+  #include "src/boards/smartelex_rp2350a_neo.h"
 #else
-  #error "Unknown BOARD. Pick BOARD_WAVESHARE_RP2350_TINY, BOARD_WEACT_RP2350A_V10, or BOARD_PICO2W."
+  #error "Unknown BOARD. Pick BOARD_WAVESHARE_RP2350_TINY, BOARD_WEACT_RP2350A_V10, BOARD_PICO2W, or BOARD_SMARTELEX_RP2350A_NEO."
 #endif
 
 // A board header defines BOARD_HAS_WIFI when it carries an integrated radio

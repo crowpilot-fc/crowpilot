@@ -22,8 +22,9 @@ can cause serious injury.
 - MCU: RP2350, dual Cortex-M33 at 150 MHz with a hardware FPU. The RP2040 is
   not supported.
 - Boards: WeAct RP2350A_V10 (the `Config.h` default), Waveshare RP2350-Tiny,
-  and Raspberry Pi Pico 2 W (RP2350A with onboard WiFi, which serves the
-  companion UI itself, so no separate companion board is needed).
+  Raspberry Pi Pico 2 W (RP2350A with onboard WiFi, which serves the companion
+  UI itself, so no separate companion board is needed), and the SmartElex
+  RP2350A NEO (a small 16-GPIO board for a basic plane).
 - Sensors: MPU-6500 or MPU-6050 IMU, optional BMP388 or BMP280 barometer, all
   on I2C0. Receiver: SBUS (decoded by an RP2350 PIO state machine) or CRSF
   (Crossfire / ELRS), selected by `RX_PROTOCOL`.

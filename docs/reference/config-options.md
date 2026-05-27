@@ -17,7 +17,7 @@ are `constexpr` constants in namespace `cp`.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `BOARD` | `BOARD_WEACT_RP2350A_V10` | Selects the pin map. Other choices: `BOARD_WAVESHARE_RP2350_TINY`, and `BOARD_PICO2W` (RP2350A with an onboard WiFi radio). Overridable from a build flag (`-DBOARD=...`). |
+| `BOARD` | `BOARD_WEACT_RP2350A_V10` | Selects the pin map. Other choices: `BOARD_WAVESHARE_RP2350_TINY`, `BOARD_PICO2W` (RP2350A with an onboard WiFi radio), and `BOARD_SMARTELEX_RP2350A_NEO` (small 16-GPIO board, external status LED). Overridable from a build flag (`-DBOARD=...`). |
 
 ## Build target
 
