@@ -470,10 +470,11 @@ function renderParam(p) {
 // Telemetry tab
 // ---------------------------------------------------------------------------
 
-// "cp tlm <roll> <pitch> <yaw> <armed> <fs> <mode> <loop_us> <ch1..ch6>"
-// Newer firmware appends instrument fields (alt, yaw rate, accel) after
-// the channels; accept any line with at least the original 15 tokens and
-// ignore the extras.
+// "cp tlm <roll> <pitch> <yaw> <armed> <fs> <mode> <loop_us> <ch1..ch6>
+//  <alt> <yaw_rate> <ax> <ay> <az> <arm> <stab> <trans> <alt_hold>"
+// The instrument fields (alt, yaw rate, accel) follow the six channels, and
+// the four high role channels follow those. Accept any line with at least the
+// original 15 tokens and treat the later groups as optional.
 function handleTelemetry(line) {
   const t = line.split(/\s+/);
   if (t.length < 15) {
@@ -493,6 +494,13 @@ function handleTelemetry(line) {
   for (let i = 0; i < 6; i++) {
     updateChannel(i, parseInt(t[9 + i], 10));
   }
+  // The high role channels are appended after the five instrument fields
+  // (tokens 15 through 19), so they start at token 20.
+  if (t.length >= 24) {
+    ROLE_CHANNELS.forEach((key, i) => {
+      updateChannel(key, parseInt(t[20 + i], 10));
+    });
+  }
 }
 
 function setBadge(el, text, cls) {
@@ -500,38 +508,56 @@ function setBadge(el, text, cls) {
   el.className = 'badge ' + cls;
 }
 
+// The high role channels carried at the end of the telemetry line. Labelled
+// by role, not channel number, because the firmware sends whichever channel
+// is configured for each role, so the label stays correct after a remap.
+const ROLE_CHANNELS = ['arm', 'stab', 'trans', 'alt'];
+const ROLE_LABELS = {
+  arm: 'Arm',
+  stab: 'Stab',
+  trans: 'Transition',
+  alt: 'Alt hold',
+};
+
+function makeChannelRow(idSuffix, labelText) {
+  const row = document.createElement('div');
+  row.className = 'chan';
+
+  const label = document.createElement('span');
+  label.className = 'chan-label';
+  label.textContent = labelText;
+
+  const track = document.createElement('div');
+  track.className = 'chan-track';
+  const fill = document.createElement('div');
+  fill.className = 'chan-fill';
+  fill.id = 'chan-fill-' + idSuffix;
+  track.appendChild(fill);
+
+  const val = document.createElement('span');
+  val.className = 'chan-val';
+  val.id = 'chan-val-' + idSuffix;
+  val.textContent = '----';
+
+  row.appendChild(label);
+  row.appendChild(track);
+  row.appendChild(val);
+  els.tChannels.appendChild(row);
+}
+
 function buildChannelRows() {
   els.tChannels.innerHTML = '';
   for (let i = 0; i < 6; i++) {
-    const row = document.createElement('div');
-    row.className = 'chan';
-
-    const label = document.createElement('span');
-    label.className = 'chan-label';
-    label.textContent = 'Ch' + (i + 1);
-
-    const track = document.createElement('div');
-    track.className = 'chan-track';
-    const fill = document.createElement('div');
-    fill.className = 'chan-fill';
-    fill.id = 'chan-fill-' + i;
-    track.appendChild(fill);
-
-    const val = document.createElement('span');
-    val.className = 'chan-val';
-    val.id = 'chan-val-' + i;
-    val.textContent = '----';
-
-    row.appendChild(label);
-    row.appendChild(track);
-    row.appendChild(val);
-    els.tChannels.appendChild(row);
+    makeChannelRow(i, 'Ch' + (i + 1));
+  }
+  for (const key of ROLE_CHANNELS) {
+    makeChannelRow(key, ROLE_LABELS[key]);
   }
 }
 
-function updateChannel(i, us) {
-  const fill = document.getElementById('chan-fill-' + i);
-  const val = document.getElementById('chan-val-' + i);
+function updateChannel(idSuffix, us) {
+  const fill = document.getElementById('chan-fill-' + idSuffix);
+  const val = document.getElementById('chan-val-' + idSuffix);
   if (!fill || !val || Number.isNaN(us)) {
     return;
   }

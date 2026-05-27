@@ -75,6 +75,27 @@ const char* modeName(cp::modes::FlightMode m) {
   return "?";
 }
 
+// Print the high role-switch channels by their configured indices. The
+// channel list above only shows the first six, so arm, stabilizer,
+// transition, and altitude-hold (which sit on high channels) would be
+// invisible. The bench-test procedure verifies these switches, so the debug
+// output has to show them. Format: roles[arm16=2000 stab14=1500 ...].
+void printRoleChannels(const uint16_t* ch) {
+  Serial.print(" roles[arm");
+  Serial.print(static_cast<unsigned>(CHANNEL_ARM));
+  Serial.print("=");   Serial.print(ch[CHANNEL_ARM - 1]);
+  Serial.print(" stab");
+  Serial.print(static_cast<unsigned>(CHANNEL_STAB));
+  Serial.print("=");   Serial.print(ch[CHANNEL_STAB - 1]);
+  Serial.print(" trans");
+  Serial.print(static_cast<unsigned>(CHANNEL_TRANSITION));
+  Serial.print("=");   Serial.print(ch[CHANNEL_TRANSITION - 1]);
+  Serial.print(" alt");
+  Serial.print(static_cast<unsigned>(CHANNEL_ALT_HOLD));
+  Serial.print("=");   Serial.print(ch[CHANNEL_ALT_HOLD - 1]);
+  Serial.print("]");
+}
+
 // Serial debug output. Each block is gated on a compile-time flag in
 // Config.h and on a live USB serial connection, and is rate-limited.
 // Called once per tick.
@@ -126,7 +147,9 @@ void debugOutput() {
         Serial.print(",");
       }
     }
-    Serial.print("] fader="); Serial.print(cp::modes::fader(), 2);
+    Serial.print("]");
+    printRoleChannels(ch);
+    Serial.print(" fader="); Serial.print(cp::modes::fader(), 2);
     Serial.print(" mode=");   Serial.print(modeName(cp::modes::mode()));
     Serial.print(" armed=");
     Serial.print(cp::actuators::arm_state() == cp::actuators::ArmState::ARMED
@@ -182,7 +205,9 @@ void debugOutput() {
         Serial.print(",");
       }
     }
-    Serial.print("] valid="); Serial.print(rx.channels_valid ? 1 : 0);
+    Serial.print("]");
+    printRoleChannels(rx.channel_us);
+    Serial.print(" valid="); Serial.print(rx.channels_valid ? 1 : 0);
     Serial.print(" fs=");     Serial.print(rx.failsafe_active ? 1 : 0);
     Serial.print(" fl=");     Serial.print(rx.frame_lost_flag ? 1 : 0);
     Serial.print(" lost=");   Serial.println(rx.lost_frames_count);
@@ -205,7 +230,9 @@ void debugOutput() {
         Serial.print(",");
       }
     }
-    Serial.println("]");
+    Serial.print("]");
+    printRoleChannels(ch.ch_us);
+    Serial.println();
   }
 #endif
 
@@ -281,14 +308,20 @@ void debugOutput() {
     dtostrf(imu.ax_g,        0, 2, ax);    // accel x/y/z for slip and G-load
     dtostrf(imu.ay_g,        0, 2, ay);
     dtostrf(imu.az_g,        0, 2, az);
-    char line[220];
+    char line[256];
+    // The trailing arm/stab/transition/alt-hold fields carry the high role
+    // channels so the live configurator and phone views can show the
+    // safety switches, which sit above the first six channels.
     snprintf(line, sizeof(line),
-             "cp tlm %s %s %s %d %d %s %lu %d %d %d %d %d %d %s %s %s %s %s",
+             "cp tlm %s %s %s %d %d %s %lu %d %d %d %d %d %d %s %s %s %s %s "
+             "%d %d %d %d",
              roll, pitch, yaw, armed ? 1 : 0, fs.active ? 1 : 0,
              modeName(cp::modes::mode()),
              static_cast<unsigned long>(s_loop_period_us),
              ch[0], ch[1], ch[2], ch[3], ch[4], ch[5],
-             alt, gz, ax, ay, az);
+             alt, gz, ax, ay, az,
+             ch[CHANNEL_ARM - 1], ch[CHANNEL_STAB - 1],
+             ch[CHANNEL_TRANSITION - 1], ch[CHANNEL_ALT_HOLD - 1]);
     cp::cli::emit_telemetry(line);
   }
 #endif

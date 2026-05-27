@@ -105,8 +105,9 @@ function createMockDevice() {
   }
 
   // One synthetic telemetry line in the firmware cp tlm format:
-  // roll pitch yaw armed failsafe mode loop_us ch1..ch6. The values
-  // gently animate so the Telemetry tab visibly updates.
+  //   roll pitch yaw armed failsafe mode loop_us ch1..ch6
+  //   alt yaw_rate ax ay az arm stab trans alt_hold
+  // The values gently animate so the Telemetry tab visibly updates.
   let tlmPhase = 0;
   function telemetry() {
     tlmPhase += 0.12;
@@ -122,8 +123,22 @@ function createMockDevice() {
       1000,
       1900,
     ];
+    // Instrument fields: altitude, yaw rate, and the three body accelerations.
+    const alt = (Math.sin(tlmPhase * 0.3) * 2 + 2).toFixed(1);
+    const gz = (Math.sin(tlmPhase * 1.1) * 20).toFixed(1);
+    const ax = (Math.sin(tlmPhase) * 0.05).toFixed(2);
+    const ay = (Math.cos(tlmPhase) * 0.05).toFixed(2);
+    const az = (1 + Math.sin(tlmPhase * 0.4) * 0.05).toFixed(2);
+    // High role channels: arm held armed, stabilizer toggling, transition at
+    // the hover end, altitude-hold off.
+    const arm = 1000;
+    const stab = Math.sin(tlmPhase * 0.2) > 0 ? 1000 : 2000;
+    const trans = 2000;
+    const altHold = 1000;
     return 'cp tlm ' + roll + ' ' + pitch + ' ' + yaw +
-           ' 0 0 hover ' + loop + ' ' + ch.join(' ');
+           ' 0 0 hover ' + loop + ' ' + ch.join(' ') +
+           ' ' + alt + ' ' + gz + ' ' + ax + ' ' + ay + ' ' + az +
+           ' ' + arm + ' ' + stab + ' ' + trans + ' ' + altHold;
   }
 
   return { handle, telemetry };
