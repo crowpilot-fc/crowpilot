@@ -135,6 +135,15 @@ void init() {
   s_gyro_notch_z.configure(GYRO_NOTCH_CENTER_HZ, fs, GYRO_NOTCH_Q);
 }
 
+void setGyroNotchCenter(float center_hz) {
+  // retune() recomputes the coefficients but keeps the filter state, so the
+  // notch can follow the motor frequency without a discontinuity at each step.
+  const float fs = static_cast<float>(LOOP_HZ);
+  s_gyro_notch_x.retune(center_hz, fs, DYN_NOTCH_Q);
+  s_gyro_notch_y.retune(center_hz, fs, DYN_NOTCH_Q);
+  s_gyro_notch_z.retune(center_hz, fs, DYN_NOTCH_Q);
+}
+
 void update(float gx_dps, float gy_dps, float gz_dps,
             float ax_g, float ay_g, float az_g,
             float dt_s) {

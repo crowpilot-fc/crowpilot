@@ -77,6 +77,12 @@ const Quaternion& quaternion();
 // The most recent body rates (the calibrated gyro sample).
 const BodyRates& bodyRates();
 
+// Move the gyro notch to a new center frequency at runtime, on all three
+// axes, without clearing the filter state. The RPM-tracking dynamic notch
+// calls this. A non-positive center disables the notch. The notch Q and the
+// loop sample rate are fixed from Config.h.
+void setGyroNotchCenter(float center_hz);
+
 // Forward-flight Euler view. Standard aircraft 3-2-1 angles extracted
 // from the estimate. Zero when the airframe is wings-level in forward
 // flight. Well-conditioned in the forward regime, singular at the hover

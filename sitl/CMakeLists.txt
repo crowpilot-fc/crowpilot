@@ -41,6 +41,7 @@ add_executable(crowpilot_sitl
   ${REPO_ROOT}/src/sensors/Barometer.cpp
   ${REPO_ROOT}/src/radio/Receiver.cpp
   ${REPO_ROOT}/src/estimation/Attitude.cpp
+  ${REPO_ROOT}/src/estimation/DynamicNotch.cpp
   ${REPO_ROOT}/src/failsafe/Failsafe.cpp
   ${REPO_ROOT}/src/modes/FlightMode.cpp
   ${REPO_ROOT}/src/control/DesiredState.cpp

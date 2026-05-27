@@ -15,6 +15,9 @@
 #include "src/control/Pid.h"
 #include "src/control/RatePid.h"
 #include "src/estimation/Attitude.h"
+#if ENABLE_DYNAMIC_NOTCH
+#include "src/estimation/DynamicNotch.h"
+#endif
 #include "src/failsafe/Failsafe.h"
 #include "src/hal/Led.h"
 #include "src/modes/FlightMode.h"
@@ -346,6 +349,9 @@ void init() {
   }
 
   cp::estimation::attitude::init();
+#if ENABLE_DYNAMIC_NOTCH
+  cp::estimation::dynnotch::init();
+#endif
   cp::control::desired::init();
   cp::control::pid::init();
   cp::control::rate::init();
@@ -422,6 +428,12 @@ void tick() {
     cp::estimation::attitude::update(s.gx_dps, s.gy_dps, s.gz_dps,
                                      s.ax_g, s.ay_g, s.az_g, dt_s);
   }
+
+#if ENABLE_DYNAMIC_NOTCH
+  // Retune the gyro notch to the motor frequency from bidirectional DShot.
+  // Reads last tick's eRPM and applies to next tick's gyro filtering.
+  cp::estimation::dynnotch::update();
+#endif
 
   // Pilot setpoints.
   cp::control::desired::update(channels);

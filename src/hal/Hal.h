@@ -94,4 +94,11 @@ void     out_set_motor_us(uint8_t idx, uint16_t pulse_us);
 void     out_set_servo_us(uint8_t idx, uint16_t pulse_us);
 void     out_commit_motors();
 
+// Last electrical RPM reported by motor idx over bidirectional DShot, or 0
+// when there is no telemetry (any other protocol, telemetry off, or no valid
+// frame received yet). The dynamic notch reads this. The SITL HAL returns a
+// synthetic eRPM derived from the motor command so the notch can be exercised
+// in simulation.
+uint32_t out_get_erpm(uint8_t idx);
+
 }  // namespace cp::hal

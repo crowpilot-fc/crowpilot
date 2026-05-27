@@ -49,24 +49,24 @@ class Pt1 {
 // Higher Q is a narrower, more surgical notch.
 class BiquadNotch {
  public:
+  // Set the notch and clear the filter state. Use at init or when the notch
+  // is first switched on.
   void configure(float center_hz, float sample_hz, float q) {
-    if (center_hz <= 0.0f || sample_hz <= 0.0f || q <= 0.0f) {
+    if (!computeCoeffs(center_hz, sample_hz, q)) {
       enabled_ = false;
       return;
     }
-    const float w0    = kTwoPi * center_hz / sample_hz;
-    const float cw    = cosf(w0);
-    const float sw    = sinf(w0);
-    const float alpha = sw / (2.0f * q);
-    const float a0    = 1.0f + alpha;
-    b0_ = 1.0f / a0;
-    b1_ = (-2.0f * cw) / a0;
-    b2_ = 1.0f / a0;
-    a1_ = (-2.0f * cw) / a0;
-    a2_ = (1.0f - alpha) / a0;
     z1_ = 0.0f;
     z2_ = 0.0f;
     enabled_ = true;
+  }
+
+  // Move the notch to a new center without clearing the filter state, for a
+  // dynamic notch that tracks a changing vibration frequency. Preserving the
+  // state across a small step keeps the output continuous (no click). Bad
+  // arguments disable the notch, same as configure().
+  void retune(float center_hz, float sample_hz, float q) {
+    enabled_ = computeCoeffs(center_hz, sample_hz, q);
   }
 
   float apply(float x) {
@@ -84,7 +84,30 @@ class BiquadNotch {
     z2_ = 0.0f;
   }
 
+  bool enabled() const {
+    return enabled_;
+  }
+
  private:
+  // Recompute the biquad coefficients for a notch. Returns false (and leaves
+  // the coefficients untouched) for a non-positive center, sample rate, or Q.
+  bool computeCoeffs(float center_hz, float sample_hz, float q) {
+    if (center_hz <= 0.0f || sample_hz <= 0.0f || q <= 0.0f) {
+      return false;
+    }
+    const float w0    = kTwoPi * center_hz / sample_hz;
+    const float cw    = cosf(w0);
+    const float sw    = sinf(w0);
+    const float alpha = sw / (2.0f * q);
+    const float a0    = 1.0f + alpha;
+    b0_ = 1.0f / a0;
+    b1_ = (-2.0f * cw) / a0;
+    b2_ = 1.0f / a0;
+    a1_ = (-2.0f * cw) / a0;
+    a2_ = (1.0f - alpha) / a0;
+    return true;
+  }
+
   float b0_ = 1.0f, b1_ = 0.0f, b2_ = 0.0f;
   float a1_ = 0.0f, a2_ = 0.0f;
   float z1_ = 0.0f, z2_ = 0.0f;

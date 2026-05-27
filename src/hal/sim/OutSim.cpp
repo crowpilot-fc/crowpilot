@@ -12,11 +12,16 @@
 
 #if BUILD_TARGET == BUILD_TARGET_HIL || BUILD_TARGET == BUILD_TARGET_SITL
 
+#include "src/airframes/Airframe.h"
 #include "src/hal/sim/SimPhysics.h"
 
 namespace cp::hal {
 
 namespace {
+
+// Last normalised motor command, kept so out_get_erpm can synthesise a
+// plausible eRPM for the dynamic-notch path in simulation.
+float s_motor_norm[cp::airframes::N_MOTORS] = {};
 
 // Motor pulse to normalised thrust, using the configured ESC pulse
 // range so it tracks MOTOR_PROTOCOL. Idle is zero thrust, max is full.
@@ -36,10 +41,18 @@ float servoDeflection(uint16_t pulse_us) {
 
 }  // anonymous namespace
 
-void out_init() {}
+void out_init() {
+  for (uint8_t i = 0; i < cp::airframes::N_MOTORS; ++i) {
+    s_motor_norm[i] = 0.0f;
+  }
+}
 
 void out_set_motor_us(uint8_t idx, uint16_t pulse_us) {
-  cp::sim::physics_set_motor(idx, motorNorm(pulse_us));
+  const float n = motorNorm(pulse_us);
+  if (idx < cp::airframes::N_MOTORS) {
+    s_motor_norm[idx] = n;
+  }
+  cp::sim::physics_set_motor(idx, n);
 }
 
 void out_set_servo_us(uint8_t idx, uint16_t pulse_us) {
@@ -48,6 +61,18 @@ void out_set_servo_us(uint8_t idx, uint16_t pulse_us) {
 
 void out_commit_motors() {
   cp::sim::physics_step(1.0f / static_cast<float>(LOOP_HZ));
+}
+
+uint32_t out_get_erpm(uint8_t idx) {
+  // Synthesise an eRPM from the motor command so the dynamic notch can be
+  // exercised in SITL. A stopped motor reports 0. A running motor maps the
+  // command onto a plausible 6000 to 24000 mechanical RPM band (100 to 400 Hz
+  // fundamental), then scales by the pole pairs to electrical RPM.
+  if (idx >= cp::airframes::N_MOTORS || s_motor_norm[idx] <= 0.0f) {
+    return 0;
+  }
+  const float mech_rpm = 6000.0f + s_motor_norm[idx] * 18000.0f;
+  return static_cast<uint32_t>(mech_rpm * static_cast<float>(MOTOR_POLE_PAIRS));
 }
 
 }  // namespace cp::hal

@@ -433,7 +433,28 @@ constexpr float DIFF_THRUST_GAIN = 0.20f;
   #define MOTOR_PROTOCOL MOTOR_PROTOCOL_PWM
 #endif
 
+// True for either DShot rate. Shared by the HAL output stage and the bidir
+// and dynamic-notch guards below.
+#if MOTOR_PROTOCOL == MOTOR_PROTOCOL_DSHOT300 || \
+    MOTOR_PROTOCOL == MOTOR_PROTOCOL_DSHOT600
+  #define MOTOR_PROTOCOL_IS_DSHOT 1
+#else
+  #define MOTOR_PROTOCOL_IS_DSHOT 0
+#endif
+
 #define ENABLE_ESC_CALIBRATION 0
+
+// ENABLE_DSHOT_BIDIR turns on bidirectional DShot: after each command frame
+// the ESC replies on the same wire with its electrical RPM, which feeds the
+// RPM-tracking dynamic notch. It needs a DShot protocol and a BLHeli_S or
+// BLHeli_32 ESC flashed for bidirectional telemetry. MOTOR_POLE_PAIRS (below)
+// converts the reported eRPM to a mechanical frequency. Native-only and
+// bench-verified.
+#define ENABLE_DSHOT_BIDIR 0
+
+#if ENABLE_DSHOT_BIDIR && !MOTOR_PROTOCOL_IS_DSHOT
+  #error "ENABLE_DSHOT_BIDIR needs MOTOR_PROTOCOL_DSHOT300 or _DSHOT600."
+#endif
 
 namespace cp {
 
@@ -457,6 +478,11 @@ constexpr uint32_t DSHOT_BITRATE_HZ = 300000;  // DShot300 line rate.
 #elif MOTOR_PROTOCOL == MOTOR_PROTOCOL_DSHOT600
 constexpr uint32_t DSHOT_BITRATE_HZ = 600000;  // DShot600 line rate.
 #endif
+
+// Magnet pole pairs of the motors, for converting bidirectional-DShot eRPM
+// to mechanical RPM and frequency: mechanical_hz = eRPM / (60 * pole_pairs).
+// A common 14-magnet outrunner has 7 pole pairs. Set this for your motor.
+constexpr uint32_t MOTOR_POLE_PAIRS = 7;
 
 constexpr uint16_t SERVO_MIN_US = 1000;        // Servo PWM at command 0.
 constexpr uint16_t SERVO_MAX_US = 2000;        // Servo PWM at command 1.
@@ -506,6 +532,18 @@ constexpr uint32_t USER_HOOK_HARD_LIMIT_US = 250;
 // FFT). It runs before the low-pass. 0 disables it, which is the right
 // default until a peak has been measured for the airframe. GYRO_NOTCH_Q sets
 // the width: higher is narrower and adds less phase lag away from the peak.
+//
+// ENABLE_DYNAMIC_NOTCH moves that gyro notch in real time to track the motor
+// frequency reported by bidirectional DShot, instead of sitting at a fixed
+// GYRO_NOTCH_CENTER_HZ. The motor vibration peak rises and falls with
+// throttle, so a tracking notch stays on the peak across the throttle range
+// where a fixed notch only catches one RPM. It needs ENABLE_DSHOT_BIDIR and a
+// DShot protocol; with no eRPM telemetry it does nothing and the fixed notch
+// (if any) stays in effect. The tracking frequency is the mean of the motor
+// frequencies, clamped to [DYN_NOTCH_MIN_HZ, DYN_NOTCH_MAX_HZ] and slew-rate
+// limited by DYN_NOTCH_MAX_SLEW_HZ_PER_S so the notch never jumps.
+
+#define ENABLE_DYNAMIC_NOTCH 0
 
 namespace cp {
 
@@ -514,6 +552,13 @@ constexpr float MADGWICK_BETA = 0.10f;
 constexpr float GYRO_LPF_CUTOFF_HZ   = 90.0f;
 constexpr float GYRO_NOTCH_CENTER_HZ = 0.0f;  // 0 = disabled until measured.
 constexpr float GYRO_NOTCH_Q         = 3.0f;
+
+// Dynamic (RPM-tracking) gyro notch. Used only when ENABLE_DYNAMIC_NOTCH is 1.
+constexpr float    DYN_NOTCH_MIN_HZ            = 80.0f;   // floor, ignores ground idle
+constexpr float    DYN_NOTCH_MAX_HZ           = 500.0f;  // ceiling, below the loop Nyquist
+constexpr float    DYN_NOTCH_Q                = 3.0f;    // width, as for the fixed notch
+constexpr float    DYN_NOTCH_MAX_SLEW_HZ_PER_S = 2000.0f; // limits how fast the center moves
+constexpr uint32_t DYN_NOTCH_UPDATE_DIV       = 4;       // retune every Nth loop tick
 
 }  // namespace cp
 

@@ -45,4 +45,34 @@ uint16_t buildFrame(uint16_t value11, bool telemetry);
 uint16_t microsecondsToThrottle(uint16_t pulse_us, uint16_t idle_us,
                                 uint16_t max_us);
 
+// ---------------------------------------------------------------------------
+// Bidirectional DShot
+// ---------------------------------------------------------------------------
+// In bidirectional DShot the command frame is the same 16 bits but the CRC is
+// inverted, and the physical line is inverted (idle high). The inverted CRC
+// tells the ESC to reply, after the frame, with a GCR-encoded eRPM telemetry
+// packet on the same wire. The line inversion is handled by the PIO program.
+// These helpers cover the bit-level encode and decode, which is pure integer
+// code and host-tested. The PIO turnaround and bit sampling are verified on
+// the bench.
+
+// Build a bidirectional-DShot command frame: same value, telemetry bit clear,
+// CRC inverted.
+uint16_t buildFrameBidir(uint16_t value11);
+
+// Undo the differential line coding the ESC uses for the telemetry reply:
+// each set bit in the running XOR marks a level change. Returns the GCR value.
+uint32_t gcrDifferentialDecode(uint32_t raw);
+
+// Map one 5-bit GCR quintet to its 4-bit nibble. Returns -1 for an invalid
+// quintet (a corrupted reply).
+int gcrQuintetToNibble(uint8_t quintet);
+
+// Decode a 20-bit GCR telemetry value (four quintets) to an electrical RPM.
+// Maps the quintets to a 16-bit value, verifies the 4-bit checksum, expands
+// the 12-bit period field (3-bit exponent, 9-bit mantissa) to microseconds,
+// and converts to eRPM. Returns the eRPM (0 means stopped), or -1 on an
+// invalid quintet or a failed checksum.
+int32_t decodeErpm(uint32_t gcr20);
+
 }  // namespace cp::libs::dshot

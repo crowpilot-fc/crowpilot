@@ -207,6 +207,12 @@ void out_commit_motors() {
 #endif
 }
 
+uint32_t out_get_erpm(uint8_t /*idx*/) {
+  // No eRPM telemetry on the plain (non-bidirectional) output path. The
+  // bidirectional DShot receive path fills this in.
+  return 0;
+}
+
 }  // namespace cp::hal
 
 #endif  // BUILD_TARGET == BUILD_TARGET_NATIVE
