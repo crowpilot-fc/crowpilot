@@ -71,14 +71,15 @@ If static gyro reads farther than a few dps from zero, run the IMU bias calibrat
 With the transmitter ON, ch16 HIGH, throttle stick at minimum:
 
 1. Set `DEBUG_PRINT_IMU = 0` and `DEBUG_PRINT_RX = 1` in `Config.h`. Reflash.
-2. Expected output: 10 Hz lines like `rx ch=[1000, 1500, 1500, 1500, 2000, 1500] valid=1 fs=0 fl=0 lost=0`.
+2. Expected output: 10 Hz lines like `rx ch=[1000, 1500, 1500, 1500, 2000, 1500] roles[arm16=2000 stab14=1500 trans15=1500 alt13=1500] valid=1 fs=0 fl=0 lost=0`. The `ch=[...]` list is the first six channels. The `roles[...]` group shows the high role channels by their configured indices, since those sit above channel six and would otherwise be invisible.
 3. Move each stick and switch in turn:
    - Roll stick (aileron). ch1 should sweep 1000 to 2000.
    - Pitch stick (elevator). ch2 should sweep 1000 to 2000.
    - Throttle stick. ch3 should sweep 1000 to 2000.
    - Yaw stick (rudder). ch4.
-   - Arm/cut switch. ch16 should toggle 1000 (LOW) to 2000 (HIGH).
-   - Transition switch. ch15.
+   - Arm/cut switch. `roles[arm16=...]` should toggle 1000 (LOW) to 2000 (HIGH). This is the mandatory safety switch.
+   - Stabilizer switch. `roles[stab14=...]` should toggle 1000 (stabilized) to 2000 (manual passthrough).
+   - Transition switch. `roles[trans15=...]`.
 4. Verify channel directions match your TX configuration. If a stick reads inverted, fix it on the TX side (preferred) or in `Config.h`.
 5. Confirm centered sticks read 1500 microseconds, plus or minus a few.
 
@@ -87,11 +88,11 @@ With the transmitter ON, ch16 HIGH, throttle stick at minimum:
 With the transmitter on and channels reading correctly:
 
 1. Set `DEBUG_PRINT_RX = 0` and `DEBUG_PRINT_FAILSAFE = 1`. Reflash.
-2. Expected output: `fs active=0 link_to=0 oor=0 rx_fs=0 rx_fl=0 eff=[1000, 1500, 1500, 1500, 2000, 1500]`.
-3. Power off the transmitter. Within ~200 ms the print should switch to `fs active=1 link_to=1 ... rx_fs=1` and effective channels should snap to the failsafe defaults `eff=[1300, 1500, 1500, 1500, 1000, 2000]`.
+2. Expected output: `fs active=0 link_to=0 oor=0 rx_fs=0 rx_fl=0 eff=[1500, 1500, 1000, 1500, 1500, 1500] roles[arm16=2000 stab14=1500 trans15=1500 alt13=1500]` (throttle at minimum, arm switch HIGH so disarmed).
+3. Power off the transmitter. Within ~200 ms the print should switch to `fs active=1 link_to=1 ... rx_fs=1` and the effective channels should snap to the failsafe defaults `eff=[1500, 1500, 1300, 1500, 1500, 1500] roles[arm16=1000 stab14=1500 trans15=2000 alt13=1500]`: roll, pitch, and yaw centred, throttle at 1300 for a gentle sink, the arm channel held armed so the descent stays powered, and the transition channel held at the hover end.
 4. Power the transmitter back on. Within a second `fs active=0` returns.
 
-Failsafe behavior in flight is "controlled fall": throttle pinned to ~30 percent, sticks centered, fader pinned to hover. The FC does NOT cut throttle to zero on link loss; that would slam motors off and drop the aircraft.
+Failsafe behavior in flight is "controlled fall": throttle pinned to ~30 percent, sticks centered, fader pinned to hover. The FC does NOT cut throttle to zero on link loss. That would slam motors off and drop the aircraft.
 
 ## Stage 5. Attitude estimate
 
@@ -140,11 +141,11 @@ Now connect motors to ESCs. **Propellers stay OFF.**
 
 1. Tether the airframe so it cannot tip over or jump.
 2. Power FC, then ESC battery.
-3. Verify NOT_ARMED state. Motor pulses on the scope show ~120 microseconds (below valid range).
+3. Verify NOT_ARMED state. The disarmed motor signal depends on `MOTOR_PROTOCOL`: 1000 microseconds for the default PWM, ~120 microseconds for OneShot125 (below the valid range), or the digital motor-stop command for DShot (no measurable pulse width on a scope). The motor stays stopped in every case.
 4. Arm: ch16 LOW, throttle stick at minimum. Motors should idle (visible spin or twitch at idle pulse).
 5. Throttle up slowly. Verify motor direction matches the airframe geometry (right motor clockwise, left counterclockwise when viewed from behind, for the Eclipson reference build).
 6. Verify each stick affects the correct motor differential or servo deflection in both hover and forward modes per [docs/user-guide/tuning.md](../user-guide/tuning.md).
-7. ch16 HIGH immediately disarms. Motor pulses snap back to ~120 microseconds.
+7. ch16 HIGH immediately disarms. The motor signal snaps back to the disarmed motor-stop value for the protocol (see step 3) and the motors stop.
 8. Power off TX during ARMED+low-throttle. Failsafe activates within ~200 ms. Motors hold at the failsafe-throttle value (~30 percent), not zero.
 
 ## Stage 10. Propellers on, tethered
