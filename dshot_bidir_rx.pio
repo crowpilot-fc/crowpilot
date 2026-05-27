@@ -1,0 +1,20 @@
+; SPDX-License-Identifier: GPL-3.0-or-later
+; Copyright (C) 2026 Nitin Kumar
+;
+; PIO program to oversample one ESC's bidirectional-DShot telemetry reply.
+;
+; After the command frame the CPU switches the motor pin to an input and lets
+; this free-running sampler read the line one bit per `in`, autopushing a
+; packed 32-bit word every 32 samples. The CPU drains the words captured during
+; the reply window, finds the edges, and reconstructs the 21-bit GCR frame for
+; the decode in src/libs/Dshot (gcrDifferentialDecode then decodeErpm).
+;
+; The sample clock (clkdiv) is set to a bench-tuned oversample of the telemetry
+; bit rate. The telemetry bit rate, the turnaround delay, and the samples per
+; bit are all BENCH-TUNED constants in OutNative.cpp: they cannot be verified
+; in simulation and need a logic-analyzer or a real ESC to pin down.
+
+.program dshot_bidir_rx
+.wrap_target
+    in pins, 1
+.wrap

@@ -1,0 +1,31 @@
+; SPDX-License-Identifier: GPL-3.0-or-later
+; Copyright (C) 2026 Nitin Kumar
+;
+; PIO program to clock out a bidirectional-DShot command frame to one ESC.
+;
+; Bidirectional DShot inverts the line: it idles HIGH and the active pulse is
+; LOW, the opposite of plain DShot (see dshot.pio). The bit timing is the same
+; eight-cycle scheme, only the side-set polarity is flipped. A 1 is low for six
+; of eight cycles (0.75), a 0 is low for three of eight (0.375). The command
+; frame also carries an inverted CRC (built by buildFrameBidir), which is what
+; tells the ESC to reply with eRPM telemetry after the frame. The reply is
+; captured by the separate dshot_bidir_rx program once the CPU switches the pin
+; to an input.
+;
+; clkdiv = sys_clk / (bitrate * 8), the same as dshot.pio. The frame sits in
+; the top 16 bits of each FIFO word (frame << 16), shifted out MSB first with
+; autopull at threshold 16. With no frame queued the program stalls on `out`
+; with side 1, holding the line high (the inverted idle).
+
+.program dshot_bidir
+.side_set 1
+
+.wrap_target
+bitloop:
+    out x, 1       side 1 [1]   ; T3: high tail / idle, pull next bit (autopull)
+    jmp !x do_zero side 0 [2]   ; T1: go low (pulse start), branch on the bit
+do_one:
+    jmp  bitloop   side 0 [2]   ; T2: stay low for a 1 (long low)
+do_zero:
+    nop            side 1 [2]   ; T2: back high for a 0 (short low)
+.wrap

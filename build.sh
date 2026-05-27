@@ -23,8 +23,10 @@ FQBN="rp2040:rp2040:generic_rp2350"
 PIOASM="$(find "$HOME/Library/Arduino15/packages/rp2040/tools/pqt-pioasm" \
   -name pioasm -type f 2>/dev/null | head -1 || true)"
 if [ -n "${PIOASM}" ]; then
-  "${PIOASM}" -o c-sdk "${SKETCH_DIR}/sbus_rx.pio" "${SKETCH_DIR}/sbus_rx.pio.h"
-  "${PIOASM}" -o c-sdk "${SKETCH_DIR}/dshot.pio"   "${SKETCH_DIR}/dshot.pio.h"
+  "${PIOASM}" -o c-sdk "${SKETCH_DIR}/sbus_rx.pio"       "${SKETCH_DIR}/sbus_rx.pio.h"
+  "${PIOASM}" -o c-sdk "${SKETCH_DIR}/dshot.pio"         "${SKETCH_DIR}/dshot.pio.h"
+  "${PIOASM}" -o c-sdk "${SKETCH_DIR}/dshot_bidir.pio"    "${SKETCH_DIR}/dshot_bidir.pio.h"
+  "${PIOASM}" -o c-sdk "${SKETCH_DIR}/dshot_bidir_rx.pio" "${SKETCH_DIR}/dshot_bidir_rx.pio.h"
 else
   echo "note: pioasm not found, using the committed .pio.h headers" >&2
 fi
