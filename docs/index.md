@@ -136,6 +136,14 @@ New here? Work through the getting-started path in order:
 4. [Flashing](getting-started/flashing.md) - getting the firmware onto the board.
 5. [Caribou Bench Test](getting-started/caribou-bench-test.md) - the smoke test before propellers go on, for the current first-flight airframe. The carried tailsitter has its own [bench test](getting-started/first-bench-test.md).
 
+### Setup guides
+
+One end-to-end guide per build type: wiring, channel plan, `Config.h`, and the modes.
+
+- [Simple fixed-wing plane](getting-started/setup-simple-plane.md) - a single-motor AETR plane on a Tiny or NEO with an MPU.
+
+More setup guides (Caribou twin, flying wing, quad, tailsitter) are added here as they are written.
+
 ## Documentation map
 
 - **Getting Started** takes you from an empty bench to a flashed, bench-verified flight controller: [what it is](getting-started/what-is-crowpilot.md), [BOM](getting-started/hardware-bom.md), [wiring](getting-started/wiring.md), [flashing](getting-started/flashing.md), [bench test](getting-started/caribou-bench-test.md).
