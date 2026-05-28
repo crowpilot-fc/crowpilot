@@ -6,6 +6,8 @@
 #include <math.h>
 
 #include "src/Config.h"
+#include "src/params/LiveTune.h"
+#include "src/params/Params.h"
 
 namespace cp::control::plane_stab {
 
@@ -102,21 +104,38 @@ void update(const cp::estimation::attitude::Euler& euler,
     return;
   }
 
+  // Gains from the runtime registry, scaled by the live-tune multipliers, so a
+  // transmitter knob (or a configurator slider) adjusts them in flight. The P
+  // knob scales the P gains, the D knob the D gains, exactly as for the
+  // tailsitter PID. The registry value is the base; the knob is a multiplier
+  // on top.
+  namespace pr = cp::params;
+  const float kp_mult = cp::params::live::kpMultiplier();
+  const float kd_mult = cp::params::live::kdMultiplier();
+
+  const float kp_roll       = pr::get(pr::KP_ROLL_PLANE)       * kp_mult;
+  const float kd_roll       = pr::get(pr::KD_ROLL_PLANE)       * kd_mult;
+  const float kp_pitch      = pr::get(pr::KP_PITCH_PLANE)      * kp_mult;
+  const float kd_pitch      = pr::get(pr::KD_PITCH_PLANE)      * kd_mult;
+  const float kd_yaw        = pr::get(pr::KD_YAW_PLANE)        * kd_mult;
+  const float kp_rate_roll  = pr::get(pr::KP_RATE_ROLL_PLANE)  * kp_mult;
+  const float kp_rate_pitch = pr::get(pr::KP_RATE_PITCH_PLANE) * kp_mult;
+
   // Angle-mode command per axis: drive the measured attitude toward the
   // pilot's angle setpoint, D on the measured body rate to avoid derivative
   // kick. This is the wing leveler and pitch-attitude hold.
-  const float angle_roll = KP_STAB_ROLL * (desired.roll_deg - euler.roll_deg) -
-                           KD_STAB_ROLL * rates.roll_dps;
+  const float angle_roll = kp_roll * (desired.roll_deg - euler.roll_deg) -
+                           kd_roll * rates.roll_dps;
   const float angle_pitch =
-      KP_STAB_PITCH * (desired.pitch_deg - euler.pitch_deg) -
-      KD_STAB_PITCH * rates.pitch_dps;
+      kp_pitch * (desired.pitch_deg - euler.pitch_deg) -
+      kd_pitch * rates.pitch_dps;
 
   // Rate-mode command per axis: the stick commands a body rate up to
   // PLANE_RATE_MAX_DPS and a proportional law drives the rate error. No
   // self-leveling.
-  const float rate_roll = KP_PLANE_RATE_ROLL *
+  const float rate_roll = kp_rate_roll *
       (desired.roll_passthru * PLANE_RATE_MAX_DPS - rates.roll_dps);
-  const float rate_pitch = KP_PLANE_RATE_PITCH *
+  const float rate_pitch = kp_rate_pitch *
       (desired.pitch_passthru * PLANE_RATE_MAX_DPS - rates.pitch_dps);
 
   float roll_cmd;
@@ -138,7 +157,7 @@ void update(const cp::estimation::attitude::Euler& euler,
   // Yaw damper, active in every stabilized mode. No heading hold in v1; the
   // rudder term simply opposes the measured yaw rate to take the wallow out
   // of the airframe.
-  float yaw_cmd = -KD_STAB_YAW * rates.yaw_dps;
+  float yaw_cmd = -kd_yaw * rates.yaw_dps;
 
 #if ENABLE_TURN_COORDINATION
   // Coordinated-turn feedforward in the self-leveling modes: auto-rudder plus

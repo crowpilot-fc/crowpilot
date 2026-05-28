@@ -34,3 +34,15 @@ CP_PARAM(KD_YAW_FF,      "kd_yaw_ff",      Kd_yaw_ff,      0.0f, 1.0f, 1)
 CP_PARAM(KI_ROLL,        "ki_roll",        Ki_roll,        0.0f, 1.0f, 1)
 CP_PARAM(KI_PITCH,       "ki_pitch",       Ki_pitch,       0.0f, 1.0f, 1)
 CP_PARAM(KI_YAW,         "ki_yaw",         Ki_yaw,         0.0f, 1.0f, 1)
+
+// Plane stabilizer gains. Registered so the configurator sliders and the
+// transmitter live-tune knobs adjust them at runtime, the same way they do the
+// tailsitter PID above. The enumerator names differ from the Config.h
+// constexpr defaults (which supply the initial values) to avoid a name clash.
+CP_PARAM(KP_ROLL_PLANE,  "kp_stab_roll",   KP_STAB_ROLL,        0.0f, 4.0f, 1)
+CP_PARAM(KD_ROLL_PLANE,  "kd_stab_roll",   KD_STAB_ROLL,        0.0f, 1.0f, 1)
+CP_PARAM(KP_PITCH_PLANE, "kp_stab_pitch",  KP_STAB_PITCH,       0.0f, 4.0f, 1)
+CP_PARAM(KD_PITCH_PLANE, "kd_stab_pitch",  KD_STAB_PITCH,       0.0f, 1.0f, 1)
+CP_PARAM(KD_YAW_PLANE,   "kd_stab_yaw",    KD_STAB_YAW,         0.0f, 1.0f, 1)
+CP_PARAM(KP_RATE_ROLL_PLANE,  "kp_rate_roll",  KP_PLANE_RATE_ROLL,  0.0f, 0.05f, 1)
+CP_PARAM(KP_RATE_PITCH_PLANE, "kp_rate_pitch", KP_PLANE_RATE_PITCH, 0.0f, 0.05f, 1)

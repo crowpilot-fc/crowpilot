@@ -33,7 +33,20 @@ constexpr uint16_t kYawSaveThreshUs = 1150;           // hard-left yaw
 constexpr float    kChannelSpanUs   = 500.0f;         // 1500 +/- 500
 
 // Parameters scaled by the Kp and Kd multipliers. Kept explicit so the save
-// gesture knows exactly which registry entries to bake.
+// gesture knows exactly which registry entries to bake. The set matches the
+// controller the active airframe runs: the plane stabilizer gains for a plane
+// build, the tailsitter PID gains otherwise. The multiplier is read by
+// whichever controller is active, so baking the matching set keeps the knob
+// and the controller in agreement.
+#if AIRFRAME != AIRFRAME_TAILSITTER_BICOPTER && AIRFRAME != AIRFRAME_QUAD_X
+constexpr ParamId kKpParams[] = {
+  KP_ROLL_PLANE, KP_PITCH_PLANE,
+  KP_RATE_ROLL_PLANE, KP_RATE_PITCH_PLANE,
+};
+constexpr ParamId kKdParams[] = {
+  KD_ROLL_PLANE, KD_PITCH_PLANE, KD_YAW_PLANE,
+};
+#else
 constexpr ParamId kKpParams[] = {
   KP_ROLL_HOVER, KP_PITCH_HOVER, KP_YAW_HOVER,
   KP_ROLL_FF,    KP_PITCH_FF,    KP_YAW_FF,
@@ -42,6 +55,7 @@ constexpr ParamId kKdParams[] = {
   KD_ROLL_HOVER, KD_PITCH_HOVER, KD_YAW_HOVER,
   KD_ROLL_FF,    KD_PITCH_FF,    KD_YAW_FF,
 };
+#endif
 
 float multiplierFor(uint16_t channel_us, uint16_t neutral_us) {
   const float offset = (static_cast<float>(channel_us) -

@@ -185,8 +185,8 @@ tailsitter.
 | `CHANNEL_STAB` / `CHANNEL_ALT_HOLD` | `14` / `13` | Flight-mode and altitude-hold switch channels. Parked on high SBUS channels so they cannot collide with TX-side primaries or aux. |
 | `PLANE_MODE_SW_LOW/MID/HIGH` | `ANGLE` / `HORIZON` / `MANUAL` | Maps the three positions of `CHANNEL_STAB` to a flight mode: `PLANE_MODE_MANUAL` (passthrough), `PLANE_MODE_RATE` (gyro-damped, no self-level), `PLANE_MODE_ANGLE` (self-level), `PLANE_MODE_HORIZON` (angle near center stick, rate at full stick). A two-position switch reaches LOW and HIGH only. Remap to reach rate, for example MID = `PLANE_MODE_RATE`. |
 | `PLANE_MODE_SW_LOW_MAX_US` / `PLANE_MODE_SW_MID_MAX_US` | `1300` / `1700` | Microsecond thresholds between the low, middle, and high switch positions. |
-| `KP_STAB_ROLL` ... `KD_STAB_YAW` | provisional | Wing-leveler, pitch-hold, and yaw-damper gains (angle mode). |
-| `PLANE_RATE_MAX_DPS`, `KP_PLANE_RATE_ROLL/PITCH` | `180`, provisional | Full-stick body rate and the proportional gains for rate and horizon modes. |
+| `KP_STAB_ROLL` ... `KD_STAB_YAW` | provisional | Wing-leveler, pitch-hold, and yaw-damper gains (angle mode). These are the boot defaults for the runtime parameters `kp_stab_roll` ... `kd_stab_yaw`, which the configurator sets and the live-tune knobs trim. |
+| `PLANE_RATE_MAX_DPS`, `KP_PLANE_RATE_ROLL/PITCH` | `180`, provisional | Full-stick body rate and the proportional gains for rate and horizon modes. The rate gains are the defaults for the `kp_rate_roll` / `kp_rate_pitch` runtime parameters. |
 | `STAB_OUTPUT_SCALE` | `1.0` | Scales each stabilizer axis output. |
 | `ALT_CLIMB_FILTER_ALPHA`, `KP_ALT`, `KD_ALT` | provisional | Altitude-hold filter and gains. |
 | `AILERON_TRAVEL`, `ELEVATOR_TRAVEL`, `RUDDER_TRAVEL` | `0.5` | Control-surface travel. |

@@ -86,7 +86,7 @@ switches to low channels in `Config.h` to fit a small radio. Arm
 |---|---|---|
 | 5-channel | AETR + arm | `CHANNEL_ARM = 5`. The mode channel, undriven, sits at center and selects horizon (self-levels). For pure angle with no mode switch, set all three `PLANE_MODE_SW_*` to `PLANE_MODE_ANGLE`. |
 | 6-channel | + flight mode | also `CHANNEL_STAB = 6` (LOW angle, MID horizon, HIGH manual) |
-| 7-8 channel | + gain knobs | `LIVE_TUNE_CH_KP = 7`, `LIVE_TUNE_CH_KD = 8`, `ENABLE_LIVE_TUNE = 1`. See the gain note below: the knobs do not affect plane gains yet. |
+| 7-8 channel | + gain knobs | `LIVE_TUNE_CH_KP = 7`, `LIVE_TUNE_CH_KD = 8`, `ENABLE_LIVE_TUNE = 1`. The KP knob trims the P gains and the KD knob the D gains in flight. See the gain section. |
 
 ## `Config.h`
 
@@ -115,17 +115,33 @@ A two-position switch reaches angle and manual only.
 
 ## Tuning the gyro gains
 
-The plane stabilizer gains are compile-time constants in `Config.h`:
-`KP_STAB_ROLL`, `KD_STAB_ROLL`, `KP_STAB_PITCH`, `KD_STAB_PITCH`, `KD_STAB_YAW`,
-and the rate-mode gains `KP_PLANE_RATE_ROLL` and `KP_PLANE_RATE_PITCH`. Edit
-them and reflash.
+There are three ways to set the plane gains, and they work together rather than
+overriding each other. There is no onboard potentiometer on the board itself.
 
-There is no onboard gain potentiometer on the board. The transmitter live-tune
-knobs and the configurator sliders adjust gains in flight, but today they act
-on the tailsitter PID parameters only, not the plane stabilizer, so on a plane
-they have no effect yet. Tune plane gains in `Config.h` for now. Start low, fly
-in angle mode, raise each gain until the surfaces just begin to oscillate, then
-back off about a third.
+1. **`Config.h` (the defaults).** `KP_STAB_ROLL`, `KD_STAB_ROLL`,
+   `KP_STAB_PITCH`, `KD_STAB_PITCH`, `KD_STAB_YAW`, and the rate-mode gains
+   `KP_PLANE_RATE_ROLL` and `KP_PLANE_RATE_PITCH`. These are the boot defaults.
+2. **Configurator or phone sliders (the base value).** The same gains are
+   registered as runtime parameters (`kp_stab_roll`, `kd_stab_roll`, and so on),
+   so a slider sets the absolute base value, clamped to the parameter's range,
+   and can persist it to flash.
+3. **Transmitter knob (a live multiplier).** A knob on the live-tune channels
+   (`LIVE_TUNE_CH_KP`, `LIVE_TUNE_CH_KD`) scales the base in flight. With the
+   default `LIVE_TUNE_RANGE` of 0.5 the knob is a multiplier from 0.5x to 1.5x,
+   centered at the knob's middle. The KP knob scales the P gains, the KD knob
+   the D gains.
+
+How they combine: the effective gain is the base value (from `Config.h`,
+overwritten by a slider if you move one) multiplied by the knob. So a slider at
+1.0 with the knob at minimum gives 0.5, and the same slider with the knob at
+maximum gives 1.5. The knob is a fine trim on top of the base, not an absolute
+setter, and with the default range it cannot reach zero. The save gesture (yaw
+held hard left, disarmed, for two seconds) bakes the current knob multiplier
+into the base parameter, saves it to flash, and recenters the knob to 1.0.
+
+To tune: start low, fly in angle mode, raise each gain until the surfaces just
+begin to oscillate, then back off about a third. Use the knob for live trim and
+bake it, or set the base with the configurator.
 
 ## Before you fly
 

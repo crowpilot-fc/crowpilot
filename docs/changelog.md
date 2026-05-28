@@ -54,6 +54,10 @@ control-core tuning constant is provisional.
 - Optional hand-launch assist for planes: a forward-acceleration throw detector
   that commands a wings-level climb-out (launch throttle and a nose-up hold) for
   a short window, gyro and accelerometer only. Off by default.
+- The plane stabilizer gains are now runtime parameters, so the configurator
+  and phone sliders set them and the transmitter live-tune knobs trim them in
+  flight, the same way they already do the tailsitter PID. The knob is a
+  multiplier on the slider-or-default base value.
 - The Quad X airframe and mixer, with a self-leveling angle mode and an
   acro rate mode (a per-axis rate controller) selected by the stabilizer
   switch, validated against a SITL quad rigid-body model.
