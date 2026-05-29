@@ -297,6 +297,41 @@ constexpr uint32_t FS_LINK_TIMEOUT_US = 100000;  // 100 ms.
 }  // namespace cp
 
 // ===========================================================================
+// Battery monitor
+// ===========================================================================
+// Optional pack-voltage monitoring through a resistor divider into an ADC pin
+// (GP26 to GP29 on the RP2350). The monitor reports the pack voltage and the
+// per-cell voltage, auto-detects the cell count at power-up, and raises a
+// low-voltage warning flag surfaced in telemetry. The warning is informational
+// in v1: there is no automatic in-flight throttle action, since a safe
+// low-battery response for a plane is return-to-home, which needs GPS (v2).
+// The pre-arm checks also refuse to arm a pack below BATTERY_ARM_MIN_CELL_V.
+//
+// The divider ratio is Vbattery / Vadc. For a 10 k to 1 k divider that is 11.
+// Size the divider so a full pack stays under the ADC reference (about 3.3 V)
+// at the pin: a 6S pack at 25.2 V needs a ratio of at least 8.
+
+#define ENABLE_BATTERY_MONITOR 0
+
+namespace cp {
+
+constexpr uint8_t BATTERY_ADC_PIN        = 28;     // GP28 = ADC2.
+constexpr float   BATTERY_DIVIDER_RATIO  = 11.0f;  // Vbattery / Vadc.
+constexpr float   BATTERY_ADC_VREF       = 3.3f;   // ADC full-scale voltage.
+constexpr uint8_t BATTERY_CELLS          = 0;      // 0 = auto-detect, else fixed cell count.
+
+constexpr float CELL_MAX_V             = 4.30f;  // detect ceiling, per cell.
+constexpr float CELL_WARN_V            = 3.50f;  // low-voltage warning, per cell.
+constexpr float CELL_MIN_PRESENT_V     = 3.00f;  // below this per cell the pack reads as absent (USB power).
+constexpr float BATTERY_ARM_MIN_CELL_V = 3.40f;  // pre-arm refuses to arm below this.
+
+// Voltage low-pass to settle ADC noise and motor-current sag. 0.05 is a slow,
+// steady reading; raise it for a faster but noisier response.
+constexpr float BATTERY_FILTER_ALPHA = 0.05f;
+
+}  // namespace cp
+
+// ===========================================================================
 // Telemetry
 // ===========================================================================
 // Fixed-size binary records logged to SD. The logger is rate-limited to

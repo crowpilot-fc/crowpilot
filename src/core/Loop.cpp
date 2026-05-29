@@ -30,6 +30,9 @@
 #include "src/sensors/Barometer.h"
 #include "src/sensors/Imu.h"
 #include "src/sensors/ImuCalibrate.h"
+#if ENABLE_BATTERY_MONITOR
+#include "src/sensors/Battery.h"
+#endif
 #include "src/telemetry/SdLogger.h"
 #include "src/user_hook/UserHook.h"
 
@@ -180,6 +183,12 @@ void debugOutput() {
     Serial.print("] baro=");
     Serial.print(cp::sensors::baro::is_present() ? "OK" : "off");
     Serial.print(" alt=");    Serial.print(cp::sensors::baro::latest().altitude_m, 1);
+#if ENABLE_BATTERY_MONITOR
+    Serial.print(" vbat=");   Serial.print(cp::sensors::battery::voltage(), 2);
+    Serial.print("(");        Serial.print(static_cast<unsigned>(cp::sensors::battery::cells()));
+    Serial.print("S,low");    Serial.print(cp::sensors::battery::low() ? 1 : 0);
+    Serial.print(")");
+#endif
     Serial.print(" lost=");   Serial.print(cp::radio::state().lost_frames_count);
     Serial.print(" tlm=");
     Serial.println(cp::telemetry::is_active()
@@ -314,20 +323,33 @@ void debugOutput() {
     dtostrf(imu.ax_g,        0, 2, ax);    // accel x/y/z for slip and G-load
     dtostrf(imu.ay_g,        0, 2, ay);
     dtostrf(imu.az_g,        0, 2, az);
+    // Battery fields. Always present in the line, zeros when the monitor is
+    // off, so the format is stable for parsers either way.
+    char vbat[12];
+#if ENABLE_BATTERY_MONITOR
+    dtostrf(cp::sensors::battery::voltage(), 0, 2, vbat);
+    const int bcells = cp::sensors::battery::cells();
+    const int blow   = cp::sensors::battery::low() ? 1 : 0;
+#else
+    dtostrf(0.0f, 0, 2, vbat);
+    const int bcells = 0;
+    const int blow   = 0;
+#endif
     char line[256];
-    // The trailing arm/stab/transition/alt-hold fields carry the high role
-    // channels so the live configurator and phone views can show the
-    // safety switches, which sit above the first six channels.
+    // The arm/stab/transition/alt-hold fields carry the high role channels so
+    // the live configurator and phone views can show the safety switches. The
+    // last three fields are the battery voltage, cell count, and low flag.
     snprintf(line, sizeof(line),
              "cp tlm %s %s %s %d %d %s %lu %d %d %d %d %d %d %s %s %s %s %s "
-             "%d %d %d %d",
+             "%d %d %d %d %s %d %d",
              roll, pitch, yaw, armed ? 1 : 0, fs.active ? 1 : 0,
              modeName(cp::modes::mode()),
              static_cast<unsigned long>(s_loop_period_us),
              ch[0], ch[1], ch[2], ch[3], ch[4], ch[5],
              alt, gz, ax, ay, az,
              ch[CHANNEL_ARM - 1], ch[CHANNEL_STAB - 1],
-             ch[CHANNEL_TRANSITION - 1], ch[CHANNEL_ALT_HOLD - 1]);
+             ch[CHANNEL_TRANSITION - 1], ch[CHANNEL_ALT_HOLD - 1],
+             vbat, bcells, blow);
     cp::cli::emit_telemetry(line);
   }
 #endif
@@ -389,6 +411,10 @@ void init() {
                        ? "Barometer OK"
                        : "Barometer disabled (BARO_NONE)");
   }
+
+#if ENABLE_BATTERY_MONITOR
+  cp::sensors::battery::init();
+#endif
 
   cp::estimation::attitude::init();
 #if ENABLE_DYNAMIC_NOTCH
@@ -465,6 +491,12 @@ void tick() {
   // Sensors. The barometer self-rate-limits internally.
   const bool imu_ok = cp::sensors::imu::read();
   cp::sensors::baro::read();
+#if ENABLE_BATTERY_MONITOR
+  // The pack voltage changes slowly, so read it at 50 Hz, not the loop rate.
+  if ((s_tick_count % 20) == 0) {
+    cp::sensors::battery::update();
+  }
+#endif
 
   // Attitude estimate. A failed IMU read leaves the estimate to coast
   // on the previous tick rather than feeding it a stale sample.

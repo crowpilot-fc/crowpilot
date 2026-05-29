@@ -102,15 +102,18 @@ a second:
 
 ```
 cp tlm <roll> <pitch> <yaw> <armed> <failsafe> <mode> <loop_us> <ch1..ch6> \
-       <alt> <yaw_rate> <ax> <ay> <az> <arm> <stab> <trans> <alt_hold>
+       <alt> <yaw_rate> <ax> <ay> <az> <arm> <stab> <trans> <alt_hold> \
+       <vbat> <cells> <low>
 ```
 
 The five instrument fields (altitude, yaw rate, and the three body
 accelerations) follow the six channels. The four high role channels (arm,
 stabilizer, transition, altitude-hold) follow those, so the live view can show
-the safety switches that sit above the first six channels. A reader should
-take the first eight fields as the stable core and treat the later groups as
-optional, so an older firmware that sends only the channels still parses.
+the safety switches that sit above the first six channels. The three battery
+fields (pack voltage, cell count, low-voltage flag) follow those, and are zero
+when the battery monitor is off. A reader should take the first eight fields as
+the stable core and treat the later groups as optional, so an older firmware
+that sends only the channels still parses.
 
 Because it is plain text, you can also drive the board from any serial
 terminal for debugging.

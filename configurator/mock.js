@@ -135,10 +135,15 @@ function createMockDevice() {
     const stab = Math.sin(tlmPhase * 0.2) > 0 ? 1000 : 2000;
     const trans = 2000;
     const altHold = 1000;
+    // Battery: a slowly sagging 4S pack, voltage, cell count, low flag.
+    const vbat = (15.6 + Math.sin(tlmPhase * 0.15) * 0.3).toFixed(2);
+    const cells = 4;
+    const low = parseFloat(vbat) / cells < 3.5 ? 1 : 0;
     return 'cp tlm ' + roll + ' ' + pitch + ' ' + yaw +
            ' 0 0 hover ' + loop + ' ' + ch.join(' ') +
            ' ' + alt + ' ' + gz + ' ' + ax + ' ' + ay + ' ' + az +
-           ' ' + arm + ' ' + stab + ' ' + trans + ' ' + altHold;
+           ' ' + arm + ' ' + stab + ' ' + trans + ' ' + altHold +
+           ' ' + vbat + ' ' + cells + ' ' + low;
   }
 
   return { handle, telemetry };

@@ -45,6 +45,7 @@ const els = {
   tFailsafe: document.getElementById('t-failsafe'),
   tMode: document.getElementById('t-mode'),
   tLoop: document.getElementById('t-loop'),
+  tBattery: document.getElementById('t-battery'),
   tChannels: document.getElementById('t-channels'),
   logFile: document.getElementById('log-file'),
   logSample: document.getElementById('log-sample'),
@@ -471,10 +472,12 @@ function renderParam(p) {
 // ---------------------------------------------------------------------------
 
 // "cp tlm <roll> <pitch> <yaw> <armed> <fs> <mode> <loop_us> <ch1..ch6>
-//  <alt> <yaw_rate> <ax> <ay> <az> <arm> <stab> <trans> <alt_hold>"
-// The instrument fields (alt, yaw rate, accel) follow the six channels, and
-// the four high role channels follow those. Accept any line with at least the
-// original 15 tokens and treat the later groups as optional.
+//  <alt> <yaw_rate> <ax> <ay> <az> <arm> <stab> <trans> <alt_hold>
+//  <vbat> <cells> <low>"
+// The instrument fields (alt, yaw rate, accel) follow the six channels, the
+// four high role channels follow those, and the three battery fields follow
+// those. Accept any line with at least the original 15 tokens and treat the
+// later groups as optional.
 function handleTelemetry(line) {
   const t = line.split(/\s+/);
   if (t.length < 15) {
@@ -500,6 +503,20 @@ function handleTelemetry(line) {
     ROLE_CHANNELS.forEach((key, i) => {
       updateChannel(key, parseInt(t[20 + i], 10));
     });
+  }
+  // Battery: vbat, cells, low at tokens 24 to 26.
+  if (t.length >= 27) {
+    const vbat = parseFloat(t[24]);
+    const cells = parseInt(t[25], 10);
+    const low = t[26] === '1';
+    if (cells > 0) {
+      els.tBattery.textContent = vbat.toFixed(2) + ' V (' + cells + 'S)' +
+                                 (low ? ' LOW' : '');
+      els.tBattery.style.color = low ? '#c0392b' : '';
+    } else {
+      els.tBattery.textContent = 'no pack';
+      els.tBattery.style.color = '';
+    }
   }
 }
 

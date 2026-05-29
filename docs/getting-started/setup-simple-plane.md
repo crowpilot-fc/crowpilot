@@ -154,6 +154,17 @@ the LED on a separate 5 V rail. See the LED flasher section of
 [config-options.md](../reference/config-options.md). Left off, the pin stays
 free.
 
+## Battery monitoring (optional)
+
+Set `ENABLE_BATTERY_MONITOR = 1` to read pack voltage through a resistor
+divider into an ADC pin (`BATTERY_ADC_PIN`, default GP28). Wire
+`battery + -> R1 -> ADC pin -> R2 -> GND` with `(R1 + R2) / R2` equal to
+`BATTERY_DIVIDER_RATIO` (default 11, for a 10 k / 1 k divider), sized so a full
+pack stays under about 3.3 V at the pin. The firmware reports voltage and
+per-cell voltage, auto-detects the cell count, warns on low voltage in
+telemetry, and refuses to arm a depleted pack. See the battery section of
+[config-options.md](../reference/config-options.md).
+
 ## Before you fly
 
 - Bench-verify every channel and the arm switch per

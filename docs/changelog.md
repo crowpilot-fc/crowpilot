@@ -63,6 +63,10 @@ control-core tuning constant is provisional.
   main loop with no user hook. It drives a small 2-pin LED directly, a 1 W LED
   through a low-side MOSFET, or a 3-pin signal-plus-power module. Off by default
   so the pin stays free.
+- Optional battery voltage monitoring: a divided pack voltage on an ADC pin,
+  with cell-count auto-detection, a per-cell low-voltage warning surfaced in
+  telemetry and the configurator, and a pre-arm minimum. Off by default. Low
+  voltage is a warning in v1, not an automatic flight action.
 - The Quad X airframe and mixer, with a self-leveling angle mode and an
   acro rate mode (a per-axis rate controller) selected by the stabilizer
   switch, validated against a SITL quad rigid-body model.

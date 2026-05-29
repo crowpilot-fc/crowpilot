@@ -30,6 +30,7 @@ add_executable(crowpilot_sitl
   ${REPO_ROOT}/src/hal/sim/RxSim.cpp
   ${REPO_ROOT}/src/hal/sim/OutSim.cpp
   ${REPO_ROOT}/src/hal/sim/LedSim.cpp
+  ${REPO_ROOT}/src/hal/sim/AdcSim.cpp
   ${REPO_ROOT}/src/hal/sim/SimPhysicsTailsitter.cpp
   ${REPO_ROOT}/src/hal/sim/SimPhysicsPlane.cpp
   ${REPO_ROOT}/src/hal/sim/SimPhysicsQuad.cpp
@@ -39,6 +40,7 @@ add_executable(crowpilot_sitl
   ${REPO_ROOT}/src/sensors/Imu.cpp
   ${REPO_ROOT}/src/sensors/ImuCalibrate.cpp
   ${REPO_ROOT}/src/sensors/Barometer.cpp
+  ${REPO_ROOT}/src/sensors/Battery.cpp
   ${REPO_ROOT}/src/radio/Receiver.cpp
   ${REPO_ROOT}/src/estimation/Attitude.cpp
   ${REPO_ROOT}/src/estimation/DynamicNotch.cpp

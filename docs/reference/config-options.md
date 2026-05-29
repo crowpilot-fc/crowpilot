@@ -87,6 +87,28 @@ are `constexpr` constants in namespace `cp`.
 | `FS_ARM_US` | `1000` | Failsafe arm value, armed so the descent stays powered. |
 | `FS_LINK_TIMEOUT_US` | `100000` | Lost-link timeout in microseconds. |
 
+## Battery monitor
+
+Optional pack-voltage sensing through a resistor divider into an ADC pin. The
+monitor reports voltage and per-cell voltage, auto-detects the cell count, and
+raises a low-voltage warning surfaced in telemetry and the DEV line. The
+warning is informational in v1 (no automatic in-flight action; a safe
+low-battery response for a plane is return-to-home, a GPS/v2 item). The pre-arm
+checks also refuse to arm below `BATTERY_ARM_MIN_CELL_V`.
+
+| Option | Default | Meaning |
+|---|---|---|
+| `ENABLE_BATTERY_MONITOR` | `0` | Enables the monitor. Off leaves the ADC pin free. |
+| `BATTERY_ADC_PIN` | `28` | ADC pin (GP26 to GP29). GP28 is ADC2. |
+| `BATTERY_DIVIDER_RATIO` | `11.0` | Vbattery / Vadc. A 10 k to 1 k divider is 11. Size it so a full pack stays under ~3.3 V at the pin. |
+| `BATTERY_ADC_VREF` | `3.3` | ADC full-scale voltage. |
+| `BATTERY_CELLS` | `0` | `0` auto-detects the cell count at power-up (assumes a charged pack), else a fixed count. |
+| `CELL_MAX_V` / `CELL_WARN_V` / `CELL_MIN_PRESENT_V` | `4.30` / `3.50` / `3.00` | Per-cell detect ceiling, low-voltage warning, and the threshold below which the pack reads as absent (USB power). |
+| `BATTERY_ARM_MIN_CELL_V` | `3.40` | Pre-arm refuses to arm below this per-cell voltage. |
+| `BATTERY_FILTER_ALPHA` | `0.05` | Voltage low-pass. Higher is faster but noisier. |
+
+Wiring: `battery + -> R1 -> ADC pin -> R2 -> GND`, with the ratio `(R1 + R2) / R2` equal to `BATTERY_DIVIDER_RATIO`. Keep a small (about 10 nF) capacitor from the ADC pin to ground to quiet the reading.
+
 ## Telemetry
 
 | Option | Default | Meaning |

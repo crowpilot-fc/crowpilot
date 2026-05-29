@@ -101,4 +101,15 @@ void     out_commit_motors();
 // in simulation.
 uint32_t out_get_erpm(uint8_t idx);
 
+// --- Analog input ------------------------------------------------------
+
+// Configure an ADC-capable pin (GP26 to GP29 on the RP2350) for analog
+// reading. Called once by the battery monitor at startup.
+void adc_init(uint8_t pin);
+
+// Read an ADC pin as a 12-bit count (0 to 4095, full scale = ADC reference).
+// The battery monitor turns this into a pack voltage with the divider ratio.
+// The SITL HAL returns a synthetic count standing in for a nominal pack.
+uint16_t adc_read_raw(uint8_t pin);
+
 }  // namespace cp::hal
