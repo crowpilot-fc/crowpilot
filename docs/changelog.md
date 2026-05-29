@@ -76,6 +76,11 @@ control-core tuning constant is provisional.
   surface in the output stage, so servo direction and trim are set in the
   firmware instead of mechanically. Off by default. Pilot expo stays on the
   transmitter.
+- Wing mixing for the aileron planes: differential ailerons (always on, 1.0 is
+  symmetric), optional flaperon (a flap channel droops both ailerons), and an
+  optional airbrake (a brake channel reflexes both ailerons up for glide-path
+  control). The brake is the achievable part of four-surface crow on a
+  two-aileron wing. Flaperon and airbrake off by default.
 - The Quad X airframe and mixer, with a self-leveling angle mode and an
   acro rate mode (a per-axis rate controller) selected by the stabilizer
   switch, validated against a SITL quad rigid-body model.

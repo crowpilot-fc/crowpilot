@@ -481,8 +481,32 @@ constexpr float AILERON_TRAVEL  = 0.50f;
 constexpr float ELEVATOR_TRAVEL = 0.50f;
 constexpr float RUDDER_TRAVEL   = 0.50f;
 
+// Differential ailerons: the down-going aileron throw as a fraction of the
+// up-going. 1.0 is symmetric (no differential). Lower it (for example 0.6) to
+// cut adverse yaw. Applied on every aileron plane, no enable flag needed.
+constexpr float DIFF_AILERON_RATIO = 1.0f;
+
 // Differential-thrust yaw assist for the twin-cargo plane. Provisional.
 constexpr float DIFF_THRUST_GAIN = 0.20f;
+
+}  // namespace cp
+
+// Wing braking and flaps on the ailerons (flaperon / airbrake), for the
+// conventional aileron planes. A flap channel droops both ailerons as flaps,
+// and a brake channel reflexes both up for a glide-path brake. On a
+// two-aileron wing the brake is the achievable part of four-surface crow,
+// which also needs dedicated flap servos this airframe set does not have. Both
+// off by default.
+#define ENABLE_FLAPERON 0
+#define ENABLE_CROW     0
+
+namespace cp {
+
+constexpr uint8_t CHANNEL_FLAP = 8;   // 1-based flap channel (flaperon droop).
+constexpr uint8_t CHANNEL_CROW = 7;   // 1-based brake channel (airbrake reflex).
+
+constexpr float FLAPERON_TRAVEL = 0.30f;  // aileron droop at full flap.
+constexpr float CROW_TRAVEL     = 0.40f;  // aileron up-reflex at full brake.
 
 }  // namespace cp
 

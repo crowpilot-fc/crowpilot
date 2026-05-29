@@ -11,6 +11,7 @@
   #error "AIRFRAME_PLANE_TWIN_CARGO requires ENABLE_PLANE_STAB = 1 in Config.h. The plane mixer is driven by the plane stabilizer."
 #endif
 
+#include "src/airframes/WingMix.h"
 #include "src/control/PlaneStab.h"
 
 namespace cp::airframes {
@@ -30,7 +31,7 @@ inline float clamp01(float x) {
 namespace cp::airframes::plane_twin_cargo {
 
 void mix(float throttle, float roll, float pitch, float yaw,
-         cp::airframes::Output& out) {
+         float flap, float brake, cp::airframes::Output& out) {
   using namespace cp::airframes;
 
   // Throttle drives both motors. Optional differential thrust adds a yaw
@@ -44,13 +45,13 @@ void mix(float throttle, float roll, float pitch, float yaw,
   out.motor[MOTOR_RIGHT] = clamp01(motor_right);
   out.motor[MOTOR_LEFT]  = clamp01(motor_left);
 
-  // Control surfaces. 0.5 is geometric center; the travel ratios scale
-  // the normalized command into the [0, 1] servo range. The two ailerons
-  // move in opposite directions for roll.
-  out.servo[SERVO_AILERON_LEFT]  = clamp01(0.5f + AILERON_TRAVEL  * roll);
-  out.servo[SERVO_AILERON_RIGHT] = clamp01(0.5f - AILERON_TRAVEL  * roll);
-  out.servo[SERVO_ELEVATOR]      = clamp01(0.5f + ELEVATOR_TRAVEL * pitch);
-  out.servo[SERVO_RUDDER]        = clamp01(0.5f + RUDDER_TRAVEL   * yaw);
+  // Ailerons via the shared wing mix (differential, flaperon, airbrake).
+  // Elevator and rudder are the plain stabilized surfaces.
+  wing::aileronPair(roll, flap, brake,
+                    out.servo[SERVO_AILERON_LEFT],
+                    out.servo[SERVO_AILERON_RIGHT]);
+  out.servo[SERVO_ELEVATOR] = clamp01(0.5f + ELEVATOR_TRAVEL * pitch);
+  out.servo[SERVO_RUDDER]   = clamp01(0.5f + RUDDER_TRAVEL   * yaw);
 }
 
 }  // namespace cp::airframes::plane_twin_cargo
@@ -80,7 +81,8 @@ void update(float /*throttle*/,
   // has already folded in pilot passthrough and altitude hold.
   const auto& stab = cp::control::plane_stab::output();
   cp::airframes::plane_twin_cargo::mix(
-      stab.throttle, stab.roll, stab.pitch, stab.yaw, s_output);
+      stab.throttle, stab.roll, stab.pitch, stab.yaw,
+      stab.flap, stab.brake, s_output);
 }
 
 const Output& output() {

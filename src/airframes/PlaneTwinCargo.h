@@ -21,6 +21,6 @@ namespace cp::airframes::plane_twin_cargo {
 //              differentially when ENABLE_DIFF_THRUST_YAW is set.
 // Every output is clamped to its valid range before return.
 void mix(float throttle, float roll, float pitch, float yaw,
-         cp::airframes::Output& out);
+         float flap, float brake, cp::airframes::Output& out);
 
 }  // namespace cp::airframes::plane_twin_cargo

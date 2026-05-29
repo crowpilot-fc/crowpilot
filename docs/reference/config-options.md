@@ -230,6 +230,19 @@ tailsitter.
 | `AILERON_TRAVEL`, `ELEVATOR_TRAVEL`, `RUDDER_TRAVEL` | `0.5` | Control-surface travel. |
 | `DIFF_THRUST_GAIN` | `0.2` | Differential-thrust yaw gain. |
 
+## Wing mixing
+
+Options folded into the aileron commands of the conventional aileron planes
+(single, twin, V-tail).
+
+| Option | Default | Meaning |
+|---|---|---|
+| `DIFF_AILERON_RATIO` | `1.0` | Down-aileron throw as a fraction of the up-aileron, to cut adverse yaw. 1.0 is symmetric. Always applied, no enable flag. |
+| `ENABLE_FLAPERON` | `0` | A flap channel droops both ailerons as flaps. |
+| `CHANNEL_FLAP` / `FLAPERON_TRAVEL` | `8` / `0.30` | Flap channel and the aileron droop at full flap. |
+| `ENABLE_CROW` | `0` | A brake channel reflexes both ailerons up for a glide-path brake. On a two-aileron wing this is the achievable part of four-surface crow, which also needs dedicated flap servos this airframe set does not have. |
+| `CHANNEL_CROW` / `CROW_TRAVEL` | `7` / `0.40` | Brake channel and the aileron up-reflex at full brake. |
+
 ## User hook
 
 | Option | Default | Meaning |

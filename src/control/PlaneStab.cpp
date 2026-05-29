@@ -90,6 +90,21 @@ void update(const cp::estimation::attitude::Euler& euler,
   const bool passthrough = (mode == PLANE_MODE_MANUAL);
   s_output.passthrough_active = passthrough;
 
+  // Flaperon and airbrake commands from their channels, applied to the
+  // ailerons by the mixer in every mode. 0 when the option is off.
+#if ENABLE_FLAPERON
+  s_output.flap = clamp01((static_cast<float>(channels[CHANNEL_FLAP - 1]) -
+                           1000.0f) / 1000.0f);
+#else
+  s_output.flap = 0.0f;
+#endif
+#if ENABLE_CROW
+  s_output.brake = clamp01((static_cast<float>(channels[CHANNEL_CROW - 1]) -
+                            1000.0f) / 1000.0f);
+#else
+  s_output.brake = 0.0f;
+#endif
+
   if (passthrough) {
     // Full manual: surfaces follow the sticks, no stabilization. The
     // desired-state passthrough values are already the normalized

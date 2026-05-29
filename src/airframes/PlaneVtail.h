@@ -20,6 +20,6 @@ namespace cp::airframes::plane_vtail {
 //   yaw      - normalized -1..1, differential ruddervator.
 // Every output is clamped to its valid range before return.
 void mix(float throttle, float roll, float pitch, float yaw,
-         cp::airframes::Output& out);
+         float flap, float brake, cp::airframes::Output& out);
 
 }  // namespace cp::airframes::plane_vtail

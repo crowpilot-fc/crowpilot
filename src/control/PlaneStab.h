@@ -29,6 +29,8 @@ struct Output {
   float   pitch;     // normalized elevator command, [-1, +1]
   float   yaw;       // normalized rudder command, [-1, +1]
   float   throttle;  // normalized throttle, [0, 1]
+  float   flap;      // flaperon droop command, [0, 1]
+  float   brake;     // airbrake (crow) reflex command, [0, 1]
   uint8_t mode;      // active PLANE_MODE_* this tick
   bool    passthrough_active;
   bool    alt_hold_active;
