@@ -608,6 +608,39 @@ constexpr uint16_t SERVO_MAX_US = 2000;        // Servo PWM at command 1.
 }  // namespace cp
 
 // ===========================================================================
+// Per-servo output config
+// ===========================================================================
+// Optional per-surface trim in the output stage, so servo direction, center,
+// and travel are set in the firmware instead of mechanically or on the
+// transmitter. Indexed by the airframe's SERVO_* slot. Off by default, when
+// the single SERVO_MIN_US / SERVO_MAX_US range above applies to every servo.
+//
+// reverse  flips the command, for a servo mounted or linked backward.
+// subtrim  shifts the center, in microseconds.
+// endpoints  set the per-servo travel (the pulse at command 0 and command 1).
+//
+// Expo and stick rates are pilot input shaping and stay on the transmitter,
+// not here, since this stage sees the already-mixed surface command.
+
+#define ENABLE_SERVO_CONFIG 0
+
+namespace cp {
+
+// Sized to the largest servo count any airframe uses. Output.cpp static-asserts
+// that the active airframe's N_SERVOS fits.
+constexpr bool     SERVO_REVERSE[6]         = {false, false, false, false, false, false};
+constexpr int16_t  SERVO_SUBTRIM_US[6]      = {0, 0, 0, 0, 0, 0};
+constexpr uint16_t SERVO_ENDPOINT_MIN_US[6] = {1000, 1000, 1000, 1000, 1000, 1000};
+constexpr uint16_t SERVO_ENDPOINT_MAX_US[6] = {2000, 2000, 2000, 2000, 2000, 2000};
+
+// Absolute safe pulse clamp applied after reverse, travel, and subtrim, so a
+// trim can never command an out-of-range pulse.
+constexpr uint16_t SERVO_ABS_MIN_US = 800;
+constexpr uint16_t SERVO_ABS_MAX_US = 2200;
+
+}  // namespace cp
+
+// ===========================================================================
 // User hook
 // ===========================================================================
 // Optional non-flight-critical user extension, run rate-limited and

@@ -72,6 +72,10 @@ control-core tuning constant is provisional.
   arm threshold, on top of the existing throttle-idle and arm-cycle gates.
   Disarming is never gated. The blocking reason is shown in the DEV line and
   the configurator (IMU, RX, or battery).
+- Optional per-servo output config: reverse, subtrim, and travel endpoints per
+  surface in the output stage, so servo direction and trim are set in the
+  firmware instead of mechanically. Off by default. Pilot expo stays on the
+  transmitter.
 - The Quad X airframe and mixer, with a self-leveling angle mode and an
   acro rate mode (a per-axis rate controller) selected by the stabilizer
   switch, validated against a SITL quad rigid-body model.

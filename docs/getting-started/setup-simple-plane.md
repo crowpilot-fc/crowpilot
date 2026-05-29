@@ -71,9 +71,10 @@ driven in opposite directions for roll. How you wire them is your choice:
   trainer.
 - **One aileron servo.** Connect it to the aileron-left pin only.
 
-CrowPilot has no per-servo reverse in software yet, so set aileron direction
-mechanically and verify it on the bench: tilting the plane to the right must
-deflect the ailerons to roll it back left. Leave the aileron-right pin unused
+Verify aileron direction on the bench: tilting the plane to the right must
+deflect the ailerons to roll it back left. Fix a backward servo mechanically,
+or set `ENABLE_SERVO_CONFIG = 1` and flip its `SERVO_REVERSE[]` entry (which
+also gives per-servo subtrim and endpoints). Leave the aileron-right pin unused
 if you wire a single channel.
 
 ## Channel plan

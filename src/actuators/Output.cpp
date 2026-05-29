@@ -62,12 +62,34 @@ uint16_t motorPulseUs(float command) {
                                c * span + 0.5f);
 }
 
-// Normalized servo command [0, 1] to a servo PWM pulse width.
-uint16_t servoPulseUs(float command) {
-  const float c = clampf(command, 0.0f, 1.0f);
+// Normalized servo command [0, 1] for servo `idx` to a PWM pulse width. With
+// ENABLE_SERVO_CONFIG the per-servo reverse, travel endpoints, and subtrim
+// apply, with a final clamp to the absolute safe range. Otherwise the single
+// SERVO_MIN_US / SERVO_MAX_US range applies to every servo.
+uint16_t servoPulseUs(uint8_t idx, float command) {
+  float c = clampf(command, 0.0f, 1.0f);
+#if ENABLE_SERVO_CONFIG
+  static_assert(cp::airframes::N_SERVOS <=
+                    sizeof(SERVO_REVERSE) / sizeof(SERVO_REVERSE[0]),
+                "Per-servo config arrays are too small for this airframe.");
+  if (SERVO_REVERSE[idx]) {
+    c = 1.0f - c;
+  }
+  const float lo   = static_cast<float>(SERVO_ENDPOINT_MIN_US[idx]);
+  const float hi   = static_cast<float>(SERVO_ENDPOINT_MAX_US[idx]);
+  float us = lo + c * (hi - lo) + static_cast<float>(SERVO_SUBTRIM_US[idx]) +
+             0.5f;
+  if (us < static_cast<float>(SERVO_ABS_MIN_US)) {
+    us = static_cast<float>(SERVO_ABS_MIN_US);
+  } else if (us > static_cast<float>(SERVO_ABS_MAX_US)) {
+    us = static_cast<float>(SERVO_ABS_MAX_US);
+  }
+  return static_cast<uint16_t>(us);
+#else
   const float span = static_cast<float>(SERVO_MAX_US - SERVO_MIN_US);
   return static_cast<uint16_t>(static_cast<float>(SERVO_MIN_US) +
                                c * span + 0.5f);
+#endif
 }
 
 }  // anonymous namespace
@@ -109,7 +131,7 @@ void update(const cp::airframes::Output& mix,
 
   // Servos respond in any arm state.
   for (uint8_t i = 0; i < cp::airframes::N_SERVOS; ++i) {
-    const uint16_t pulse = servoPulseUs(mix.servo[i]);
+    const uint16_t pulse = servoPulseUs(i, mix.servo[i]);
     s_pulses.servo_us[i] = pulse;
     cp::hal::out_set_servo_us(i, pulse);
   }

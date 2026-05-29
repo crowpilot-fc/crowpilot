@@ -188,7 +188,23 @@ integral set. All ship provisional.
 | `ENABLE_DSHOT_BIDIR` | `0` | When `1`, bidirectional DShot: the ESC replies with eRPM after each frame, feeding the dynamic notch. Needs a DShot protocol and a telemetry-capable ESC. The receive timing is bench-tuned (see the wiring guide). |
 | `MOTOR_POLE_PAIRS` | `7` | Magnet pole pairs of the motors, for converting bidirectional-DShot eRPM to mechanical RPM. A 14-magnet outrunner has 7. |
 | `ARM_THROTTLE_MAX_US` | `1050` | Throttle-idle gate for arming. |
-| `SERVO_MIN_US` / `SERVO_MAX_US` | `1000` / `2000` | Servo PWM endpoints. |
+| `SERVO_MIN_US` / `SERVO_MAX_US` | `1000` / `2000` | Servo PWM endpoints, used for every servo when per-servo config is off. |
+
+## Per-servo output config
+
+Optional per-surface trim applied in the output stage, indexed by the
+airframe's `SERVO_*` slot, so servo direction, center, and travel are set in
+the firmware instead of mechanically or on the transmitter. Off by default,
+when `SERVO_MIN_US` / `SERVO_MAX_US` apply to every servo. Pilot expo and rates
+stay on the transmitter, since this stage sees the already-mixed command.
+
+| Option | Default | Meaning |
+|---|---|---|
+| `ENABLE_SERVO_CONFIG` | `0` | Enables the per-servo trim below. |
+| `SERVO_REVERSE[]` | all `false` | Flips a servo, for one mounted or linked backward. |
+| `SERVO_SUBTRIM_US[]` | all `0` | Per-servo center offset in microseconds. |
+| `SERVO_ENDPOINT_MIN_US[]` / `SERVO_ENDPOINT_MAX_US[]` | `1000` / `2000` | Per-servo travel: the pulse at command 0 and command 1. |
+| `SERVO_ABS_MIN_US` / `SERVO_ABS_MAX_US` | `800` / `2200` | Absolute safe clamp applied after reverse, travel, and subtrim. |
 
 ## Plane stabilization
 
