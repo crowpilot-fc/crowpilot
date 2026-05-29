@@ -26,10 +26,26 @@ true at once:
 - The throttle stick is at idle, at or below `ARM_THROTTLE_MAX_US`.
 - The arm switch has been seen in the disarm position at least once since
   boot.
+- The pre-arm checks pass (see below).
 
 The throttle-idle requirement prevents arming straight into a spun-up
 throttle command. If you flip the arm switch with the throttle up, nothing
 happens. Lower the throttle, then arm.
+
+### Pre-arm checks
+
+On top of the gates above, the aircraft refuses to arm unless:
+
+- The IMU is healthy.
+- The receiver link is up with valid channels and not in failsafe.
+- The battery, if monitored (`ENABLE_BATTERY_MONITOR`), is at or above
+  `BATTERY_ARM_MIN_CELL_V` per cell. A build with no battery monitor, or a
+  bench setup on USB with no pack, skips this check.
+
+Disarming is never gated by the pre-arm checks. The blocking reason is shown
+in the `DEV` serial line as `prearm=ok` or `prearm=!IMU`, `!RX`, `!BATT`, and
+in the configurator's pre-arm status. If the aircraft will not arm, read that
+field first.
 
 The seen-disarmed requirement means a board powered up with the switch
 already in the armed position will not arm until you cycle the switch

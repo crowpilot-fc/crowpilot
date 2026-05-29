@@ -103,8 +103,11 @@ a second:
 ```
 cp tlm <roll> <pitch> <yaw> <armed> <failsafe> <mode> <loop_us> <ch1..ch6> \
        <alt> <yaw_rate> <ax> <ay> <az> <arm> <stab> <trans> <alt_hold> \
-       <vbat> <cells> <low>
+       <vbat> <cells> <low> <prearm>
 ```
+
+The final `prearm` field is 0 when the aircraft is ready to arm, otherwise a
+bitmask of the failed checks (bit 0 IMU, bit 1 receiver, bit 2 battery).
 
 The five instrument fields (altitude, yaw rate, and the three body
 accelerations) follow the six channels. The four high role channels (arm,

@@ -41,17 +41,21 @@ struct LatestPulses {
 // instances. Sets the arm state to NOT_ARMED.
 void init();
 
-// One actuator step. Updates the arm-state machine from ch5 and the
-// throttle stick, computes the motor and servo pulse widths from the
+// One actuator step. Updates the arm-state machine from the arm channel and
+// the throttle stick, computes the motor and servo pulse widths from the
 // mixer output, emits the motor pulses via the configured protocol, and
 // writes the servo microsecond values. Motors emit the motor-stopped
 // disarm pulse when NOT_ARMED. Servos respond regardless of arm state.
 //
 // throttle_norm is from cp::control::desired::current().throttle.
 // arm_us is the failsafe-effective arm-channel microseconds.
+// prearm_ok gates the disarmed-to-armed transition: arming is refused while
+// it is false (a failed pre-arm check). Disarm is never gated. Pass true to
+// keep the prior behavior.
 void update(const cp::airframes::Output& mix,
             float throttle_norm,
-            uint16_t arm_us);
+            uint16_t arm_us,
+            bool prearm_ok);
 
 ArmState arm_state();
 

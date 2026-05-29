@@ -139,11 +139,12 @@ function createMockDevice() {
     const vbat = (15.6 + Math.sin(tlmPhase * 0.15) * 0.3).toFixed(2);
     const cells = 4;
     const low = parseFloat(vbat) / cells < 3.5 ? 1 : 0;
+    const prearm = 0;  // mock reports ready to arm
     return 'cp tlm ' + roll + ' ' + pitch + ' ' + yaw +
            ' 0 0 hover ' + loop + ' ' + ch.join(' ') +
            ' ' + alt + ' ' + gz + ' ' + ax + ' ' + ay + ' ' + az +
            ' ' + arm + ' ' + stab + ' ' + trans + ' ' + altHold +
-           ' ' + vbat + ' ' + cells + ' ' + low;
+           ' ' + vbat + ' ' + cells + ' ' + low + ' ' + prearm;
   }
 
   return { handle, telemetry };

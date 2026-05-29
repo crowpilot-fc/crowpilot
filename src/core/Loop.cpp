@@ -70,6 +70,12 @@ uint32_t s_tick_count     = 0;
 // could not pad them to the nominal rate.
 uint32_t s_overrun_count = 0;
 
+// Latest pre-arm check results, updated near the arm logic and read by the
+// DEV print and the telemetry line. True means the check passed.
+bool s_prearm_imu  = false;
+bool s_prearm_rx   = false;
+bool s_prearm_batt = true;
+
 // Loop-period statistics, accumulated for the 1 Hz DEV report.
 uint32_t s_period_sum   = 0;
 uint32_t s_period_max   = 0;
@@ -163,6 +169,14 @@ void debugOutput() {
     Serial.print(" armed=");
     Serial.print(cp::actuators::arm_state() == cp::actuators::ArmState::ARMED
                      ? 1 : 0);
+    Serial.print(" prearm=");
+    if (s_prearm_imu && s_prearm_rx && s_prearm_batt) {
+      Serial.print("ok");
+    } else {
+      if (!s_prearm_imu)  Serial.print("!IMU");
+      if (!s_prearm_rx)   Serial.print("!RX");
+      if (!s_prearm_batt) Serial.print("!BATT");
+    }
     Serial.print(" pid=(");   Serial.print(pid.roll, 2);
     Serial.print(",");        Serial.print(pid.pitch, 2);
     Serial.print(",");        Serial.print(pid.yaw, 2);
@@ -335,13 +349,18 @@ void debugOutput() {
     const int bcells = 0;
     const int blow   = 0;
 #endif
+    // Pre-arm code: 0 means ready to arm, otherwise a bitmask of the failed
+    // checks (bit 0 IMU, bit 1 RX, bit 2 battery).
+    const int prearm_code = (s_prearm_imu ? 0 : 1) |
+                            (s_prearm_rx ? 0 : 2) |
+                            (s_prearm_batt ? 0 : 4);
     char line[256];
     // The arm/stab/transition/alt-hold fields carry the high role channels so
-    // the live configurator and phone views can show the safety switches. The
-    // last three fields are the battery voltage, cell count, and low flag.
+    // the live views can show the safety switches. Then the battery voltage,
+    // cell count, and low flag, then the pre-arm code.
     snprintf(line, sizeof(line),
              "cp tlm %s %s %s %d %d %s %lu %d %d %d %d %d %d %s %s %s %s %s "
-             "%d %d %d %d %s %d %d",
+             "%d %d %d %d %s %d %d %d",
              roll, pitch, yaw, armed ? 1 : 0, fs.active ? 1 : 0,
              modeName(cp::modes::mode()),
              static_cast<unsigned long>(s_loop_period_us),
@@ -349,7 +368,7 @@ void debugOutput() {
              alt, gz, ax, ay, az,
              ch[CHANNEL_ARM - 1], ch[CHANNEL_STAB - 1],
              ch[CHANNEL_TRANSITION - 1], ch[CHANNEL_ALT_HOLD - 1],
-             vbat, bcells, blow);
+             vbat, bcells, blow, prearm_code);
     cp::cli::emit_telemetry(line);
   }
 #endif
@@ -611,9 +630,27 @@ void tick() {
                         0.0f, 0.0f, 0.0f, fader);
 #endif
 
+  // Pre-arm checks. Arming is refused unless the IMU is healthy, the receiver
+  // link is up with valid channels, and (when monitored) the pack is above the
+  // arm threshold. Disarming is never gated. The flags also feed the DEV line
+  // and telemetry so the pilot can see why it will not arm.
+  const bool prearm_imu = cp::sensors::imu::is_healthy();
+  const bool prearm_rx  = cp::radio::state().channels_valid &&
+                          !cp::failsafe::state().active;
+#if ENABLE_BATTERY_MONITOR
+  const bool prearm_batt = !cp::sensors::battery::present() ||
+      cp::sensors::battery::perCellVoltage() >= BATTERY_ARM_MIN_CELL_V;
+#else
+  const bool prearm_batt = true;
+#endif
+  const bool prearm_ok = prearm_imu && prearm_rx && prearm_batt;
+  s_prearm_imu  = prearm_imu;
+  s_prearm_rx   = prearm_rx;
+  s_prearm_batt = prearm_batt;
+
   // Actuator output: arm logic, OneShot125 emit, servo PWM.
   cp::actuators::update(cp::airframes::output(), desired.throttle,
-                        desired.arm_us);
+                        desired.arm_us, prearm_ok);
 
   // User extension and telemetry. Each is internally rate-limited.
   cp::user_hook::tick();

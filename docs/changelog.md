@@ -67,6 +67,11 @@ control-core tuning constant is provisional.
   with cell-count auto-detection, a per-cell low-voltage warning surfaced in
   telemetry and the configurator, and a pre-arm minimum. Off by default. Low
   voltage is a warning in v1, not an automatic flight action.
+- Pre-arm checks: arming is refused unless the IMU is healthy, the receiver
+  link is up with valid channels, and (when monitored) the pack is above the
+  arm threshold, on top of the existing throttle-idle and arm-cycle gates.
+  Disarming is never gated. The blocking reason is shown in the DEV line and
+  the configurator (IMU, RX, or battery).
 - The Quad X airframe and mixer, with a self-leveling angle mode and an
   acro rate mode (a per-axis rate controller) selected by the stabilizer
   switch, validated against a SITL quad rigid-body model.

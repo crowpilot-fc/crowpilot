@@ -81,17 +81,18 @@ void init() {
 
 void update(const cp::airframes::Output& mix,
             float throttle_norm,
-            uint16_t arm_us) {
+            uint16_t arm_us,
+            bool prearm_ok) {
   // Arm state machine. Disarm is unconditional. Arming needs the switch
   // in the arm position, the aircraft currently disarmed, the throttle
-  // at idle, and the switch to have been seen in the disarm position at
-  // least once since boot, so a power-up with the switch already armed
-  // cannot arm without a deliberate switch transition.
+  // at idle, the switch to have been seen in the disarm position at least
+  // once since boot (so a power-up with the switch already armed cannot arm
+  // without a deliberate switch transition), and the pre-arm checks to pass.
   const bool switch_in_arm_position = arm_us < kArmSwitchThresholdUs;
   if (!switch_in_arm_position) {
     s_arm       = ArmState::NOT_ARMED;
     s_arm_ready = true;
-  } else if (s_arm == ArmState::NOT_ARMED && s_arm_ready &&
+  } else if (s_arm == ArmState::NOT_ARMED && s_arm_ready && prearm_ok &&
              throttle_norm <= kArmThrottleMaxNorm) {
     s_arm = ArmState::ARMED;
   }

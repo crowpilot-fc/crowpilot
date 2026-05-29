@@ -42,6 +42,7 @@ const els = {
   tPitch: document.getElementById('t-pitch'),
   tYaw: document.getElementById('t-yaw'),
   tArmed: document.getElementById('t-armed'),
+  tPrearm: document.getElementById('t-prearm'),
   tFailsafe: document.getElementById('t-failsafe'),
   tMode: document.getElementById('t-mode'),
   tLoop: document.getElementById('t-loop'),
@@ -516,6 +517,19 @@ function handleTelemetry(line) {
     } else {
       els.tBattery.textContent = 'no pack';
       els.tBattery.style.color = '';
+    }
+  }
+  // Pre-arm code at token 27: 0 ready, else a bitmask of failed checks.
+  if (t.length >= 28) {
+    const code = parseInt(t[27], 10);
+    if (code === 0) {
+      setBadge(els.tPrearm, 'ready', 'badge-ok');
+    } else {
+      const why = [];
+      if (code & 1) why.push('IMU');
+      if (code & 2) why.push('RX');
+      if (code & 4) why.push('BATT');
+      setBadge(els.tPrearm, 'blocked: ' + why.join(','), 'badge-alert');
     }
   }
 }
