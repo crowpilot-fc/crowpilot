@@ -78,6 +78,9 @@ control-core tuning constant is provisional.
 - The flying-wing (delta) airframe and elevon mixer: one motor, two elevons,
   no rudder, driven by the fixed-wing stabilizer. Reuses the tailsitter's
   forward-flight elevon allocation and is validated in SITL.
+- The V-tail airframe and mixer: one motor, two ailerons, and two ruddervators
+  that carry pitch as their common mode and yaw as their differential, driven
+  by the fixed-wing stabilizer and validated in SITL.
 - The user extension hook.
 - The CrowPilot Configurator, a browser-based setup tool that edits the
   parameter registry, shows live telemetry, decodes binary flight logs,

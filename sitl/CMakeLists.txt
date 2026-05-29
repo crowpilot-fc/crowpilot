@@ -55,6 +55,7 @@ add_executable(crowpilot_sitl
   ${REPO_ROOT}/src/airframes/PlaneSingle.cpp
   ${REPO_ROOT}/src/airframes/PlaneTwinCargo.cpp
   ${REPO_ROOT}/src/airframes/PlaneFlyingWing.cpp
+  ${REPO_ROOT}/src/airframes/PlaneVtail.cpp
   ${REPO_ROOT}/src/airframes/QuadX.cpp
   ${REPO_ROOT}/src/actuators/Output.cpp
   ${REPO_ROOT}/src/actuators/EscCalibrate.cpp

@@ -96,6 +96,8 @@ The rest of the stack is shared.
   selected by the stabilizer switch.
 - Flying wing (delta). One motor and two elevons, no rudder, driven by the
   fixed-wing stabilizer. Reuses the tailsitter's forward-flight elevon mixing.
+- V-tail plane. One motor, two ailerons, and two ruddervators that mix pitch
+  and yaw, driven by the fixed-wing stabilizer.
 
 ## Documentation
 

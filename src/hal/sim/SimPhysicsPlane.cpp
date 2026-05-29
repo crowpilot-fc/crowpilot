@@ -146,6 +146,13 @@ void physics_step(float dt_s) {
   const float aileron  = 0.5f * (s_servo[0] - s_servo[1]);
   const float elevator = 0.5f * (s_servo[0] + s_servo[1]);
   const float rudder   = 0.0f;
+#elif AIRFRAME == AIRFRAME_PLANE_VTAIL
+  // Ailerons on servos 0 and 1 (roll), ruddervators on servos 2 and 3 with
+  // pitch as the common mode and yaw as the differential. Signs match the
+  // conventional case.
+  const float aileron  = 0.5f * (s_servo[0] - s_servo[1]);
+  const float elevator = 0.5f * (s_servo[2] + s_servo[3]);
+  const float rudder   = 0.5f * (s_servo[2] - s_servo[3]);
 #else
   // Conventional layout. Servo indices per Airframe.h: 0 and 1 are the left
   // and right ailerons (differential is roll), 2 is the elevator, 3 is the

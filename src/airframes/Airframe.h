@@ -106,6 +106,26 @@ constexpr uint8_t SERVO_ELEVON_RIGHT = 1;
 constexpr uint8_t SERVO_LEFT  = SERVO_ELEVON_LEFT;
 constexpr uint8_t SERVO_RIGHT = SERVO_ELEVON_RIGHT;
 
+#elif AIRFRAME == AIRFRAME_PLANE_VTAIL
+
+// V-tail plane: one engine, two ailerons, and two ruddervators (the V tail
+// surfaces). The ailerons are differential for roll. The ruddervators carry
+// pitch as their common mode and yaw as their differential, the same way the
+// flying-wing elevons carry pitch and roll. Driven by the plane stabilizer.
+constexpr uint8_t N_MOTORS = 2;
+constexpr uint8_t N_SERVOS = 4;
+
+constexpr uint8_t MOTOR_RIGHT = 0;
+constexpr uint8_t MOTOR_LEFT  = 1;
+
+constexpr uint8_t SERVO_AILERON_LEFT  = 0;
+constexpr uint8_t SERVO_AILERON_RIGHT = 1;
+constexpr uint8_t SERVO_VTAIL_LEFT    = 2;
+constexpr uint8_t SERVO_VTAIL_RIGHT   = 3;
+
+constexpr uint8_t SERVO_LEFT  = SERVO_AILERON_LEFT;
+constexpr uint8_t SERVO_RIGHT = SERVO_AILERON_RIGHT;
+
 #elif AIRFRAME == AIRFRAME_HEX_X
   #error "AIRFRAME_HEX_X is a v2.x deliverable."
 #elif AIRFRAME == AIRFRAME_TRICOPTER
