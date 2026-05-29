@@ -36,6 +36,15 @@ void led_tick(uint32_t t_now_us) {
   digitalWriteFast(PIN_LED_ONBOARD, g_state ? HIGH : LOW);
 }
 
+void led_flasher_init() {
+  pinMode(LED_FLASHER_PIN, OUTPUT);
+  digitalWrite(LED_FLASHER_PIN, LOW);
+}
+
+void led_flasher_set(bool high) {
+  digitalWriteFast(LED_FLASHER_PIN, high ? HIGH : LOW);
+}
+
 [[noreturn]] void haltWithFastBlink() {
   pinMode(PIN_LED_ONBOARD, OUTPUT);
   bool     state          = false;

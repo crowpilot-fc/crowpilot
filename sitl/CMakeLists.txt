@@ -56,6 +56,7 @@ add_executable(crowpilot_sitl
   ${REPO_ROOT}/src/airframes/QuadX.cpp
   ${REPO_ROOT}/src/actuators/Output.cpp
   ${REPO_ROOT}/src/actuators/EscCalibrate.cpp
+  ${REPO_ROOT}/src/lighting/LedFlasher.cpp
   ${REPO_ROOT}/src/params/Params.cpp
   ${REPO_ROOT}/src/params/LiveTune.cpp
   ${REPO_ROOT}/src/cli/Cli.cpp

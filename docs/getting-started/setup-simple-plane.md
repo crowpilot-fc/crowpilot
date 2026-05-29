@@ -143,6 +143,17 @@ To tune: start low, fly in angle mode, raise each gain until the surfaces just
 begin to oscillate, then back off about a third. Use the knob for live trim and
 bake it, or set the base with the configurator.
 
+## Navigation or strobe LED (optional)
+
+CrowPilot has a built-in LED flasher: a switched output on one spare GPIO with
+strobe, beacon, or steady patterns, driven from the main loop with no user
+hook. Set `ENABLE_LED_FLASHER = 1`, point `LED_FLASHER_PIN` at a free pin, and
+pick `LED_FLASHER_PATTERN`. A small LED wires `pin -> resistor -> LED -> GND`. A
+high-power LED (up to about 1 W) wires the pin to a low-side MOSFET gate with
+the LED on a separate 5 V rail. See the LED flasher section of
+[config-options.md](../reference/config-options.md). Left off, the pin stays
+free.
+
 ## Before you fly
 
 - Bench-verify every channel and the arm switch per

@@ -20,4 +20,12 @@ void led_tick(uint32_t t_now_us);
 // §9.1.
 [[noreturn]] void haltWithFastBlink();
 
+// Built-in LED flasher output (aircraft lighting). Configures LED_FLASHER_PIN
+// as a digital output, and sets its level. The caller (the flasher module)
+// has already applied the pattern and the polarity, so `high` is the literal
+// pin level to drive. Only called when ENABLE_LED_FLASHER is set. No-ops on
+// the simulated HAL.
+void led_flasher_init();
+void led_flasher_set(bool high);
+
 }  // namespace cp::hal

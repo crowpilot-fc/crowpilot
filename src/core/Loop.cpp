@@ -19,6 +19,9 @@
 #include "src/estimation/DynamicNotch.h"
 #endif
 #include "src/failsafe/Failsafe.h"
+#if ENABLE_LED_FLASHER
+#include "src/lighting/LedFlasher.h"
+#endif
 #include "src/hal/Led.h"
 #include "src/modes/FlightMode.h"
 #include "src/params/LiveTune.h"
@@ -335,6 +338,9 @@ void debugOutput() {
 void init() {
   Serial.begin(115200);
   cp::hal::led_init();
+#if ENABLE_LED_FLASHER
+  cp::lighting::flasher::init();
+#endif
 
   if (Serial) {
     Serial.print("CrowPilot boot. LOOP_HZ=");
@@ -588,6 +594,9 @@ void tick() {
 #endif
 
   cp::hal::led_tick(tick_start_us);
+#if ENABLE_LED_FLASHER
+  cp::lighting::flasher::tick(tick_start_us);
+#endif
   ++s_tick_count;
 
   // Regulate to the loop period. If the tick's work already exceeded the

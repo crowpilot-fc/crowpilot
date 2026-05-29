@@ -592,6 +592,50 @@ constexpr uint32_t USER_HOOK_HARD_LIMIT_US = 250;
 }  // namespace cp
 
 // ===========================================================================
+// LED flasher (aircraft lighting)
+// ===========================================================================
+// A built-in switched LED output on one spare GPIO, blinking in an aircraft
+// lighting pattern, driven from the main loop with no user hook required. The
+// pin is a logic on/off signal, so the same output works with:
+//   - a small 2-pin LED through a series resistor (direct drive),
+//   - a high-power LED, up to about 1 W, through a low-side N-channel MOSFET
+//     with the LED powered from a separate 5 V rail, or
+//   - a 3-pin LED module that takes a signal plus its own 5 V and ground.
+// It does not speak the WS2812 data protocol, so it is not for addressable
+// strips. Off by default, which leaves the pin free for other use.
+
+#define LED_FLASH_STROBE 0   // two quick flashes then a pause (airliner strobe)
+#define LED_FLASH_BEACON 1   // one flash about once a second (anti-collision)
+#define LED_FLASH_STEADY 2   // always on (position or landing light)
+
+#define ENABLE_LED_FLASHER  0
+#define LED_FLASHER_PATTERN LED_FLASH_STROBE
+
+namespace cp {
+
+// GPIO the flasher drives. Only used when ENABLE_LED_FLASHER is 1. Set it to a
+// pin that is free on your board and airframe: there is no pin-conflict check,
+// so do not pick a motor, servo, receiver, or I2C pin. GP3 is free on the
+// Caribou twin but is the rudder servo on the NEO single-plane profile, so
+// check your pin map.
+constexpr uint8_t LED_FLASHER_PIN = 3;
+
+// Drive polarity. true: a high pin lights the LED (a direct LED, or a low-side
+// MOSFET that conducts when the gate is high). false: inverted, for a driver
+// that lights on a low signal.
+constexpr bool LED_FLASHER_ACTIVE_HIGH = true;
+
+// Pattern timing in milliseconds. The strobe is two short flashes then a dark
+// gap to the end of the period. The beacon is one flash per period.
+constexpr uint32_t LED_STROBE_FLASH_MS  = 60;    // each strobe flash on-time
+constexpr uint32_t LED_STROBE_GAP_MS    = 110;   // dark gap between the two flashes
+constexpr uint32_t LED_STROBE_PERIOD_MS = 1400;  // full strobe cycle
+constexpr uint32_t LED_BEACON_PERIOD_MS = 1000;  // full beacon cycle
+constexpr uint32_t LED_BEACON_ON_MS     = 130;   // beacon flash on-time
+
+}  // namespace cp
+
+// ===========================================================================
 // Attitude estimation
 // ===========================================================================
 // The AHRS is a Madgwick gradient-descent orientation filter, gyro and

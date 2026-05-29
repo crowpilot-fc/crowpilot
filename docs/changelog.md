@@ -58,6 +58,11 @@ control-core tuning constant is provisional.
   and phone sliders set them and the transmitter live-tune knobs trim them in
   flight, the same way they already do the tailsitter PID. The knob is a
   multiplier on the slider-or-default base value.
+- A built-in LED flasher for aircraft lighting: a switched on/off output on one
+  configurable GPIO, with strobe, beacon, and steady patterns, driven from the
+  main loop with no user hook. It drives a small 2-pin LED directly, a 1 W LED
+  through a low-side MOSFET, or a 3-pin signal-plus-power module. Off by default
+  so the pin stays free.
 - The Quad X airframe and mixer, with a self-leveling angle mode and an
   acro rate mode (a per-axis rate controller) selected by the stabilizer
   switch, validated against a SITL quad rigid-body model.

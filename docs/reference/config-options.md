@@ -201,6 +201,30 @@ tailsitter.
 | `USER_HOOK_BUDGET_US` | `150` | Soft time budget for the user hook. |
 | `USER_HOOK_HARD_LIMIT_US` | `250` | Hard time limit for the user hook. |
 
+## LED flasher
+
+A built-in switched LED output on one GPIO, blinking in an aircraft-lighting
+pattern, driven from the main loop with no user hook. Off by default so the pin
+stays free. The output is a logic signal, so it drives a small 2-pin LED
+through a resistor, a high-power LED (up to about 1 W) through a low-side
+MOSFET on a separate 5 V rail, or a 3-pin LED module that takes a signal plus
+its own power. It is not a WS2812 addressable driver.
+
+| Option | Default | Meaning |
+|---|---|---|
+| `ENABLE_LED_FLASHER` | `0` | Enables the flasher. When off, the pin is untouched and free. |
+| `LED_FLASHER_PIN` | `3` | GPIO to drive. Set to a free pin for your board and airframe. There is no pin-conflict check. |
+| `LED_FLASHER_PATTERN` | `LED_FLASH_STROBE` | `LED_FLASH_STROBE` (double-flash then a pause), `LED_FLASH_BEACON` (one flash per second), or `LED_FLASH_STEADY` (always on). |
+| `LED_FLASHER_ACTIVE_HIGH` | `true` | `true` lights on a high pin (direct LED or a high-side-on MOSFET gate). `false` inverts for a low-active driver. |
+| `LED_STROBE_FLASH_MS` / `LED_STROBE_GAP_MS` / `LED_STROBE_PERIOD_MS` | `60` / `110` / `1400` | Strobe flash on-time, the dark gap between the two flashes, and the full cycle. |
+| `LED_BEACON_PERIOD_MS` / `LED_BEACON_ON_MS` | `1000` / `130` | Beacon full cycle and flash on-time. |
+
+Wiring by LED type, all on the one pin:
+
+- **Small 2-pin LED:** `pin -> series resistor -> LED -> GND`. Direct drive.
+- **High-power 2-pin LED (up to ~1 W):** `pin -> gate of a logic-level N-channel MOSFET`; the LED runs from 5 V through a current-limit resistor or driver into the MOSFET drain, source to ground. The pin only switches the gate. Heatsink the LED.
+- **3-pin module:** the pin is the signal, with the module's 5 V and ground supplied separately.
+
 ## Debug
 
 Each `DEBUG_PRINT_*` flag is an independent compile-time gate. `DEV` is

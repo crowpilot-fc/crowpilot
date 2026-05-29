@@ -20,6 +20,10 @@ void led_init() {}
 
 void led_tick(uint32_t) {}
 
+void led_flasher_init() {}
+
+void led_flasher_set(bool) {}
+
 void haltWithFastBlink() {
   printf("SITL: haltWithFastBlink, fatal init failure, exiting.\n");
   fflush(stdout);
