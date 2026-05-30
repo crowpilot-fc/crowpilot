@@ -718,10 +718,14 @@ namespace cp {
 
 // GPIO the flasher drives. Only used when ENABLE_LED_FLASHER is 1. Set it to a
 // pin that is free on your board and airframe: there is no pin-conflict check,
-// so do not pick a motor, servo, receiver, or I2C pin. GP3 is free on the
-// Caribou twin but is the rudder servo on the NEO single-plane profile, so
-// check your pin map.
-constexpr uint8_t LED_FLASHER_PIN = 3;
+// so do not pick a motor, servo, receiver, or I2C pin. GP3 is the historical
+// default and is free on the Caribou twin, but it is also PIN_ESP_IO0 on the
+// boards that wire the ESP passthrough flash path (BOARD_HAS_ESP_FLASH), and
+// it is the rudder servo on the NEO single-plane profile. The default below
+// dodges the ESP-flash collision automatically by moving to GP2 (free on all
+// three flash-capable boards) when BOARD_HAS_ESP_FLASH is set. NEO users
+// should still hand-pick a pin that matches their airframe.
+constexpr uint8_t LED_FLASHER_PIN = BOARD_HAS_ESP_FLASH ? 2 : 3;
 
 // Drive polarity. true: a high pin lights the LED (a direct LED, or a low-side
 // MOSFET that conducts when the gate is high). false: inverted, for a driver

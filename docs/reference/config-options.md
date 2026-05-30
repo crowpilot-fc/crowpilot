@@ -264,7 +264,7 @@ its own power. It is not a WS2812 addressable driver.
 | Option | Default | Meaning |
 |---|---|---|
 | `ENABLE_LED_FLASHER` | `0` | Enables the flasher. When off, the pin is untouched and free. |
-| `LED_FLASHER_PIN` | `3` | GPIO to drive. Set to a free pin for your board and airframe. There is no pin-conflict check. |
+| `LED_FLASHER_PIN` | `2` on boards with `BOARD_HAS_ESP_FLASH`, else `3` | GPIO to drive. Set to a free pin for your board and airframe. There is no pin-conflict check. The default dodges the ESP passthrough flash strap (`PIN_ESP_IO0` = GP3) automatically on boards that wire it. |
 | `LED_FLASHER_PATTERN` | `LED_FLASH_STROBE` | `LED_FLASH_STROBE` (double-flash then a pause), `LED_FLASH_BEACON` (one flash per second), or `LED_FLASH_STEADY` (always on). |
 | `LED_FLASHER_ACTIVE_HIGH` | `true` | `true` lights on a high pin (direct LED or a high-side-on MOSFET gate). `false` inverts for a low-active driver. |
 | `LED_STROBE_FLASH_MS` / `LED_STROBE_GAP_MS` / `LED_STROBE_PERIOD_MS` | `60` / `110` / `1400` | Strobe flash on-time, the dark gap between the two flashes, and the full cycle. |
