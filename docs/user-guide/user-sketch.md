@@ -17,6 +17,22 @@ The user hook is off by default. Turn it on in `src/Config.h`:
 
 With the hook off, `user_setup()` and `user_tick()` still compile but are never called. Your aircraft flies exactly the same.
 
+## Building the sketch
+
+CrowPilot uses repo-root-relative includes (`#include "src/..."`). Compile through the shipped script, not the Arduino IDE's Verify or Upload button:
+
+```
+./build.sh --upload -p /dev/tty.usbmodemXXXX
+```
+
+The script adds the include path the rp2040 core does not pick up by default. The IDE's compile button does not, and will fail with `src/...: No such file or directory` on the first include. If you want the IDE button to work too, drop one line into the rp2040 core's `platform.local.txt` (next to its `platform.txt`):
+
+```
+build.extra_flags=-I{build.source.path}
+```
+
+Restart the IDE. The repo stays portable, this is a per-machine convenience.
+
 ## The two entry points
 
 ```cpp
