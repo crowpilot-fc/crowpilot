@@ -142,8 +142,10 @@ New here? Work through the getting-started path in order:
 One end-to-end guide per build type: wiring, channel plan, `Config.h`, and the modes.
 
 - [Simple fixed-wing plane](getting-started/setup-simple-plane.md) - a single-motor AETR plane on a Tiny or NEO with an MPU.
-
-More setup guides (Caribou twin, flying wing, quad, tailsitter) are added here as they are written.
+- [DHC-4 Caribou twin](getting-started/setup-caribou.md) - the v1.0 acceptance airframe, twin-engine cargo plane with the Caribou user-sketch aux.
+- [Flying wing (delta)](getting-started/setup-flying-wing.md) - one motor and two elevons, no rudder.
+- [Quad X](getting-started/setup-quad.md) - four motors, no servos, angle and acro modes.
+- [Tailsitter bicopter](getting-started/setup-tailsitter.md) - two motors and two elevons, hover-to-forward transition.
 
 ## Documentation map
 
