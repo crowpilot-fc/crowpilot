@@ -36,8 +36,20 @@ constexpr uint8_t PIN_LED_ONBOARD   = 25;
 constexpr uint8_t PIN_COMPANION_TX  = 20;
 constexpr uint8_t PIN_COMPANION_RX  = 21;
 
+// Optional ESP control lines used by the cp esp flash passthrough path. The
+// FC pulses EN to reset the ESP and holds IO0 (GPIO9 on the ESP32-C3) low at
+// reset to drop the chip into its UART ROM bootloader, then bridges USB CDC
+// bytes to the ESP UART. Wire these two jumpers and the ESP can be flashed
+// for the first time and updated forever without a USB cable on the ESP
+// itself.
+constexpr uint8_t PIN_ESP_EN        = 22;
+constexpr uint8_t PIN_ESP_IO0       = 3;
+
 }  // namespace cp::boards::weact_rp2350a_v10
 
 namespace cp {
 using namespace cp::boards::weact_rp2350a_v10;
 }  // namespace cp
+
+// This board breaks out enough free GPIO for the ESP passthrough flash path.
+#define BOARD_HAS_ESP_FLASH 1

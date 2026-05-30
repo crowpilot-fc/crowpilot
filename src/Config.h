@@ -66,6 +66,16 @@
   #define BOARD_HAS_WIFI 0
 #endif
 
+// A board header defines BOARD_HAS_ESP_FLASH when it exposes PIN_ESP_EN and
+// PIN_ESP_IO0 (the two optional control jumpers from the FC to the ESP
+// companion's EN and GPIO9 strap pins). With both wired, the cp esp flash
+// command on the FC drops the ESP into its UART ROM bootloader and bridges
+// USB CDC to the companion UART so esptool can program the chip without ever
+// touching its own USB port. The NEO is pin-tight and leaves this at 0.
+#ifndef BOARD_HAS_ESP_FLASH
+  #define BOARD_HAS_ESP_FLASH 0
+#endif
+
 // ===========================================================================
 // Build target
 // ===========================================================================

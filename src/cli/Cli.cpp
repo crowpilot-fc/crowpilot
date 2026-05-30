@@ -17,6 +17,13 @@
 #include "src/comms/OnboardWifi.h"
 #endif
 
+#if BOARD_HAS_ESP_FLASH && BUILD_TARGET == BUILD_TARGET_NATIVE
+#include "src/comms/EspFlash.h"
+  #define CP_HAS_ESP_FLASH 1
+#else
+  #define CP_HAS_ESP_FLASH 0
+#endif
+
 namespace cp::cli {
 
 #if ENABLE_CONFIG_CLI
@@ -200,6 +207,47 @@ void doBoot() {
   rp2040.rebootToBootloader();
 }
 
+void doEsp() {
+#if CP_HAS_ESP_FLASH
+  // ESP companion passthrough. Two sub-verbs:
+  //   cp esp flash  - drop the ESP into its UART ROM bootloader and bridge
+  //                   USB CDC <-> companion UART so host esptool can program
+  //                   the chip. Returns to the prompt after a 60 s lull.
+  //   cp esp reset  - pulse EN to restart the ESP into its application.
+  // USB-only (the bridge takes over USB CDC) and refused while armed (the
+  // ESP companion is not safety-critical in v1, but holding USB hostage and
+  // freezing the link mid-flight is a poor failure mode).
+  const char* sub = strtok(nullptr, " ");
+  if (sub == nullptr) {
+    reply("err badcmd");
+    return;
+  }
+  if (s_io != s_chan[0].io) {
+    reply("err usbonly");
+    return;
+  }
+  if (cp::actuators::arm_state() == cp::actuators::ArmState::ARMED) {
+    reply("err armed");
+    return;
+  }
+  if (strcmp(sub, "flash") == 0) {
+    reply("ok esp flash");
+    s_io->flush();
+    cp::comms::esp_flash::enter_bootloader();
+    cp::comms::esp_flash::run_bridge(60000);
+    cp::comms::esp_flash::reset_into_app();
+    reply("ok esp done");
+  } else if (strcmp(sub, "reset") == 0) {
+    cp::comms::esp_flash::reset_into_app();
+    reply("ok esp reset");
+  } else {
+    reply("err badcmd");
+  }
+#else
+  reply("err unsupported");
+#endif  // CP_HAS_ESP_FLASH
+}
+
 void handleLine(char* line) {
   const char* prefix = strtok(line, " ");
   if (prefix == nullptr || strcmp(prefix, "cp") != 0) {
@@ -223,6 +271,8 @@ void handleLine(char* line) {
     doStream();
   } else if (strcmp(verb, "boot") == 0) {
     doBoot();
+  } else if (strcmp(verb, "esp") == 0) {
+    doEsp();
   } else {
     reply("err badcmd");
   }

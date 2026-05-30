@@ -179,6 +179,19 @@ The pin numbers line up (20 to 20, 21 to 21), but this is still the correct cros
 
 The ESP-side pins (GPIO20 for receive, GPIO21 for transmit) are set in `esp-companion/esp-companion.ino` and can move to any free ESP32-C3 GPIO. Power the ESP from the 5 V rail, not the flight controller's 3.3 V regulator: WiFi transmit current peaks above what the RP2350's on-board regulator should supply, and the ESP board makes its own 3.3 V.
 
+### Passthrough flashing (optional, no ESP USB needed)
+
+Two extra control jumpers let the flight controller flash the ESP itself, so the ESP never needs a USB cable. The FC pulses the ESP's EN line to reset it and holds GPIO9 (the boot strap) low at reset to drop the chip into its UART ROM bootloader, then bridges USB CDC to the companion UART for the duration of the flash. The cp serial command is `cp esp flash`. This works on the WeAct, the Waveshare Tiny, and the Pico 2 W. The SmartElex NEO does not break out enough free GPIO for this and is skipped.
+
+| Pin on the ESP32-C3 board | Wire it to (flight controller) | What it does |
+|---|---|---|
+| EN (or RST) | GP22 | FC drives this low to reset the ESP |
+| GPIO9 | GP3 | FC holds this low at reset to enter the ROM bootloader |
+
+With those two jumpers in place, on the host run something like `esptool.py --port <FC serial port> --before no_reset --baud 115200 write_flash 0x0 esp-companion.bin`, after sending `cp esp flash` over the same serial port. The bridge returns to the cp prompt after 60 seconds with no traffic, then resets the ESP into its application. The command is refused while armed and is USB-only (it takes the USB CDC over for the duration of the flash, so it cannot be run from the companion link itself).
+
+If you do not wire these two extra lines, the ESP still needs one initial USB flash through its own port, but everything else (the cp uplink and the phone UI) works without them.
+
 ## Wiring checklist before first power-on
 
 - Battery DISCONNECTED.

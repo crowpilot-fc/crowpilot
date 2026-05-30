@@ -108,6 +108,13 @@ control-core tuning constant is provisional.
   mechanically off the rudder.
 - The ESP32-C3 wireless companion: a WiFi access point that serves a phone
   web UI and bridges the cp protocol to the flight controller's companion UART.
+- Optional ESP passthrough flashing from the flight controller, gated by the
+  board having two extra free GPIOs (PIN_ESP_EN and PIN_ESP_IO0). With those
+  jumpers wired, `cp esp flash` over USB drops the ESP into its UART ROM
+  bootloader and bridges USB CDC to the companion UART so the host esptool
+  can program the chip, and `cp esp reset` restarts it. The ESP never needs
+  to see a USB cable. WeAct, Waveshare Tiny, and Pico 2 W carry the pins;
+  the SmartElex NEO does not. USB-only, refused while armed.
 - Onboard WiFi for the Raspberry Pi Pico 2 W: the flight controller raises
   its own access point and serves the same UI and cp bridge from its second
   core, with no separate companion board.

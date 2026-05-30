@@ -52,6 +52,10 @@ constexpr uint8_t PIN_LED_ONBOARD   = 14;
 constexpr uint8_t PIN_COMPANION_TX  = 20;
 constexpr uint8_t PIN_COMPANION_RX  = 21;
 
+// ESP passthrough flash control lines. See weact_rp2350a_v10.h for the role.
+constexpr uint8_t PIN_ESP_EN        = 22;
+constexpr uint8_t PIN_ESP_IO0       = 3;
+
 // Reserved by the CYW43439 radio, do not use for flight or aux:
 // GP23 (WL_ON), GP24 (WL_DATA), GP25 (WL_CS), GP29 (WL_CLK / VSYS sense).
 
@@ -60,3 +64,5 @@ constexpr uint8_t PIN_COMPANION_RX  = 21;
 namespace cp {
 using namespace cp::boards::pico2w;
 }  // namespace cp
+
+#define BOARD_HAS_ESP_FLASH 1

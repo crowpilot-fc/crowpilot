@@ -35,6 +35,10 @@ constexpr uint8_t PIN_LED_ONBOARD   = 25;  // RP2350 onboard LED. Boot indicator
 constexpr uint8_t PIN_COMPANION_TX  = 20;  // UART1 TX. ESP companion (v1.1) or GPS (v2). Mutually exclusive.
 constexpr uint8_t PIN_COMPANION_RX  = 21;  // UART1 RX.
 
+// ESP passthrough flash control lines. See weact_rp2350a_v10.h for the role.
+constexpr uint8_t PIN_ESP_EN        = 22;
+constexpr uint8_t PIN_ESP_IO0       = 3;
+
 }  // namespace cp::boards::waveshare_rp2350_tiny
 
 // Hoist the pin constants into the global cp:: namespace so module code can
@@ -43,3 +47,5 @@ constexpr uint8_t PIN_COMPANION_RX  = 21;  // UART1 RX.
 namespace cp {
 using namespace cp::boards::waveshare_rp2350_tiny;
 }  // namespace cp
+
+#define BOARD_HAS_ESP_FLASH 1
