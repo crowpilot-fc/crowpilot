@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build the CrowPilot firmware for the WeAct RP2350A (generic RP2350).
 #
-# Two things the stock Arduino toolchain does not do on its own:
+# Three things the stock Arduino toolchain does not do on its own:
 #   1. CrowPilot uses repo-root-relative includes (#include "src/...").
 #      The sketch root is not on the compiler include path by default,
 #      so it is added explicitly via build.extra_flags.
@@ -9,15 +9,23 @@
 #      program. sbus_rx.pio and dshot.pio are assembled to their .pio.h
 #      headers here (the results are also committed, so an Arduino IDE
 #      build without this script still works).
+#   3. The runtime parameter registry persists to a LittleFS filesystem
+#      that needs a flash partition allocated at build time. The default
+#      generic_rp2350 FQBN reserves 0 bytes for FS and LittleFS.begin()
+#      hangs at boot. We pass an explicit flash option that reserves both
+#      a sketch region and an FS region.
 #
 # Pass extra arguments straight through, e.g. ./build.sh --upload -p <port>.
-# If your board has more than 2 MB flash, append a flash option to FQBN,
-# e.g. rp2040:rp2040:generic_rp2350:flash=4194304_0.
+# CROWPILOT_FLASH overrides the default flash layout. Defaults to 4 MB
+# total (1 MB sketch + 3 MB FS), which fits the WeAct V10's 4 MB Winbond
+# part. For a 16 MB WeAct or another board, pass e.g.
+# CROWPILOT_FLASH=flash=16777216_15728640 ./build.sh ...
 
 set -euo pipefail
 
 SKETCH_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-FQBN="rp2040:rp2040:generic_rp2350"
+FLASH_OPT="${CROWPILOT_FLASH:-flash=4194304_3145728}"
+FQBN="rp2040:rp2040:generic_rp2350:${FLASH_OPT}"
 
 # Assemble the PIO programs if pioasm from the rp2040 core is present.
 PIOASM="$(find "$HOME/Library/Arduino15/packages/rp2040/tools/pqt-pioasm" \

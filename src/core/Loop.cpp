@@ -112,12 +112,12 @@ void printRoleChannels(const uint16_t* ch) {
 }
 
 // Serial debug output. Each block is gated on a compile-time flag in
-// Config.h and on a live USB serial connection, and is rate-limited.
-// Called once per tick.
+// Config.h and is rate-limited. Called once per tick. Output goes to the
+// USB CDC ring buffer regardless of whether a host has the port open;
+// the rp2040 core drops bytes when the buffer fills with no host
+// draining. Not gating on `if (Serial)` lets a bench operator attach a
+// monitor mid-flight and see live DEV lines immediately.
 void debugOutput() {
-  if (!Serial) {
-    return;
-  }
 
 #if DEBUG_PRINT_DEV
   // Loop-period statistics, accumulated each tick, reported at 1 Hz.
@@ -378,57 +378,73 @@ void debugOutput() {
 
 void init() {
   Serial.begin(115200);
+#if BUILD_TARGET == BUILD_TARGET_NATIVE
+  // Without ignoreFlowControl(true), the rp2040 core's USB CDC silently
+  // DROPS every byte written to Serial while no host is attached. There
+  // is no internal buffering. A bench operator who attaches a monitor
+  // after the firmware has booted sees nothing, because the boot trace
+  // was written to a closed pipe. With ignoreFlowControl(true), writes
+  // go into the TinyUSB TX buffer regardless of host state, so the boot
+  // trace is delivered the moment the monitor opens the port. The host
+  // SITL stub has no such method (it writes to stdout directly).
+  Serial.ignoreFlowControl(true);
+#endif
   cp::hal::led_init();
 #if ENABLE_LED_FLASHER
   cp::lighting::flasher::init();
 #endif
 
-  if (Serial) {
-    Serial.print("CrowPilot boot. LOOP_HZ=");
-    Serial.print(LOOP_HZ);
-    Serial.print(", period_us=");
-    Serial.println(kLoopPeriodUs);
-  }
+  // Brief settle so USB CDC enumeration finishes before the first print.
+  // Even with ignoreFlowControl, the very-first bytes can be lost if the
+  // CDC endpoint is mid-enumeration. 200 ms is more than enough.
+  delay(200);
+
+  // Boot trace. NOT gated on `if (Serial)`: gating drops every byte that
+  // would otherwise be delivered to a host that attaches mid-init, and a
+  // bench operator who started the monitor late then sees nothing. The
+  // rp2040 core's CDC layer drops bytes when the buffer is full and no
+  // host is reading, so unconditional prints are safe.
+  Serial.print("CrowPilot boot. LOOP_HZ=");
+  Serial.print(LOOP_HZ);
+  Serial.print(", period_us=");
+  Serial.println(kLoopPeriodUs);
 
   // The parameter registry seeds the control gains, so it comes up
   // before any control module reads a gain.
+  Serial.println("init: params");
   cp::params::init();
 
-  // The IMU is mandatory. A missing IMU halts here, with a fast LED
-  // blink, before any motor output is possible.
+  // The IMU is mandatory. A missing or unresponsive IMU halts here with
+  // a fast LED blink before any motor output is possible. The I2C HAL
+  // installs a 25 ms per-transaction timeout (src/hal/I2c.cpp), so a
+  // bare bench with no IMU on the bus fails this check promptly instead
+  // of hanging the firmware.
+  Serial.println("init: imu");
   if (!cp::sensors::imu::init()) {
-    if (Serial) {
-      Serial.println("ERROR: IMU init failed. Halting before motor output.");
-    }
-    cp::hal::haltWithFastBlink();
+    Serial.println("ERROR: IMU init failed. Halting before motor output.");
+    cp::hal::haltWithFastBlink("IMU init failed (no MPU on I2C, or wrong address / wrong type)");
   }
-  if (Serial) {
-    Serial.println("IMU OK");
-  }
+  Serial.println("init: imu OK");
 
   // The receiver is mandatory.
+  Serial.println("init: receiver");
   if (!cp::radio::init()) {
-    if (Serial) {
-      Serial.println("ERROR: Receiver init failed (PIO program could not load).");
-    }
-    cp::hal::haltWithFastBlink();
+    Serial.println("ERROR: Receiver init failed (PIO program could not load).");
+    cp::hal::haltWithFastBlink("Receiver init failed (PIO program could not load)");
   }
-  if (Serial) {
-    Serial.println("Receiver OK (PIO SM 0 active)");
-  }
+  Serial.println("init: receiver OK (PIO SM 0 active)");
 
   cp::failsafe::init();
 
   // The barometer is optional. A BARO_NONE build or a chip failure
   // leaves the firmware running without altitude.
+  Serial.println("init: barometer");
   if (!cp::sensors::baro::init()) {
-    if (Serial) {
-      Serial.println("WARN: Barometer init failed. Continuing without altitude.");
-    }
-  } else if (Serial) {
+    Serial.println("WARN: Barometer init failed. Continuing without altitude.");
+  } else {
     Serial.println(cp::sensors::baro::is_present()
-                       ? "Barometer OK"
-                       : "Barometer disabled (BARO_NONE)");
+                       ? "init: barometer OK"
+                       : "init: barometer disabled (BARO_NONE)");
   }
 
 #if ENABLE_BATTERY_MONITOR
@@ -444,9 +460,7 @@ void init() {
   cp::control::rate::init();
   cp::airframes::init();
   cp::actuators::init();
-  if (Serial) {
-    Serial.println("Actuators OK (NOT_ARMED)");
-  }
+  Serial.println("init: actuators OK (NOT_ARMED)");
 
   // One-shot bench routines. Each does not return. The actuator stage
   // is up before ESC calibration so the motor pins are configured.
@@ -460,13 +474,11 @@ void init() {
   cp::modes::init();
   cp::params::live::init();
   cp::telemetry::init();
-  if (Serial) {
-    if (cp::telemetry::is_active()) {
-      Serial.print("Logger OK -> ");
-      Serial.println(cp::telemetry::current_filename());
-    } else {
-      Serial.println("Logger inactive (no SD card, init failed, or disabled).");
-    }
+  if (cp::telemetry::is_active()) {
+    Serial.print("init: logger OK -> ");
+    Serial.println(cp::telemetry::current_filename());
+  } else {
+    Serial.println("init: logger inactive (no SD card, init failed, or disabled).");
   }
   cp::user_hook::init();
 #if ENABLE_CONFIG_CLI

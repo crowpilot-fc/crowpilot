@@ -24,8 +24,9 @@ void led_flasher_init() {}
 
 void led_flasher_set(bool) {}
 
-void haltWithFastBlink() {
-  printf("SITL: haltWithFastBlink, fatal init failure, exiting.\n");
+void haltWithFastBlink(const char* repeat_msg) {
+  printf("SITL: haltWithFastBlink, fatal init failure: %s. Exiting.\n",
+         repeat_msg != nullptr ? repeat_msg : "(no message)");
   fflush(stdout);
   exit(1);
 }

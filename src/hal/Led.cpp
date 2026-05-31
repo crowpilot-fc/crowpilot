@@ -45,18 +45,47 @@ void led_flasher_set(bool high) {
   digitalWriteFast(LED_FLASHER_PIN, high ? HIGH : LOW);
 }
 
-[[noreturn]] void haltWithFastBlink() {
+[[noreturn]] void haltWithFastBlink(const char* repeat_msg) {
   pinMode(PIN_LED_ONBOARD, OUTPUT);
-  bool     state          = false;
-  uint32_t last_toggle_us = micros();
+  // Also drive the WeAct V10's second user LED (GP24, LED1) so a bench
+  // operator sees TWO LEDs blinking at different rates. Boards without a
+  // GP24 LED just toggle a free pin, harmless. The two rates make it
+  // unmistakable: fast = panic, slow = "FC is alive". A single LED can be
+  // mistaken for a noisy power rail; two clearly different rates cannot.
+  constexpr uint8_t kAuxBlinkPin = 24;
+  pinMode(kAuxBlinkPin, OUTPUT);
+
+  bool     state           = false;
+  uint32_t last_msg_ms     = 0;
+  uint32_t last_aux_ms     = 0;
+  bool     aux_state       = false;
   // 5 Hz blink = 200 ms period = 100 ms half period.
-  constexpr uint32_t kPanicHalfPeriodUs = 100000UL;
+  constexpr uint32_t kPanicHalfPeriodMs = 100UL;
+  constexpr uint32_t kAuxHalfPeriodMs   = 500UL;   // 1 Hz on the aux LED.
+  constexpr uint32_t kRepeatIntervalMs  = 1000UL;
   while (true) {
-    if ((micros() - last_toggle_us) >= kPanicHalfPeriodUs) {
-      state          = !state;
-      last_toggle_us = micros();
-      digitalWriteFast(PIN_LED_ONBOARD, state ? HIGH : LOW);
+    state = !state;
+    // Plain digitalWrite, not digitalWriteFast, to rule out any rp2040-core
+    // optimisation quirk on RP2350. Speed in the panic loop does not matter.
+    digitalWrite(PIN_LED_ONBOARD, state ? HIGH : LOW);
+    if ((millis() - last_aux_ms) >= kAuxHalfPeriodMs) {
+      aux_state = !aux_state;
+      digitalWrite(kAuxBlinkPin, aux_state ? HIGH : LOW);
+      last_aux_ms = millis();
     }
+    // Re-print the diagnostic at ~1 Hz so a bench operator who attaches a
+    // serial monitor after the firmware has already halted catches the
+    // message. Without this repeat, the original print would be lost in the
+    // CDC buffer the moment that buffer overflows or the host disconnects.
+    if (repeat_msg != nullptr && (millis() - last_msg_ms) >= kRepeatIntervalMs) {
+      Serial.print("PANIC: ");
+      Serial.println(repeat_msg);
+      last_msg_ms = millis();
+    }
+    // delay() yields control to the rp2040 core, which polls USB CDC.
+    // Without this yield, the firmware busy-spins and Serial bytes never
+    // leave the FC.
+    delay(kPanicHalfPeriodMs);
   }
 }
 
