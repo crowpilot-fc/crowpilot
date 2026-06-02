@@ -167,15 +167,22 @@ constexpr uint8_t IMU_I2C_ADDR   = 0x68;  // AD0 tied low. 0x69 if AD0 high.
 constexpr uint8_t IMU_GYRO_RANGE  = 3;    // FS_SEL  = 3 -> 2000 deg/s.
 constexpr uint8_t IMU_ACCEL_RANGE = 2;    // AFS_SEL = 2 -> 8 g.
 
-// IMU bias offsets, subtracted from every sample. Provisional zero. The
-// IMU calibration routine (build phase 5) measures these with the
-// vehicle held level and the builder writes the results back here.
-constexpr float GYRO_BIAS_X = 0.0f;  // deg/s
-constexpr float GYRO_BIAS_Y = 0.0f;  // deg/s
-constexpr float GYRO_BIAS_Z = 0.0f;  // deg/s
-constexpr float ACC_BIAS_X  = 0.0f;  // g
-constexpr float ACC_BIAS_Y  = 0.0f;  // g
-constexpr float ACC_BIAS_Z  = 0.0f;  // g
+// IMU bias offsets, subtracted from every sample. Measured by the
+// ENABLE_IMU_CALIBRATION routine and pasted back here. The accel
+// values include any tilt of the surface the IMU was on, so they are
+// only valid for the chip orientation used during calibration. Re-run
+// the calibration with the IMU mounted in its final airframe
+// orientation, on a level surface, before any flight.
+//
+// Captured 2026-05-31 with the IMU on a slightly tilted breadboard for
+// the initial bench bring-up. Good enough to stop the yaw drift; not
+// flight-ready.
+constexpr float GYRO_BIAS_X = -7.572162f;  // deg/s
+constexpr float GYRO_BIAS_Y = 0.363775f;   // deg/s
+constexpr float GYRO_BIAS_Z = 0.783658f;   // deg/s
+constexpr float ACC_BIAS_X  = 0.147598f;   // g
+constexpr float ACC_BIAS_Y  = 0.021368f;   // g
+constexpr float ACC_BIAS_Z  = 0.022930f;   // g
 
 // Samples averaged by the IMU bias calibration routine. The routine
 // paces one read per millisecond, so 2000 samples span about two

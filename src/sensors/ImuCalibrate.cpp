@@ -7,6 +7,7 @@
 
 #include "src/Config.h"
 #include "src/hal/Hal.h"
+#include "src/hal/Led.h"
 
 namespace cp::sensors::imu_calibrate {
 
@@ -35,32 +36,34 @@ void busyWaitUs(uint32_t us) {
   }
 }
 
-// Halt forever. The volatile counter keeps the side-effect-free loop
-// from being optimized away under the C++ forward-progress rule.
+// Halt forever after the calibration prints. The tight spin pattern this
+// used to use starved USB CDC polling, so the printed bias values never
+// left the FC. Delegate to haltWithFastBlink, which uses delay() so the
+// rp2040 core can drain CDC and the calibration result actually reaches
+// the host. The repeat message also lets a bench operator who attaches a
+// monitor late catch the bias output.
 [[noreturn]] void halt() {
-  volatile uint32_t spin = 0;
-  while (true) {
-    spin = spin + 1;
-  }
+  cp::hal::haltWithFastBlink("calibration complete - paste the printed lines into src/Config.h");
 }
 
 }  // anonymous namespace
 
 void run() {
+  // Brief settle so USB CDC enumeration completes before the first print.
+  // Loop.cpp set Serial.ignoreFlowControl(true) earlier, so writes buffer
+  // even when no host is attached and drain when one arrives. Do not gate
+  // prints on `if (Serial)` here, that drops bytes that the CDC layer
+  // could have delivered to a host attaching later.
   const uint32_t t0 = millis();
   while (!Serial && (millis() - t0) < kSerialWaitMs) {
   }
 
-  if (Serial) {
-    Serial.println();
-    Serial.println("CrowPilot IMU bias calibration.");
-    Serial.println("Hold the airframe stationary and level, belly down.");
-  }
+  Serial.println();
+  Serial.println("CrowPilot IMU bias calibration.");
+  Serial.println("Hold the airframe stationary and level, belly down.");
 
   if (!cp::hal::imu_init()) {
-    if (Serial) {
-      Serial.println("IMU init failed. Cannot calibrate.");
-    }
+    Serial.println("IMU init failed. Cannot calibrate.");
     halt();
   }
 
@@ -78,9 +81,7 @@ void run() {
     cp::hal::ImuSample s;
     if (!cp::hal::imu_read(s)) {
       if (++consecutive_failures >= kMaxConsecutiveFailures) {
-        if (Serial) {
-          Serial.println("IMU read failed repeatedly. Calibration aborted.");
-        }
+        Serial.println("IMU read failed repeatedly. Calibration aborted.");
         halt();
       }
       continue;
@@ -110,7 +111,14 @@ void run() {
   const float accel_bias_y = sum_ay / n;
   const float accel_bias_z = sum_az / n - kGravityZ_g;
 
-  if (Serial) {
+  // Print the bias output once per second for 30 seconds so a host that
+  // attaches the serial monitor at any time within that window catches
+  // the values. Without this repeat, the first print would land in the
+  // CDC TX buffer and be lost the moment the panic loop's PANIC lines
+  // overwrote the ring buffer. The calibration routine is one-shot
+  // bench-only and only runs when ENABLE_IMU_CALIBRATION is set, so this
+  // 30 s delay is not on the normal flight boot path.
+  for (int rep = 0; rep < 30; ++rep) {
     Serial.println();
     Serial.println("Calibration complete. Paste these into src/Config.h,");
     Serial.println("set ENABLE_IMU_CALIBRATION back to 0, and reflash:");
@@ -122,6 +130,7 @@ void run() {
     Serial.print("constexpr float ACC_BIAS_Y  = "); Serial.print(accel_bias_y, 6); Serial.println("f;");
     Serial.print("constexpr float ACC_BIAS_Z  = "); Serial.print(accel_bias_z, 6); Serial.println("f;");
     Serial.println();
+    delay(1000);
   }
 
   halt();
