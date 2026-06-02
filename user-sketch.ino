@@ -27,7 +27,10 @@
 //   ch10           flap 2 switch  (three-position: up / half / full)
 //
 // Pins below are firmware-free on the WeAct RP2350A_V10 for the Caribou
-// airframe. Writes to a firmware-claimed pin are ignored with a warning.
+// airframe with the current default flags (BOARD_HAS_ESP_FLASH = 1 reserves
+// GP2 for LED_FLASHER_PIN, GP3 for PIN_ESP_IO0, and GP22 for PIN_ESP_EN).
+// Writes to a firmware-claimed pin are ignored with a warning from the pin
+// guard in src/user_hook/PinGuard.cpp.
 
 #include <Servo.h>
 
@@ -37,11 +40,15 @@
 
 constexpr uint8_t GP_FLAP_1   = 12;  // both wings' flap 1 (Y-harness)
 constexpr uint8_t GP_FLAP_2   = 13;  // both wings' flap 2 (Y-harness)
-constexpr uint8_t GP_RETRACTS = 22;  // all three retracts share this signal
+constexpr uint8_t GP_RETRACTS = 23;  // all three retracts share this signal
 constexpr uint8_t GP_BAY_1    = 15;  // cargo bay door 1
-constexpr uint8_t GP_BAY_2    = 28;  // cargo bay door 2
-constexpr uint8_t GP_LED2     =  2;  // nav blink, red left wing / green right wing
-// GP3 is free. The nose wheel is steered mechanically off the rudder servo.
+constexpr uint8_t GP_BAY_2    = 27;  // cargo bay door 2 (GP28 reserved for battery ADC)
+constexpr uint8_t GP_LED2     = 26;  // nav blink, red left wing / green right wing
+// The nose wheel is steered mechanically off the rudder servo on GP9.
+// GP22 carries PIN_ESP_EN (ESP passthrough flash) so retracts have moved off
+// it; GP2 carries the default LED_FLASHER_PIN on boards with the ESP flash
+// path, so the nav LED moved off it; GP28 is reserved for the battery ADC if
+// you enable ENABLE_BATTERY_MONITOR, so the second bay door moved off it.
 
 // --- Transmitter channels -------------------------------------------------
 

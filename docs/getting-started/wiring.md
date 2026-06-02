@@ -168,25 +168,29 @@ The WiFi companion is optional. It connects to the flight controller's companion
 
 The transmit and receive lines cross over: the flight controller's transmit pin goes to the ESP's receive pin, and the ESP's transmit pin goes to the flight controller's receive pin. Both sides are 3.3 V logic, so no level shifter is needed.
 
-| Pin on the ESP32-C3 board | Wire it to (flight controller) | What it does |
-|---|---|---|
-| GPIO20 | GP20 | ESP receive, FC transmit |
-| GPIO21 | GP21 | ESP transmit, FC receive |
-| 5V | 5 V rail | powers the ESP |
-| GND | GND | common ground, required |
+The reference ESP board is the **Seeed XIAO ESP32-C3**. Its silkscreen labels the pins `D0..D10` rather than the raw GPIO numbers. The companion link uses `D6` and `D7`, which carry GPIO21 and GPIO20 respectively (the labels and the GPIO numbers do not line up, so it is easy to wire backwards if you match digits naively).
 
-The pin numbers line up (20 to 20, 21 to 21), but this is still the correct cross: GP20 is the flight controller's transmit line and ESP GPIO20 is the ESP's receive line, and likewise for 21. Connect transmit to receive, not transmit to transmit.
+| FC pin | XIAO silkscreen | XIAO GPIO | What it does |
+|--------|-----------------|-----------|---|
+| GP20 | D7 | GPIO20 (U0RXD) | FC transmits, ESP receives |
+| GP21 | D6 | GPIO21 (U0TXD) | ESP transmits, FC receives |
+| 5V | 5V | VBUS | powers the ESP |
+| GND | GND | GND | common ground, required |
 
-The ESP-side pins (GPIO20 for receive, GPIO21 for transmit) are set in `esp-companion/esp-companion.ino` and can move to any free ESP32-C3 GPIO. Power the ESP from the 5 V rail, not the flight controller's 3.3 V regulator: WiFi transmit current peaks above what the RP2350's on-board regulator should supply, and the ESP board makes its own 3.3 V.
+The TX and RX lines cross over by name. The XIAO `D7` pin sits at ESP GPIO20 which is the UART RX, so it pairs with the FC's TX on GP20. The XIAO `D6` pin sits at ESP GPIO21 which is the UART TX, so it pairs with the FC's RX on GP21.
+
+The ESP-side GPIO assignment is set in `esp-companion/esp-companion.ino` and can move to any free ESP32-C3 GPIO if your ESP board is not a XIAO. Power the ESP from the 5 V rail, not the flight controller's 3.3 V regulator: WiFi transmit current peaks above what the RP2350's on-board regulator should supply, and the ESP board makes its own 3.3 V.
 
 ### Passthrough flashing (optional, no ESP USB needed)
 
 Two extra control jumpers let the flight controller flash the ESP itself, so the ESP never needs a USB cable. The FC pulses the ESP's EN line to reset it and holds GPIO9 (the boot strap) low at reset to drop the chip into its UART ROM bootloader, then bridges USB CDC to the companion UART for the duration of the flash. The cp serial command is `cp esp flash`. This works on the WeAct, the Waveshare Tiny, and the Pico 2 W. The SmartElex NEO does not break out enough free GPIO for this and is skipped.
 
-| Pin on the ESP32-C3 board | Wire it to (flight controller) | What it does |
-|---|---|---|
-| EN (or RST) | GP22 | FC drives this low to reset the ESP |
-| GPIO9 | GP3 | FC holds this low at reset to enter the ROM bootloader |
+| FC pin | XIAO label | XIAO GPIO | What it does |
+|--------|------------|-----------|---|
+| GP22 | EN pad | CHIP_EN | FC drives this low to reset the ESP |
+| GP3 | D9 | GPIO9 | FC holds this low at reset to enter the ROM bootloader |
+
+On the XIAO ESP32-C3, the `EN` line is **not broken out as a normal pin**. It is a small pad or via on the board, typically near the RESET button. You may need to solder a wire to it. The `GPIO9` strap is on the `D9` pin and is easy to reach. If soldering to EN is not practical, skip both jumpers and keep using the ESP's own USB port for flashing it; the companion link (D6/D7, 5V, GND) still works without them.
 
 With those two jumpers in place, on the host run something like `esptool.py --port <FC serial port> --before no_reset --baud 115200 write_flash 0x0 esp-companion.bin`, after sending `cp esp flash` over the same serial port. The bridge returns to the cp prompt after 60 seconds with no traffic, then resets the ESP into its application. The command is refused while armed and is USB-only (it takes the USB CDC over for the duration of the flash, so it cannot be run from the companion link itself).
 

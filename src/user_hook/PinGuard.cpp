@@ -46,6 +46,19 @@ bool isClaimed(uint8_t pin) {
       pin == PIN_SD_SCK  || pin == PIN_SD_CS)        return true;
   if (pin == PIN_LED_ONBOARD || pin == PIN_LED_STATUS) return true;
   if (pin == PIN_COMPANION_TX || pin == PIN_COMPANION_RX) return true;
+#if ENABLE_LED_FLASHER
+  if (pin == LED_FLASHER_PIN) return true;
+#endif
+#if ENABLE_BATTERY_MONITOR
+  if (pin == BATTERY_ADC_PIN) return true;
+#endif
+#if BOARD_HAS_ESP_FLASH
+  // The ESP passthrough flash path drives EN and IO0 only during the
+  // `cp esp flash` command, but reserving them stops a user sketch from
+  // wiring something else to those pins and getting random behaviour the
+  // first time esp flash is run.
+  if (pin == PIN_ESP_EN || pin == PIN_ESP_IO0) return true;
+#endif
   return false;
 }
 
