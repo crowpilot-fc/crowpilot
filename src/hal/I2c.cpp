@@ -12,7 +12,18 @@ namespace cp::hal::i2c {
 
 namespace {
 
-bool s_initialized = false;
+bool s_initialized   = false;
+
+// Bus-recovery outcome from the most recent ensureInit() call. Read by
+// the init trace and by `cp scan` to expose whether the bench bus
+// needed unsticking. Values:
+//   kRecoveryClean   bus was idle, no recovery action needed.
+//   kRecoveryUnstuck a slave was holding SDA low at boot, the SCL
+//                    pulse train released it before Wire.begin.
+//   kRecoveryStuck   the SCL pulses did not release SDA. Bus is
+//                    likely still held by a faulty device.
+bool s_recovery_attempted = false;
+RecoveryStatus s_recovery_status = RecoveryStatus::kClean;
 
 }  // anonymous namespace
 
@@ -32,15 +43,22 @@ void ensureInit() {
   pinMode(PIN_I2C_SCL, OUTPUT);
   digitalWrite(PIN_I2C_SCL, HIGH);
   delayMicroseconds(10);
-  for (int i = 0; i < 9; ++i) {
-    if (digitalRead(PIN_I2C_SDA) == HIGH) {
-      break;  // bus already idle
-    }
+  const bool start_idle = (digitalRead(PIN_I2C_SDA) == HIGH);
+  int toggles = 0;
+  for (; toggles < 9 && digitalRead(PIN_I2C_SDA) == LOW; ++toggles) {
     digitalWrite(PIN_I2C_SCL, LOW);
     delayMicroseconds(10);
     digitalWrite(PIN_I2C_SCL, HIGH);
     delayMicroseconds(10);
   }
+  if (start_idle) {
+    s_recovery_status = RecoveryStatus::kClean;
+  } else if (digitalRead(PIN_I2C_SDA) == HIGH) {
+    s_recovery_status = RecoveryStatus::kUnstuck;
+  } else {
+    s_recovery_status = RecoveryStatus::kStuck;
+  }
+  s_recovery_attempted = true;
   // Manual STOP condition: SDA low while SCL is high, then SDA high.
   pinMode(PIN_I2C_SDA, OUTPUT);
   digitalWrite(PIN_I2C_SDA, LOW);
@@ -64,6 +82,10 @@ void ensureInit() {
   // rather than the upstream setWireTimeout(us, reset).
   Wire.setTimeout(25UL, true);
   s_initialized = true;
+}
+
+RecoveryStatus lastRecoveryStatus() {
+  return s_recovery_status;
 }
 
 }  // namespace cp::hal::i2c

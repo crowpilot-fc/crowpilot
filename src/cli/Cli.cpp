@@ -14,6 +14,13 @@
 #include "src/hal/Hal.h"
 #include "src/params/Params.h"
 
+#if BUILD_TARGET == BUILD_TARGET_NATIVE
+#include <Wire.h>
+#include <initializer_list>
+
+#include "src/hal/I2c.h"
+#endif
+
 #if ENABLE_ONBOARD_WIFI
 #include "src/comms/OnboardWifi.h"
 #endif
@@ -249,6 +256,77 @@ void doEsp() {
 #endif  // CP_HAS_ESP_FLASH
 }
 
+// Bench diagnostic. Probes I2C addresses 0x76 and 0x77 (the two common
+// barometer addresses) and dumps chip-ID candidates plus the BMP280
+// calibration block and the data registers. Used when the configured
+// baro driver does not recognise the chip on the bus, or when a
+// breakout is suspected of being a counterfeit. Output is informational
+// only, formatting belongs in the CLI layer rather than in the HAL.
+void doScan() {
+#if BUILD_TARGET == BUILD_TARGET_NATIVE
+  cp::hal::i2c::ensureInit();
+  reply("scan begin");
+  for (uint8_t addr : {0x76, 0x77}) {
+    Wire.beginTransmission(addr);
+    if (Wire.endTransmission() != 0) {
+      s_io->print("scan 0x");
+      s_io->print(addr, HEX);
+      s_io->println(" no ACK");
+      continue;
+    }
+    for (uint8_t reg : {0x00, 0xD0, 0x0D}) {
+      Wire.beginTransmission(addr);
+      Wire.write(reg);
+      if (Wire.endTransmission(false) != 0) continue;
+      if (Wire.requestFrom(addr, (uint8_t)1, (uint8_t)true) != 1) continue;
+      uint8_t v = (uint8_t)Wire.read();
+      s_io->print("scan 0x");
+      s_io->print(addr, HEX);
+      s_io->print(" reg 0x");
+      s_io->print(reg, HEX);
+      s_io->print(" = 0x");
+      s_io->println(v, HEX);
+    }
+    // BMP280 calibration block at 0x88..0x9F (24 bytes). Useful for
+    // detecting counterfeit chips that ship with bad NVM.
+    Wire.beginTransmission(addr);
+    Wire.write(0x88);
+    if (Wire.endTransmission(false) == 0 &&
+        Wire.requestFrom(addr, (uint8_t)24, (uint8_t)true) == 24) {
+      s_io->print("scan 0x");
+      s_io->print(addr, HEX);
+      s_io->print(" calib 0x88..0x9F:");
+      for (int i = 0; i < 24; ++i) {
+        uint8_t b = (uint8_t)Wire.read();
+        s_io->print(' ');
+        if (b < 0x10) s_io->print('0');
+        s_io->print(b, HEX);
+      }
+      s_io->println();
+    }
+    // BMP280 data registers 0xF7..0xFC (pressure + temperature raw).
+    Wire.beginTransmission(addr);
+    Wire.write(0xF7);
+    if (Wire.endTransmission(false) == 0 &&
+        Wire.requestFrom(addr, (uint8_t)6, (uint8_t)true) == 6) {
+      s_io->print("scan 0x");
+      s_io->print(addr, HEX);
+      s_io->print(" data 0xF7..0xFC:");
+      for (int i = 0; i < 6; ++i) {
+        uint8_t b = (uint8_t)Wire.read();
+        s_io->print(' ');
+        if (b < 0x10) s_io->print('0');
+        s_io->print(b, HEX);
+      }
+      s_io->println();
+    }
+  }
+  reply("ok scan");
+#else
+  reply("err unsupported");
+#endif
+}
+
 void handleLine(char* line) {
   const char* prefix = strtok(line, " ");
   if (prefix == nullptr || strcmp(prefix, "cp") != 0) {
@@ -275,8 +353,7 @@ void handleLine(char* line) {
   } else if (strcmp(verb, "esp") == 0) {
     doEsp();
   } else if (strcmp(verb, "scan") == 0) {
-    cp::hal::baro_scan();
-    reply("ok scan");
+    doScan();
   } else {
     reply("err badcmd");
   }

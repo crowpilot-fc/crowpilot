@@ -19,6 +19,7 @@
 #include "src/estimation/DynamicNotch.h"
 #endif
 #include "src/failsafe/Failsafe.h"
+#include "src/hal/I2c.h"
 #if ENABLE_LED_FLASHER
 #include "src/lighting/LedFlasher.h"
 #endif
@@ -443,6 +444,21 @@ void init() {
   // installs a 25 ms per-transaction timeout (src/hal/I2c.cpp), so a
   // bare bench with no IMU on the bus fails this check promptly instead
   // of hanging the firmware.
+#if BUILD_TARGET == BUILD_TARGET_NATIVE
+  switch (cp::hal::i2c::lastRecoveryStatus()) {
+    case cp::hal::i2c::RecoveryStatus::kClean:
+      Serial.println("i2c: bus idle at boot");
+      break;
+    case cp::hal::i2c::RecoveryStatus::kUnstuck:
+      Serial.println("i2c: bus was stuck low, recovered with SCL pulses");
+      break;
+    case cp::hal::i2c::RecoveryStatus::kStuck:
+      Serial.println("WARN: i2c bus still stuck after 9 SCL pulses; "
+                     "a slave is holding SDA low");
+      break;
+  }
+#endif
+
   Serial.println("init: imu");
   if (!cp::sensors::imu::init()) {
     Serial.println("ERROR: IMU init failed. Halting before motor output.");

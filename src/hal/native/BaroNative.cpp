@@ -8,8 +8,6 @@
 #if BUILD_TARGET == BUILD_TARGET_NATIVE
 
 #include <Arduino.h>
-#include <Wire.h>
-#include <initializer_list>
 
 #include "src/hal/I2c.h"
 
@@ -32,32 +30,6 @@ namespace {
 bool s_present = false;
 
 }  // anonymous namespace
-
-// Bench diagnostic: scan I2C for known baro chip families and print what
-// responds. Helpful when a CJMCU-style breakout was sent with the wrong
-// die (BMP280 in a "388" board, etc). Runs once from baro_init.
-void baro_scan() {
-  cp::hal::i2c::ensureInit();
-  Serial.println("I2C baro scan:");
-  for (uint8_t addr : {0x76, 0x77}) {
-    Wire.beginTransmission(addr);
-    if (Wire.endTransmission() != 0) {
-      Serial.print("  0x"); Serial.print(addr, HEX); Serial.println(" no ACK");
-      continue;
-    }
-    // Read register 0x00 (BMP388 chip ID) and register 0xD0 (BMP280/BMP180).
-    for (uint8_t reg : {0x00, 0xD0, 0x0D}) {
-      Wire.beginTransmission(addr);
-      Wire.write(reg);
-      if (Wire.endTransmission(false) != 0) continue;
-      if (Wire.requestFrom(addr, (uint8_t)1, (uint8_t)true) != 1) continue;
-      uint8_t v = (uint8_t)Wire.read();
-      Serial.print("  0x"); Serial.print(addr, HEX);
-      Serial.print(" reg 0x"); Serial.print(reg, HEX);
-      Serial.print(" = 0x"); Serial.println(v, HEX);
-    }
-  }
-}
 
 bool baro_init() {
 #if BARO_TYPE == BARO_NONE
