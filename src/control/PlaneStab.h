@@ -66,4 +66,12 @@ void update(const cp::estimation::attitude::Euler& euler,
 // Latest stabilizer output. Always safe to call after init.
 const Output& output();
 
+// Force MANUAL passthrough regardless of the CHANNEL_STAB switch. Used
+// when the IMU is unhealthy mid-flight on a fixed-wing airframe, so the
+// plane drops every stabilization term and the pilot flies it down by
+// stick. Cleared when the override condition goes away. The override
+// only takes effect when the IMU loss flag is set; manual via the
+// transmitter still works the same.
+void setImuLossOverride(bool active);
+
 }  // namespace cp::control::plane_stab

@@ -25,4 +25,10 @@ uint32_t last_loop_period_us();
 // nonzero and growing value means the 1 kHz control rate is degraded.
 uint32_t loop_overrun_count();
 
+// True while the firmware is in the IMU-loss-degraded state: a plane is
+// being held in MANUAL passthrough, or a tailsitter / quad is being held
+// disarmed, because IMU health dropped after arming. Read by the
+// telemetry logger so the post-flight log records when this fired.
+bool imu_loss_degraded();
+
 }  // namespace cp::core

@@ -62,12 +62,13 @@ constexpr uint8_t  kSchemaVersion   = 0x01;
 constexpr uint16_t kMaxLogIndex     = 9999;
 
 // Status-flag bit positions per TELEMETRY_FORMAT.md §4.3.
-constexpr uint8_t kStatusArmed          = 0x01;
-constexpr uint8_t kStatusFailsafeActive = 0x02;
-constexpr uint8_t kStatusThrottleCut    = 0x04;
-constexpr uint8_t kStatusImuFault       = 0x08;
-constexpr uint8_t kStatusBaroFault      = 0x10;
-constexpr uint8_t kStatusRxFault        = 0x20;
+constexpr uint8_t kStatusArmed             = 0x01;
+constexpr uint8_t kStatusFailsafeActive    = 0x02;
+constexpr uint8_t kStatusThrottleCut       = 0x04;
+constexpr uint8_t kStatusImuFault          = 0x08;
+constexpr uint8_t kStatusBaroFault         = 0x10;
+constexpr uint8_t kStatusRxFault           = 0x20;
+constexpr uint8_t kStatusImuLossDegraded   = 0x80;
 
 File     s_file;
 bool     s_active           = false;
@@ -174,6 +175,9 @@ uint8_t computeStatusFlags() {
   }
   if (!cp::sensors::imu::is_healthy()) {
     flags |= kStatusImuFault;
+  }
+  if (cp::core::imu_loss_degraded()) {
+    flags |= kStatusImuLossDegraded;
   }
   if (cp::sensors::baro::is_present() && !cp::sensors::baro::is_healthy()) {
     flags |= kStatusBaroFault;

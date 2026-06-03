@@ -24,6 +24,11 @@ float s_prev_alt_m     = 0.0f;
 bool  s_have_prev_alt  = false;
 float s_climb_rate_mps = 0.0f;
 
+// True while the main loop is forcing MANUAL passthrough because the IMU
+// is unhealthy mid-flight on a fixed-wing airframe. See
+// setImuLossOverride().
+bool  s_imu_loss_override = false;
+
 inline float clampUnit(float x) {
   if (x >  1.0f) return  1.0f;
   if (x < -1.0f) return -1.0f;
@@ -42,7 +47,14 @@ inline bool channelHigh(const uint16_t* channels, uint8_t channel_1based) {
 }
 
 // Map the three positions of CHANNEL_STAB to the configured flight mode.
+// If the IMU-loss override is active, force MANUAL regardless of the
+// pilot's switch position. MANUAL is full pilot-passthrough, no
+// stabilization terms, so the plane flies on sticks alone after IMU
+// failure.
 inline uint8_t selectMode(const uint16_t* channels) {
+  if (s_imu_loss_override) {
+    return PLANE_MODE_MANUAL;
+  }
   const uint16_t us = channels[CHANNEL_STAB - 1];
   if (us < PLANE_MODE_SW_LOW_MAX_US) {
     return PLANE_MODE_SW_LOW;
@@ -231,6 +243,10 @@ void update(const cp::estimation::attitude::Euler& euler,
 
 const Output& output() {
   return s_output;
+}
+
+void setImuLossOverride(bool active) {
+  s_imu_loss_override = active;
 }
 
 }  // namespace cp::control::plane_stab

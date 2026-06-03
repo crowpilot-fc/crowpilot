@@ -77,6 +77,12 @@ bool s_prearm_imu  = false;
 bool s_prearm_rx   = false;
 bool s_prearm_batt = true;
 
+// In-flight IMU-loss-degraded latch. True while the firmware is keeping a
+// plane in MANUAL passthrough, or forcing tailsitter / quad disarm,
+// because the IMU went unhealthy after arming. Logged via the telemetry
+// status_flags byte for post-flight forensics.
+bool s_imu_loss_degraded = false;
+
 // Loop-period statistics, accumulated for the 1 Hz DEV report.
 uint32_t s_period_sum   = 0;
 uint32_t s_period_max   = 0;
@@ -696,9 +702,40 @@ void tick() {
   s_prearm_rx   = prearm_rx;
   s_prearm_batt = prearm_batt;
 
+  // In-flight IMU loss action. Pre-arm already gates the disarmed-to-armed
+  // transition on imu::is_healthy(); this block handles the harder case of
+  // IMU failure WHILE armed, which the pre-arm gate cannot reach. Per
+  // airframe:
+  //
+  //   plane airframes -> force MANUAL passthrough on the plane stabilizer
+  //   and keep flying. A statically stable airframe can be flown by the
+  //   pilot on sticks alone; that is strictly safer than tumbling on a
+  //   frozen attitude estimate.
+  //
+  //   tailsitter and quad X -> disarm. Neither airframe has a meaningful
+  //   passthrough mode and both are dynamically unstable without IMU
+  //   stabilization. Disarming hands the aircraft to gravity, which is
+  //   no worse than letting it maneuver on stale data.
+  //
+  // The plane override is cleared the moment the IMU comes back. The
+  // disarm cases are irreversible until the pilot reboots; arming will be
+  // refused by the pre-arm gate until IMU is healthy again anyway.
+  const bool armed_now =
+      cp::actuators::arm_state() == cp::actuators::ArmState::ARMED;
+  const bool imu_lost_in_flight = armed_now && !prearm_imu;
+  s_imu_loss_degraded = imu_lost_in_flight;
+  uint16_t effective_arm_us = desired.arm_us;
+#if AIRFRAME == AIRFRAME_TAILSITTER_BICOPTER || AIRFRAME == AIRFRAME_QUAD_X
+  if (imu_lost_in_flight) {
+    effective_arm_us = 2000;  // arm channel HIGH always disarms
+  }
+#else
+  cp::control::plane_stab::setImuLossOverride(imu_lost_in_flight);
+#endif
+
   // Actuator output: arm logic, OneShot125 emit, servo PWM.
   cp::actuators::update(cp::airframes::output(), desired.throttle,
-                        desired.arm_us, prearm_ok);
+                        effective_arm_us, prearm_ok);
 
   // User extension and telemetry. Each is internally rate-limited.
   cp::user_hook::tick();
@@ -725,6 +762,10 @@ void tick() {
   while ((micros() - tick_start_us) < kLoopPeriodUs) {
     // Spin until the next tick is due.
   }
+}
+
+bool imu_loss_degraded() {
+  return s_imu_loss_degraded;
 }
 
 uint32_t last_loop_period_us() {

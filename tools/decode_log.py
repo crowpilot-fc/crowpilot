@@ -37,13 +37,14 @@ ACCEL_LSB_PER_G = 4096.0
 
 # Status flag bit masks per TELEMETRY_FORMAT.md §4.3.
 FLAG_BITS = [
-    ("armed",            0x01),
-    ("failsafe_active",  0x02),
-    ("throttle_cut",     0x04),
-    ("imu_fault",        0x08),
-    ("baro_fault",       0x10),
-    ("rx_fault",         0x20),
-    ("log_overflow",     0x40),
+    ("armed",              0x01),
+    ("failsafe_active",    0x02),
+    ("throttle_cut",       0x04),
+    ("imu_fault",          0x08),
+    ("baro_fault",         0x10),
+    ("rx_fault",           0x20),
+    ("log_overflow",       0x40),
+    ("imu_loss_degraded",  0x80),
 ]
 
 CSV_HEADER = [
