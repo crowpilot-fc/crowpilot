@@ -11,9 +11,11 @@
 #
 # Usage:
 #   python tools/decode_log.py LOG0001.BIN > log0001.csv
+#   python tools/decode_log.py --imu-type mpu6050 LOG0001.BIN > log.csv
 #
 # Python 3.8+. No third-party dependencies.
 
+import argparse
 import csv
 import struct
 import sys
@@ -90,10 +92,15 @@ def decode_record(raw):
     accel_x_g = accel_x / ACCEL_LSB_PER_G
     accel_y_g = accel_y / ACCEL_LSB_PER_G
     accel_z_g = accel_z / ACCEL_LSB_PER_G
-    # MPU-6500 temperature formula per ALGORITHMS.md. The MPU-6050
-    # formula is the same nominal output range; the small offset
-    # difference is documented in the chip-specific drivers.
-    imu_temp_c = imu_temp_raw / 333.87 + 21.0
+    # IMU temperature formula per ALGORITHMS.md. The two supported IMUs
+    # use different scale and offset values, so the active type has to
+    # come from outside the log (the v1 schema does not embed it). The
+    # MPU-6050 uses raw / 340 + 36.53; the MPU-6500 uses raw / 333.87
+    # + 21.0. Pass --imu-type to switch.
+    if g_imu_type == "mpu6050":
+        imu_temp_c = imu_temp_raw / 340.0 + 36.53
+    else:
+        imu_temp_c = imu_temp_raw / 333.87 + 21.0
     baro_temp_c = baro_temp_cc / 100.0
     altitude_m = altitude_cm / 100.0
 
@@ -124,12 +131,24 @@ def decode_record(raw):
     ] + [1 if v else 0 for v in flag_values]
 
 
-def main():
-    if len(sys.argv) != 2:
-        print(f"usage: {sys.argv[0]} <log.BIN>", file=sys.stderr)
-        sys.exit(2)
+g_imu_type = "mpu6500"
 
-    path = sys.argv[1]
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("log", help="path to LOGnnnn.BIN")
+    parser.add_argument(
+        "--imu-type",
+        choices=("mpu6500", "mpu6050"),
+        default="mpu6500",
+        help="IMU type used by the firmware that produced the log. v1 logs "
+             "do not embed it; the user has to know. Default mpu6500.",
+    )
+    args = parser.parse_args()
+    global g_imu_type
+    g_imu_type = args.imu_type
+
+    path = args.log
     out = csv.writer(sys.stdout)
     out.writerow(CSV_HEADER)
 
