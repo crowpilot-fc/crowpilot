@@ -75,6 +75,15 @@ char     s_filename[16]     = {0};
 uint32_t s_bytes_written    = 0;
 uint32_t s_tick_count       = 0;
 
+// Monotonic wide-time tracking. micros() is uint32_t on the Arduino HAL
+// and wraps every ~71 minutes. The log schema declares t_us as uint64.
+// On every record we compute the unsigned 32-bit delta from the last
+// micros() reading and accumulate it into a 64-bit counter. The 32-bit
+// delta is correct across the wrap as long as we sample more often than
+// the period (~71 minutes), which the 100 Hz logger trivially does.
+uint32_t s_last_micros      = 0;
+uint64_t s_wide_us          = 0;
+
 // Scan the SD root for `LOGnnnn.BIN` and return the next free index.
 // Returns 1 if no log files exist yet, or kMaxLogIndex + 1 if the
 // numbering is exhausted (caller treats that as halt-logging).
@@ -178,10 +187,14 @@ uint8_t computeStatusFlags() {
 void buildRecord(TelemetryRecord& r) {
   r.schema_version = kSchemaVersion;
   // t_us is uint64 per the schema. micros() is uint32 and wraps every
-  // ~71 minutes; for v1 the log captures the wrapped value. A future
-  // schema version can carry a wrap counter if longer logs become
-  // common.
-  r.t_us            = static_cast<uint64_t>(micros());
+  // ~71 minutes. Compute the unsigned 32-bit delta from the previous
+  // sample and accumulate into a 64-bit counter so the value is
+  // monotonic across a wrap. Logger is rate-limited well above the wrap
+  // period so the delta is always well below 2^32.
+  const uint32_t now_us = micros();
+  s_wide_us += static_cast<uint32_t>(now_us - s_last_micros);
+  s_last_micros = now_us;
+  r.t_us = s_wide_us;
   r.loop_period_us  = cp::core::last_loop_period_us();
 
   const auto& imu = cp::sensors::imu::latest();
@@ -259,6 +272,8 @@ void init() {
   s_filename[0]   = '\0';
   s_bytes_written = 0;
   s_tick_count    = 0;
+  s_last_micros   = micros();
+  s_wide_us       = 0;
 
 #if !ENABLE_TELEMETRY_LOG
   return;

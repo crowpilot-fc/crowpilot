@@ -679,7 +679,14 @@ void tick() {
   const bool prearm_rx  = cp::radio::state().channels_valid &&
                           !cp::failsafe::state().active;
 #if ENABLE_BATTERY_MONITOR
-  const bool prearm_batt = !cp::sensors::battery::present() ||
+  // Fail-closed when the monitor is enabled but the pack is not
+  // detected. The previous logic treated "no pack" as pass, which let a
+  // broken divider or a disconnected ADC sense wire silently skip the
+  // arm-voltage gate. With the monitor on, the only safe meaning of
+  // "missing pack" is "we cannot prove the pack is safe", so it blocks
+  // arming. To bench-arm on USB power without a real pack, turn the
+  // monitor off in Config.h.
+  const bool prearm_batt = cp::sensors::battery::present() &&
       cp::sensors::battery::perCellVoltage() >= BATTERY_ARM_MIN_CELL_V;
 #else
   const bool prearm_batt = true;
