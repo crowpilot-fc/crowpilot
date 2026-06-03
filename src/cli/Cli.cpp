@@ -278,9 +278,18 @@ void handleLine(char* line) {
   }
 }
 
-// Drain one channel's pending bytes, dispatching each completed line.
+// Drain one channel's pending bytes, dispatching each completed line. Caps
+// the bytes read per tick so a flood from the companion link (e.g. the ESP
+// pumping telemetry frames at line rate) cannot dominate the 1 ms loop
+// budget. The cap is well above 115200 baud's per-tick byte rate (115.2 kbps
+// = ~11 bytes per ms), so on a healthy link every byte still gets serviced
+// within a few ticks of arrival; only a pathological burst is throttled.
+// Inbound commands are short text lines, so capping at 96 bytes never
+// stalls a real command in flight.
 void pollChannel(Channel& ch) {
-  while (ch.io->available() > 0) {
+  constexpr uint8_t kMaxBytesPerTick = 96;
+  uint8_t budget = kMaxBytesPerTick;
+  while (budget-- > 0 && ch.io->available() > 0) {
     const int c = ch.io->read();
     if (c < 0) {
       break;
