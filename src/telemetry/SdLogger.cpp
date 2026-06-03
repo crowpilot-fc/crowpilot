@@ -6,6 +6,7 @@
 #include <Arduino.h>
 #include <SD.h>
 #include <SPI.h>
+#include <atomic>
 #include <ctype.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -68,6 +69,7 @@ constexpr uint8_t kStatusThrottleCut       = 0x04;
 constexpr uint8_t kStatusImuFault          = 0x08;
 constexpr uint8_t kStatusBaroFault         = 0x10;
 constexpr uint8_t kStatusRxFault           = 0x20;
+constexpr uint8_t kStatusLogOverflow       = 0x40;
 constexpr uint8_t kStatusImuLossDegraded   = 0x80;
 
 File     s_file;
@@ -84,6 +86,31 @@ uint32_t s_tick_count       = 0;
 // the period (~71 minutes), which the 100 Hz logger trivially does.
 uint32_t s_last_micros      = 0;
 uint64_t s_wide_us          = 0;
+
+#if ENABLE_TELEMETRY_LOG && ENABLE_TELEMETRY_LOG_ASYNC
+// SPSC ring of completed records between core 0 (producer in tick()) and
+// core 1 (consumer in core1_tick()). Slots are statically allocated to
+// avoid any heap activity on the flight loop. Indices use atomic
+// uint32_t for the head and tail with acquire/release ordering so the
+// produced data is visible to the consumer when the consumer sees the
+// updated tail.
+TelemetryRecord       s_ring[TELEMETRY_LOG_RING_SLOTS];
+std::atomic<uint32_t> s_ring_head{0};        // core 1 advances after consuming
+std::atomic<uint32_t> s_ring_tail{0};        // core 0 advances after producing
+
+// Set by the producer when the ring is full and a record had to be
+// dropped. The next successful enqueue copies this into the new
+// record's status_flags and clears the flag. This way the log carries
+// a kStatusLogOverflow bit on the first record after a gap, so the
+// post-flight decoder can flag the lost interval.
+std::atomic<bool>     s_ring_overflow_pending{false};
+
+// Core 1 owns the SD library entirely. Core 0 only enqueues records.
+// `s_async_init_done` flips true once core 1 has finished SD bring-up,
+// at which point is_active() / current_filename() reflect the live
+// state. Until then, the rest of the firmware sees logger inactive.
+std::atomic<bool>     s_async_init_done{false};
+#endif
 
 // Scan the SD root for `LOGnnnn.BIN` and return the next free index.
 // Returns 1 if no log files exist yet, or kMaxLogIndex + 1 if the
@@ -281,9 +308,21 @@ void init() {
 
 #if !ENABLE_TELEMETRY_LOG
   return;
+#elif ENABLE_TELEMETRY_LOG_ASYNC
+  // Async logger. SD bring-up runs on core 1 (see core1_setup) so the
+  // SD library is touched from exactly one core. Core 0's init only
+  // resets the ring-buffer state and announces that the logger is
+  // pending. is_active() will go true once core 1 finishes its setup.
+  s_ring_head.store(0, std::memory_order_relaxed);
+  s_ring_tail.store(0, std::memory_order_relaxed);
+  s_ring_overflow_pending.store(false, std::memory_order_relaxed);
+  s_async_init_done.store(false, std::memory_order_relaxed);
+  if (Serial) {
+    Serial.println("Logger: async, SD bring-up deferred to core 1.");
+  }
 #else
-  // SD bus init. The Pi Pico Arduino core's `SD.h` configures SPI0
-  // internally based on the CS pin argument.
+  // Synchronous logger. SD bring-up runs here. The Pi Pico Arduino
+  // core's `SD.h` configures SPI0 internally based on the CS pin.
   if (!SD.begin(PIN_SD_CS)) {
     if (Serial) {
       Serial.println("Logger: SD.begin failed. No card or unsupported card.");
@@ -304,7 +343,7 @@ void tick() {
 #if !ENABLE_TELEMETRY_LOG
   return;
 #else
-  if (!s_active) {
+  if (!is_active()) {
     return;
   }
   if (++s_tick_count < TELEMETRY_LOG_INTERVAL_TICKS) {
@@ -312,6 +351,26 @@ void tick() {
   }
   s_tick_count = 0;
 
+#if ENABLE_TELEMETRY_LOG_ASYNC
+  // Producer path: build a record into the next free ring slot and
+  // publish it by advancing the tail. Acquire-load of head against
+  // tail+1 prevents overwriting an in-flight record. On overflow the
+  // record is dropped and a pending flag is set so the next successful
+  // record carries kStatusLogOverflow.
+  const uint32_t tail = s_ring_tail.load(std::memory_order_relaxed);
+  const uint32_t next_tail = (tail + 1u) % TELEMETRY_LOG_RING_SLOTS;
+  if (next_tail == s_ring_head.load(std::memory_order_acquire)) {
+    s_ring_overflow_pending.store(true, std::memory_order_relaxed);
+    return;
+  }
+
+  TelemetryRecord& slot = s_ring[tail];
+  buildRecord(slot);
+  if (s_ring_overflow_pending.exchange(false, std::memory_order_relaxed)) {
+    slot.status_flags |= kStatusLogOverflow;
+  }
+  s_ring_tail.store(next_tail, std::memory_order_release);
+#else
   TelemetryRecord r;
   buildRecord(r);
 
@@ -335,11 +394,91 @@ void tick() {
       s_active = false;
     }
   }
+#endif  // ENABLE_TELEMETRY_LOG_ASYNC
+#endif  // ENABLE_TELEMETRY_LOG
+}
+
+void core1_setup() {
+#if ENABLE_TELEMETRY_LOG && ENABLE_TELEMETRY_LOG_ASYNC
+  // Core 1 owns the SD library from here on. Bring up SD and open the
+  // first log file. On any failure we leave s_async_init_done false,
+  // which keeps is_active() returning false on core 0; the rest of the
+  // firmware proceeds without logging.
+  if (!SD.begin(PIN_SD_CS)) {
+    if (Serial) {
+      Serial.println("Logger (core1): SD.begin failed.");
+    }
+    return;
+  }
+  if (!openLogFile()) {
+    if (Serial) {
+      Serial.println("Logger (core1): open failed.");
+    }
+    return;
+  }
+  s_active = true;
+  s_async_init_done.store(true, std::memory_order_release);
+  if (Serial) {
+    Serial.print("Logger (core1) OK -> ");
+    Serial.println(s_filename);
+  }
+#endif
+}
+
+void core1_tick() {
+#if ENABLE_TELEMETRY_LOG && ENABLE_TELEMETRY_LOG_ASYNC
+  if (!s_async_init_done.load(std::memory_order_acquire)) {
+    return;
+  }
+  // Drain up to a small batch of records per service call. The cap
+  // prevents core 1 from spending so long here that nothing else on
+  // core 1 (e.g. onboard WiFi when enabled) makes progress. The SD
+  // write itself is what eats the wall-clock time anyway; a single
+  // 30 ms card stall is one record handled.
+  constexpr int kMaxRecordsPerService = 4;
+  for (int i = 0; i < kMaxRecordsPerService; ++i) {
+    const uint32_t head = s_ring_head.load(std::memory_order_relaxed);
+    if (head == s_ring_tail.load(std::memory_order_acquire)) {
+      break;  // ring empty
+    }
+    const size_t written = s_file.write(
+        reinterpret_cast<const uint8_t*>(&s_ring[head]), sizeof(TelemetryRecord));
+    if (written != sizeof(TelemetryRecord)) {
+      if (Serial) {
+        Serial.println("Logger (core1): short write. Closing and rotating.");
+      }
+      s_file.close();
+      if (!openLogFile()) {
+        s_async_init_done.store(false, std::memory_order_release);
+        s_active = false;
+        return;
+      }
+      // Do not advance head; retry this slot on the next service call.
+      break;
+    }
+    s_bytes_written += static_cast<uint32_t>(written);
+    s_ring_head.store((head + 1u) % TELEMETRY_LOG_RING_SLOTS,
+                      std::memory_order_release);
+
+    if (s_bytes_written >= TELEMETRY_LOG_MAX_BYTES) {
+      s_file.close();
+      if (!openLogFile()) {
+        s_async_init_done.store(false, std::memory_order_release);
+        s_active = false;
+        return;
+      }
+      break;
+    }
+  }
 #endif
 }
 
 bool is_active() {
+#if ENABLE_TELEMETRY_LOG && ENABLE_TELEMETRY_LOG_ASYNC
+  return s_async_init_done.load(std::memory_order_acquire) && s_active;
+#else
   return s_active;
+#endif
 }
 
 const char* current_filename() {

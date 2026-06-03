@@ -137,7 +137,7 @@
 #define AIRFRAME_PLANE_VTAIL         8
 
 #ifndef AIRFRAME
-  #define AIRFRAME AIRFRAME_PLANE_TWIN_CARGO
+  #define AIRFRAME AIRFRAME_PLANE_SINGLE
 #endif
 
 // ===========================================================================
@@ -200,7 +200,7 @@ constexpr uint32_t IMU_CALIB_SAMPLE_COUNT = 2000;
 #define BARO_BMP280 1
 #define BARO_NONE   2
 
-#define BARO_TYPE BARO_BMP388
+#define BARO_TYPE BARO_NONE  // bench: three CJMCU clones in a row produced rail-saturated pressure; waiting on a genuine Bosch chip
 
 namespace cp {
 
@@ -289,24 +289,66 @@ constexpr uint16_t RC_MAX_US = 2000;
 // ===========================================================================
 // Failsafe
 // ===========================================================================
-// On lost link the failsafe replaces the receiver channels with these
-// values to fly a gentle, level, powered descent. The throttle sits
-// below hover so the aircraft sinks slowly. The arm channel stays in
-// the armed position so the descent stays powered. The transition
-// channel holds the hover end. Sticks center.
+// On lost link the failsafe replaces the receiver channels with values
+// that match the dynamics of the active airframe.
+//
+// Plane airframes (single, twin cargo, flying wing, V-tail): a statically
+// stable airframe glides on its own when surfaces are centred. Failsafe
+// drops the throttle to zero, centres the surfaces, and leaves the arm
+// channel where it was so surfaces stay responsive to the stabilizer.
+// The plane glides toward the ground.
+//
+// Tailsitter bicopter: a powered descent on the hover end of the
+// transition. Throttle below hover sinks the aircraft slowly. Surfaces
+// centred. Transition pinned to hover so a tailsitter mid-flight does
+// not drift toward forward flight on a dead stick.
+//
+// Quad X: throttle below hover so the multirotor sinks slowly. Sticks
+// centred. The arm channel stays armed so the stabilizer keeps the
+// aircraft level during the descent. A real auto-land needs altitude
+// and is a v2 GPS-suite item.
+//
+// All naming is by role, not by channel index, so the CHANNEL_* map can
+// move without renaming the constants.
 
 namespace cp {
 
-// Failsafe channel values, written into the channel-1-based slot of
-// whichever CHANNEL_* the firmware reads for that role. All other slots
-// stay at 1500 (centred). Naming is by role, not by channel index, so
-// the channel map can move without renaming the constants.
+#if AIRFRAME == AIRFRAME_TAILSITTER_BICOPTER
+
+// Powered descent on the hover end of the transition.
 constexpr uint16_t FS_THROTTLE_US   = 1300;  // below hover, gentle sink
-constexpr uint16_t FS_ROLL_US       = 1500;  // centred
-constexpr uint16_t FS_PITCH_US      = 1500;  // centred
-constexpr uint16_t FS_YAW_US        = 1500;  // centred
-constexpr uint16_t FS_ARM_US        = 1000;  // armed; descent stays powered
-constexpr uint16_t FS_TRANSITION_US = 2000;  // hover end (high pulse is hover)
+constexpr uint16_t FS_ROLL_US       = 1500;
+constexpr uint16_t FS_PITCH_US      = 1500;
+constexpr uint16_t FS_YAW_US        = 1500;
+constexpr uint16_t FS_ARM_US        = 1000;  // stays armed for stabilizer
+constexpr uint16_t FS_TRANSITION_US = 2000;  // hover end
+
+#elif AIRFRAME == AIRFRAME_QUAD_X
+
+// Slow powered descent. Multirotor has no glide; the stabilizer holds
+// level while the aircraft sinks. Without altitude hold this is a
+// best-effort behaviour, not a true auto-land.
+constexpr uint16_t FS_THROTTLE_US   = 1300;  // below hover, gentle sink
+constexpr uint16_t FS_ROLL_US       = 1500;
+constexpr uint16_t FS_PITCH_US      = 1500;
+constexpr uint16_t FS_YAW_US        = 1500;
+constexpr uint16_t FS_ARM_US        = 1000;  // stays armed for stabilizer
+constexpr uint16_t FS_TRANSITION_US = 1500;  // unused by Quad X
+
+#else
+
+// Fixed-wing plane (single, twin cargo, flying wing, V-tail). Throttle
+// to zero so the propeller stops; the airframe glides on its own. The
+// arm channel stays in the armed-side value so the stabilizer keeps
+// flying surfaces under control on the way down.
+constexpr uint16_t FS_THROTTLE_US   = 1000;  // motors off, glide
+constexpr uint16_t FS_ROLL_US       = 1500;
+constexpr uint16_t FS_PITCH_US      = 1500;
+constexpr uint16_t FS_YAW_US        = 1500;
+constexpr uint16_t FS_ARM_US        = 1000;  // stays armed so surfaces respond
+constexpr uint16_t FS_TRANSITION_US = 1500;  // unused by planes
+
+#endif
 
 // Link is considered lost when no fresh receiver frame arrives within
 // this window.
@@ -357,6 +399,19 @@ constexpr float BATTERY_FILTER_ALPHA = 0.05f;
 
 #define ENABLE_TELEMETRY_LOG 1
 
+// When set, the SD writes happen on core 1 via a SPSC ring buffer. The
+// flight loop only builds records and enqueues them (~30 us). A 10-30 ms
+// SD-card garbage-collection stall no longer blocks the 1 kHz loop. When
+// the ring fills (more than ~320 ms of stall at the default 100 Hz log
+// rate) the firmware sets the kStatusLogOverflow bit on the next record
+// and drops the surplus. Turn off to fall back to the original
+// synchronous behaviour, which is simpler to debug if the async path
+// misbehaves on a particular board.
+//
+// On boards with ENABLE_ONBOARD_WIFI the WiFi stack also lives on core 1.
+// Both can coexist; the dispatcher in crowpilot.ino calls each in turn.
+#define ENABLE_TELEMETRY_LOG_ASYNC 1
+
 namespace cp {
 
 // At LOOP_HZ = 1000 a value of 10 gives a 100 Hz log rate.
@@ -364,6 +419,14 @@ constexpr uint32_t TELEMETRY_LOG_INTERVAL_TICKS = 10;
 
 // New log file started once the current file reaches this size.
 constexpr uint32_t TELEMETRY_LOG_MAX_BYTES = 16u * 1024u * 1024u;  // 16 MiB.
+
+// SPSC ring buffer between core 0 (producer of records) and core 1
+// (consumer that writes to SD). 32 slots at 109 bytes each is ~3.5 KB
+// of static RAM. At the default 100 Hz log rate this absorbs about
+// 320 ms of an SD-card stall before the buffer fills and records start
+// being dropped. Card garbage collection spikes on a healthy card are
+// well under this.
+constexpr uint32_t TELEMETRY_LOG_RING_SLOTS = 32;
 
 }  // namespace cp
 

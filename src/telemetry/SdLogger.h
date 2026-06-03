@@ -24,12 +24,25 @@ namespace cp::telemetry {
 // file. Sets the module to active on success. On any failure (no card,
 // FAT not mounted, file system full, index exhausted) the module stays
 // inactive and the rest of the firmware runs without logging.
+//
+// When ENABLE_TELEMETRY_LOG_ASYNC is set, init() does NOT touch the SD
+// card. SD bring-up happens in core1_setup() on core 1. The first
+// is_active() call from core 0 reads what core 1 has set so far. This
+// keeps every SD library call on a single core, which avoids racing the
+// SD library's internal SPI state.
 void init();
 
-// Maybe write one record this tick (gated on the rate-limit counter).
-// Cheap when the gate is closed. About 30 microseconds of work when it
-// fires plus the SD library's amortized write cost.
+// Build one record per tick (rate-limited internally). With async
+// logging enabled the record is enqueued in the SPSC ring buffer for
+// core 1 to write. With async logging disabled the record is written
+// directly to SD here. Cheap when the rate-limit gate is closed.
 void tick();
+
+// Core 1 entry points. Called from the sketch's setup1/loop1
+// dispatcher in crowpilot.ino. No-ops unless
+// ENABLE_TELEMETRY_LOG && ENABLE_TELEMETRY_LOG_ASYNC.
+void core1_setup();
+void core1_tick();
 
 // True if the logger is active (init succeeded and no write error since).
 bool is_active();

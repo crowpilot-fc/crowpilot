@@ -204,17 +204,9 @@ void tick() {
 
 }  // namespace cp::comms::onboard_wifi
 
-// Arduino core1 entry points. The arduino-pico core provides weak empty
-// defaults; these strong definitions claim core1 for the onboard WiFi
-// companion. They live here rather than in the .ino so the central Config.h
-// include resolves on the normal source path (the sketch root is a build
-// copy, where a direct Config.h include would double-define).
-void setup1() {
-  cp::comms::onboard_wifi::init();
-}
-
-void loop1() {
-  cp::comms::onboard_wifi::tick();
-}
+// Note: setup1/loop1 are no longer defined here. The sketch's
+// crowpilot.ino owns the core 1 entry points and dispatches to every
+// module that needs core 1, gated by their feature flags. That keeps a
+// single place to reason about what core 1 does.
 
 #endif  // ENABLE_ONBOARD_WIFI
