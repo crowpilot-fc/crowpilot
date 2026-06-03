@@ -27,6 +27,11 @@ bool baro_read(BaroSample& out) {
   return true;
 }
 
+void baro_scan() {
+  // SITL has no I2C bus to scan; the bench-diagnostic command is a no-op
+  // on the host build.
+}
+
 }  // namespace cp::hal
 
 #endif  // SITL or HIL

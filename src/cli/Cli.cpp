@@ -11,6 +11,7 @@
 
 #include "src/Config.h"
 #include "src/actuators/Output.h"
+#include "src/hal/Hal.h"
 #include "src/params/Params.h"
 
 #if ENABLE_ONBOARD_WIFI
@@ -273,6 +274,9 @@ void handleLine(char* line) {
     doBoot();
   } else if (strcmp(verb, "esp") == 0) {
     doEsp();
+  } else if (strcmp(verb, "scan") == 0) {
+    cp::hal::baro_scan();
+    reply("ok scan");
   } else {
     reply("err badcmd");
   }

@@ -67,6 +67,13 @@ bool baro_present();
 bool baro_init();
 bool baro_read(BaroSample& out);
 
+// Bench diagnostic: probe I2C addresses 0x76 and 0x77 and dump the
+// CHIP_ID register values to Serial. Used by `cp scan` to identify a
+// baro chip when the configured BARO_TYPE driver does not recognise it
+// (e.g. a CJMCU breakout labelled BMP388 that actually has a BMP280
+// die). No-op on SITL.
+void baro_scan();
+
 // --- Receiver ----------------------------------------------------------
 
 struct RxState {
