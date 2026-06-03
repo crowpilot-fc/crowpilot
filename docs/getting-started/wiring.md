@@ -133,16 +133,21 @@ The SD module sits on the SPI0 bus. Wire each module pin to the listed flight-co
 
 | Pin on the SD module | Wire it to (flight controller) |
 |---|---|
-| 3V3 | 3.3 V |
+| VCC | see VCC note below |
 | GND | GND |
 | MOSI | GP19 |
 | MISO | GP16 |
 | CLK | GP18 |
 | CS | GP17 |
 
-Most microSD breakouts are 3.3 V-native and do not need a level shifter.
+VCC note. Check the silkscreen on your specific module:
 
-The SD card must be FAT32 formatted. FAT16 and exFAT are not supported by the Arduino-Pico `SD.h` library used in v1.
+- A pin labeled `3V3` (bare 3.3 V-native breakout, no onboard regulator) goes to the FC's **3.3 V** pin.
+- A pin labeled `5V` or `VCC` on a breakout that has a small onboard regulator (look for a 3-pin SOT-23 part near the card socket) goes to **5 V**.
+
+Connecting 5 V to a `3V3`-marked pin destroys the SD card's logic. Connecting 3.3 V to a `5V` pin on a regulator-equipped board fails to power the regulator and the card never mounts. The label on the silkscreen is the rule.
+
+The SD card must be FAT32 formatted. FAT16 and exFAT are not supported by the Arduino-Pico `SD.h` library used in v1. On macOS Disk Utility, "MS-DOS (FAT)" is FAT32 for cards 32 GB and smaller.
 
 ## Servos
 
