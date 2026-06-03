@@ -196,6 +196,10 @@ void debugOutput() {
     }
     Serial.print("] baro=");
     Serial.print(cp::sensors::baro::is_present() ? "OK" : "off");
+    Serial.print("/h=");
+    Serial.print(cp::sensors::baro::is_healthy() ? "Y" : "N");
+    Serial.print(" p=");
+    Serial.print(cp::sensors::baro::latest().pressure_pa, 0);
     Serial.print(" alt=");    Serial.print(cp::sensors::baro::latest().altitude_m, 1);
 #if ENABLE_BATTERY_MONITOR
     Serial.print(" vbat=");   Serial.print(cp::sensors::battery::voltage(), 2);
@@ -414,6 +418,26 @@ void init() {
   Serial.println("init: params");
   cp::params::init();
 
+  // The barometer is brought up BEFORE the IMU even though the IMU is
+  // mandatory and the baro is optional. The reason: after a warm reset
+  // (e.g. a flash-and-reboot, where the 3.3 V rail did not drop), the
+  // BMP388 retains state from the previous firmware run. If it was last
+  // in NORMAL mode it can still be mid-conversion when the new firmware
+  // starts and briefly holds the I2C bus, which makes the IMU's first
+  // register read fail. baro::init() issues a soft-reset to the chip
+  // which settles the bus to idle, so the subsequent IMU init talks to a
+  // clean line. A missing or absent baro is harmless: baro::init()
+  // returns true on BARO_NONE and returns false on a missing chip, both
+  // of which leave the bus idle for the IMU.
+  Serial.println("init: barometer (early, to settle the I2C bus)");
+  if (!cp::sensors::baro::init()) {
+    Serial.println("WARN: Barometer init failed. Continuing without altitude.");
+  } else {
+    Serial.println(cp::sensors::baro::is_present()
+                       ? "init: barometer OK"
+                       : "init: barometer disabled (BARO_NONE)");
+  }
+
   // The IMU is mandatory. A missing or unresponsive IMU halts here with
   // a fast LED blink before any motor output is possible. The I2C HAL
   // installs a 25 ms per-transaction timeout (src/hal/I2c.cpp), so a
@@ -435,17 +459,6 @@ void init() {
   Serial.println("init: receiver OK (PIO SM 0 active)");
 
   cp::failsafe::init();
-
-  // The barometer is optional. A BARO_NONE build or a chip failure
-  // leaves the firmware running without altitude.
-  Serial.println("init: barometer");
-  if (!cp::sensors::baro::init()) {
-    Serial.println("WARN: Barometer init failed. Continuing without altitude.");
-  } else {
-    Serial.println(cp::sensors::baro::is_present()
-                       ? "init: barometer OK"
-                       : "init: barometer disabled (BARO_NONE)");
-  }
 
 #if ENABLE_BATTERY_MONITOR
   cp::sensors::battery::init();

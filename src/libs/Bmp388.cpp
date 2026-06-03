@@ -167,20 +167,18 @@ float compensatePressure(uint32_t raw_p, float t_lin) {
 bool init(uint8_t i2c_addr) {
   s_addr = i2c_addr;
 
-  uint8_t id = 0;
-  if (!readReg(kRegChipId, id)) {
-    return false;
-  }
-  if (id != kChipIdExpected) {
-    return false;
-  }
-
-  if (!writeReg(kRegCmd, kCmdSoftReset)) {
-    return false;
-  }
+  // Soft-reset FIRST, before any reads. After a warm boot of the FC the
+  // chip may still be in NORMAL mode from the previous firmware run and
+  // can hold the I2C bus mid-conversion, which makes the first CHIP_ID
+  // read fail. The soft-reset write does not depend on the chip ACKing
+  // an earlier read, so it goes through even on a wedged bus and forces
+  // the chip into a known SLEEP state. A missing BMP just NACKs the
+  // write, no harm done. After the reset wait, we re-read CHIP_ID to
+  // verify the chip is actually present and responsive.
+  (void)writeReg(kRegCmd, kCmdSoftReset);
   busyWaitUs(kResetWaitUs);
 
-  // Confirm the chip came back up after reset.
+  uint8_t id = 0;
   if (!readReg(kRegChipId, id) || id != kChipIdExpected) {
     return false;
   }
@@ -189,9 +187,11 @@ bool init(uint8_t i2c_addr) {
     return false;
   }
 
-  if (!writeReg(kRegPwrCtrl, kPwrCtrlValue)) {
-    return false;
-  }
+  // Configure measurement and filter options BEFORE entering normal mode,
+  // per BMP388 datasheet section 3.6. Writing PWR_CTRL with mode=normal
+  // first starts the conversion engine with stale defaults and later
+  // OSR/ODR writes can be ignored, leaving the chip producing samples
+  // that look frozen at one value.
   if (!writeReg(kRegOsr, kOsrValue)) {
     return false;
   }
@@ -199,6 +199,9 @@ bool init(uint8_t i2c_addr) {
     return false;
   }
   if (!writeReg(kRegConfig, kConfigValue)) {
+    return false;
+  }
+  if (!writeReg(kRegPwrCtrl, kPwrCtrlValue)) {
     return false;
   }
   return true;

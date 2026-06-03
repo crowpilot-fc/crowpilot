@@ -20,8 +20,36 @@ void ensureInit() {
   if (s_initialized) {
     return;
   }
-  // The Pi Pico Arduino core requires setSDA / setSCL before begin.
-  // setClock can run after begin per the documented examples.
+  // I2C bus recovery: before bringing Wire up, toggle SCL up to 9 times
+  // with SDA released. After a warm reset, a slave device that was in
+  // the middle of an ACK or data byte from the previous firmware run
+  // can still be pulling SDA low. The master cannot send a START until
+  // SDA goes high. Pulsing SCL up to 9 times lets the slave finish its
+  // byte (a byte is 9 SCL cycles: 8 data + 1 ACK) and release SDA.
+  // After that we generate a manual STOP (SCL high, SDA low->high) to
+  // put the bus in idle, then hand off to the Wire driver.
+  pinMode(PIN_I2C_SDA, INPUT_PULLUP);
+  pinMode(PIN_I2C_SCL, OUTPUT);
+  digitalWrite(PIN_I2C_SCL, HIGH);
+  delayMicroseconds(10);
+  for (int i = 0; i < 9; ++i) {
+    if (digitalRead(PIN_I2C_SDA) == HIGH) {
+      break;  // bus already idle
+    }
+    digitalWrite(PIN_I2C_SCL, LOW);
+    delayMicroseconds(10);
+    digitalWrite(PIN_I2C_SCL, HIGH);
+    delayMicroseconds(10);
+  }
+  // Manual STOP condition: SDA low while SCL is high, then SDA high.
+  pinMode(PIN_I2C_SDA, OUTPUT);
+  digitalWrite(PIN_I2C_SDA, LOW);
+  delayMicroseconds(10);
+  digitalWrite(PIN_I2C_SDA, HIGH);
+  delayMicroseconds(10);
+  // Now hand off to the Wire driver. The Pi Pico Arduino core requires
+  // setSDA / setSCL before begin. setClock can run after begin per the
+  // documented examples.
   Wire.setSDA(PIN_I2C_SDA);
   Wire.setSCL(PIN_I2C_SCL);
   Wire.begin();
