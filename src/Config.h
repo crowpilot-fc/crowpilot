@@ -287,6 +287,48 @@ constexpr uint16_t RC_MAX_US = 2000;
 }  // namespace cp
 
 // ===========================================================================
+// Arm gesture (no dedicated arm channel)
+// ===========================================================================
+// For 4-channel receivers (PWM AETR, some short-range SBUS sets) the pilot
+// has no spare channel for an arm switch. ENABLE_ARM_GESTURE swaps the
+// switch-driven arm logic for a stick gesture. The aircraft arms only after
+// the pilot holds throttle minimum + elevator full-down + roll full-right
+// for ARM_GESTURE_HOLD_MS milliseconds. Disarming is the mirror gesture:
+// throttle minimum + elevator full-up + roll full-left, also held.
+//
+// Both gestures require throttle minimum, so neither can fire mid-flight.
+// The flying-surface deflection during the gesture is visible and obvious;
+// a stick brush against the corner does not arm because the hold is
+// deliberate.
+//
+// On arm, the firmware flaps the first two servo channels rapidly for
+// ARM_GESTURE_CONFIRM_MS milliseconds as a visual confirmation. On
+// elevon airframes (flying wing, tailsitter forward) and aileron airframes
+// (single, twin cargo, V-tail) the two front surfaces wag up and down so
+// the bench operator sees the FC accepted the arm.
+
+#define ENABLE_ARM_GESTURE 0
+
+namespace cp {
+
+// How long the gesture must be held to trigger arm or disarm.
+constexpr uint32_t ARM_GESTURE_HOLD_MS    = 3000;
+
+// Total duration of the elevon-flap visual arm confirmation. The
+// firmware drives servos 0 and 1 through 4 phases of (HOLD_MS / 4) each
+// so the surfaces wag up-down-up-down before settling back to the
+// mixer command.
+constexpr uint32_t ARM_GESTURE_CONFIRM_MS = 600;
+
+// Channel-microsecond thresholds for the gesture detector. Roomy bands
+// so a stick on the way to a corner does not glitch the gesture timer.
+constexpr uint16_t ARM_GESTURE_THROTTLE_LOW_US = 1100;
+constexpr uint16_t ARM_GESTURE_STICK_LOW_US    = 1200;
+constexpr uint16_t ARM_GESTURE_STICK_HIGH_US   = 1800;
+
+}  // namespace cp
+
+// ===========================================================================
 // Failsafe
 // ===========================================================================
 // On lost link the failsafe replaces the receiver channels with values
