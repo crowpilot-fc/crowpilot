@@ -110,7 +110,132 @@ void rx_poll(RxState& out) {
 #elif RX_PROTOCOL == RX_PPM
   #error "RX_PPM is scaffolded in v1.0. Implementation lands in a later phase."
 #elif RX_PROTOCOL == RX_PWM
-  #error "RX_PWM is scaffolded in v1.0. Implementation lands in a later phase."
+
+// Per-channel PWM RC input. The receiver feeds N independent signal wires
+// (one per channel), each emitting a 1000-2000 us pulse roughly every
+// 20 ms. We measure pulse widths with a CHANGE interrupt per pin: rising
+// edge timestamps the start, falling edge subtracts to get the width.
+//
+// PIN_PWM_RX is a board-profile constexpr array. The number of channels is
+// fixed at compile time by its size. Up to 6 are supported; the table of
+// ISR thunks below is sized to match.
+//
+// Caveat documented in the F-14 build note and on the public wiring page:
+// PWM receivers do NOT carry a per-frame failsafe bit, unlike SBUS. The
+// firmware detects link loss via a per-channel last-pulse timestamp. If
+// any channel has not seen a fresh edge within FS_LINK_TIMEOUT_US, the
+// receiver state goes channels_valid=false and the failsafe layer takes
+// over.
+
+namespace cp::hal {
+
+namespace {
+
+constexpr uint8_t kNumPwmChannels = sizeof(PIN_PWM_RX) / sizeof(PIN_PWM_RX[0]);
+static_assert(kNumPwmChannels >= 1 && kNumPwmChannels <= 6,
+              "PIN_PWM_RX must have 1..6 entries");
+
+// Sanity bounds on the measured pulse width. Anything outside this band
+// is ignored as noise (a glitch on the pin, or a partial pulse from a
+// dropped frame). The legal RC range is 1000-2000 us; the band here is
+// wider so a slightly mistuned transmitter or a long failsafe pulse from
+// some receivers still registers.
+constexpr uint32_t kMinPulseUs = 800;
+constexpr uint32_t kMaxPulseUs = 2200;
+
+// ISR-touched state. volatile because the main loop reads them outside
+// the noInterrupts() critical section. uint16_t pulse_width is the most
+// recent valid pulse; uint32_t last_pulse_us is when it was captured.
+volatile uint32_t s_pulse_start_us[kNumPwmChannels] = {0};
+volatile uint16_t s_pulse_width_us[kNumPwmChannels] = {1500, 1500, 1500, 1500};
+volatile uint32_t s_last_pulse_us[kNumPwmChannels]  = {0};
+volatile bool     s_channel_seen[kNumPwmChannels]   = {false};
+
+RxState s_state = {};
+
+inline void handlePwmEdge(uint8_t ch) {
+  const uint32_t now = micros();
+  const int level    = digitalRead(PIN_PWM_RX[ch]);
+  if (level == HIGH) {
+    s_pulse_start_us[ch] = now;
+  } else {
+    const uint32_t start = s_pulse_start_us[ch];
+    if (start == 0) {
+      return;  // no matching rising edge captured yet
+    }
+    const uint32_t width = now - start;
+    if (width >= kMinPulseUs && width <= kMaxPulseUs) {
+      s_pulse_width_us[ch] = static_cast<uint16_t>(width);
+      s_last_pulse_us[ch]  = now;
+      s_channel_seen[ch]   = true;
+    }
+  }
+}
+
+// One ISR thunk per channel. attachInterrupt takes a plain function
+// pointer, so we cannot template the channel index in. Six thunks cover
+// every supported channel count; only the first kNumPwmChannels are wired
+// up by rx_init.
+void isr0() { handlePwmEdge(0); }
+void isr1() { handlePwmEdge(1); }
+void isr2() { handlePwmEdge(2); }
+void isr3() { handlePwmEdge(3); }
+void isr4() { handlePwmEdge(4); }
+void isr5() { handlePwmEdge(5); }
+
+void (*const kIsrs[6])() = { isr0, isr1, isr2, isr3, isr4, isr5 };
+
+}  // anonymous namespace
+
+bool rx_init() {
+  s_state = {};
+  for (uint8_t i = 0; i < 16; ++i) {
+    s_state.channel_us[i] = 1500;
+  }
+  for (uint8_t i = 0; i < kNumPwmChannels; ++i) {
+    pinMode(PIN_PWM_RX[i], INPUT);
+    attachInterrupt(digitalPinToInterrupt(PIN_PWM_RX[i]), kIsrs[i], CHANGE);
+  }
+  return true;
+}
+
+void rx_poll(RxState& out) {
+  // Per-channel timestamps + widths copied out under interrupts-off so
+  // the main loop sees a consistent snapshot. The block is short, no
+  // I/O, no allocations.
+  noInterrupts();
+  uint32_t newest_pulse_us = 0;
+  bool     any_seen        = false;
+  for (uint8_t i = 0; i < kNumPwmChannels; ++i) {
+    s_state.channel_us[i] = s_pulse_width_us[i];
+    if (s_channel_seen[i]) {
+      any_seen = true;
+      if (s_last_pulse_us[i] > newest_pulse_us) {
+        newest_pulse_us = s_last_pulse_us[i];
+      }
+    }
+  }
+  interrupts();
+
+  // Channels 5+ that the firmware reads for role mapping (CHANNEL_STAB,
+  // CHANNEL_ARM, etc.) stay at the boot default of 1500 us. A PWM
+  // receiver with fewer wires than the firmware expects will just leave
+  // those role channels parked at centre, which the failsafe defaults
+  // already account for.
+
+  s_state.channels_valid    = any_seen;
+  s_state.last_frame_us     = newest_pulse_us;
+  s_state.frame_lost_flag   = false;
+  s_state.failsafe_active   = false;  // PWM has no per-frame failsafe flag
+  s_state.lost_frames_count = 0;
+  s_state.ch17              = false;
+  s_state.ch18              = false;
+
+  out = s_state;
+}
+
+}  // namespace cp::hal
+
 #elif RX_PROTOCOL == RX_CRSF
 
 #include "src/libs/Crsf.h"

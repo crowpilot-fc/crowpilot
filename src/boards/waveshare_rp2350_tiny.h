@@ -39,6 +39,16 @@ constexpr uint8_t PIN_COMPANION_RX  = 21;  // UART1 RX.
 constexpr uint8_t PIN_ESP_EN        = 22;
 constexpr uint8_t PIN_ESP_IO0       = 3;
 
+// Per-channel PWM RC input pins used only when RX_PROTOCOL = RX_PWM.
+// Each entry is one receiver channel wired to the listed GPIO. Order is
+// (roll, pitch, throttle, yaw / 4th channel). The 4th channel is named
+// "yaw" by convention but the firmware reads whatever role CHANNEL_*
+// maps to that index. On the F-14 swing-wing build this fourth channel
+// drives the wing-sweep servo from user-sketch.ino. Pins picked from
+// the Tiny GPIOs that are free with everything else default. Edit if
+// your build claims those pins for something else.
+constexpr uint8_t PIN_PWM_RX[]      = {6, 7, 15, 26};
+
 }  // namespace cp::boards::waveshare_rp2350_tiny
 
 // Hoist the pin constants into the global cp:: namespace so module code can
