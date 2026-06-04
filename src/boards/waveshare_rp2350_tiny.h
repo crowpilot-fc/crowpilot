@@ -29,8 +29,18 @@ constexpr uint8_t PIN_SD_MISO       = 16;  // SPI0 RX.
 constexpr uint8_t PIN_SD_SCK        = 18;  // SPI0 SCK.
 constexpr uint8_t PIN_SD_CS         = 17;
 
-constexpr uint8_t PIN_LED_STATUS    = 14;  // External 3 mm LED with 470 ohm resistor.
-constexpr uint8_t PIN_LED_ONBOARD   = 25;  // RP2350 onboard LED. Boot indicator and panic blink.
+// The Waveshare RP2350-Tiny does NOT break out GP24 or GP25 as castellated
+// pins. They are only available on the user-mode boot-strap SMD pads and
+// carry no onboard LED. The Tiny's actual onboard LED is a WS2812 RGB on
+// GP16, which is on a bottom-side SMD pad and uses serial colour data
+// rather than digitalWrite, so it cannot serve as the firmware heartbeat
+// without a WS2812 driver. For v1.0 the heartbeat and panic blink both
+// drive a single external 3 mm LED on the GP14 castellated pin. The
+// builder wires a 470 ohm series resistor to a small panel-mount LED on
+// the airframe. The two constants point to the same pin so the rest of
+// the firmware that references either keeps working.
+constexpr uint8_t PIN_LED_STATUS    = 14;
+constexpr uint8_t PIN_LED_ONBOARD   = 14;
 
 constexpr uint8_t PIN_COMPANION_TX  = 20;  // UART1 TX. ESP companion (v1.1) or GPS (v2). Mutually exclusive.
 constexpr uint8_t PIN_COMPANION_RX  = 21;  // UART1 RX.
