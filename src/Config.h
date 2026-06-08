@@ -1059,3 +1059,46 @@ constexpr uint32_t DEBUG_STREAM_INTERVAL_TICKS = 100;
 constexpr uint32_t DEBUG_LOOP_REPORT_TICKS     = 1000;
 
 }  // namespace cp
+
+// ===========================================================================
+// Compile-time pin conflict guards
+// ===========================================================================
+// Catch board profile pin reuses that silently corrupt one feature when
+// another feature is enabled. The Tiny board profile after the SD pin
+// remap to top-edge castellations puts SD MOSI on GP7 and SD CS on
+// GP6, which are also the first two PIN_PWM_RX entries when RX_PWM is
+// chosen. ESP companion flash, LED flasher, and battery monitor do not
+// collide with the SD pins on the current profile.
+
+#if ENABLE_TELEMETRY_LOG && ENABLE_LED_FLASHER
+static_assert(cp::LED_FLASHER_PIN != cp::PIN_SD_MOSI &&
+              cp::LED_FLASHER_PIN != cp::PIN_SD_MISO &&
+              cp::LED_FLASHER_PIN != cp::PIN_SD_SCK  &&
+              cp::LED_FLASHER_PIN != cp::PIN_SD_CS,
+              "LED_FLASHER_PIN collides with an SD pin on this board profile. "
+              "Change LED_FLASHER_PIN or disable one of ENABLE_TELEMETRY_LOG / ENABLE_LED_FLASHER.");
+#endif
+
+#if ENABLE_TELEMETRY_LOG && (RX_PROTOCOL == RX_PWM)
+// PIN_PWM_RX is only declared in board profiles that expose PWM RC inputs.
+// RX_PROTOCOL == RX_PWM already requires those profiles, so referencing the
+// array here is safe.
+static_assert(cp::PIN_SD_MOSI != cp::PIN_PWM_RX[0] &&
+              cp::PIN_SD_MOSI != cp::PIN_PWM_RX[1] &&
+              cp::PIN_SD_MOSI != cp::PIN_PWM_RX[2] &&
+              cp::PIN_SD_MOSI != cp::PIN_PWM_RX[3] &&
+              cp::PIN_SD_CS   != cp::PIN_PWM_RX[0] &&
+              cp::PIN_SD_CS   != cp::PIN_PWM_RX[1] &&
+              cp::PIN_SD_CS   != cp::PIN_PWM_RX[2] &&
+              cp::PIN_SD_CS   != cp::PIN_PWM_RX[3] &&
+              cp::PIN_SD_MISO != cp::PIN_PWM_RX[0] &&
+              cp::PIN_SD_MISO != cp::PIN_PWM_RX[1] &&
+              cp::PIN_SD_MISO != cp::PIN_PWM_RX[2] &&
+              cp::PIN_SD_MISO != cp::PIN_PWM_RX[3] &&
+              cp::PIN_SD_SCK  != cp::PIN_PWM_RX[0] &&
+              cp::PIN_SD_SCK  != cp::PIN_PWM_RX[1] &&
+              cp::PIN_SD_SCK  != cp::PIN_PWM_RX[2] &&
+              cp::PIN_SD_SCK  != cp::PIN_PWM_RX[3],
+              "An SD pin collides with one of the PIN_PWM_RX entries. "
+              "RX_PWM and SD logging cannot coexist on this board profile.");
+#endif

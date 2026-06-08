@@ -24,10 +24,33 @@ constexpr uint8_t PIN_SERVOS[4]     = {12, 13, 8, 9};
 
 constexpr uint8_t PIN_SBUS_RX       = 1;   // PIO inverted UART receive. No external inverter.
 
-constexpr uint8_t PIN_SD_MOSI       = 19;  // SPI0 TX.
-constexpr uint8_t PIN_SD_MISO       = 16;  // SPI0 RX.
-constexpr uint8_t PIN_SD_SCK        = 18;  // SPI0 SCK.
-constexpr uint8_t PIN_SD_CS         = 17;
+// SD pins remapped to the top-edge castellations. The default SPI0 pin
+// set on the rp2040 Arduino core lands on GP16-GP19, which on the
+// Waveshare Tiny are bottom-side SMD pads (no through-hole, no
+// castellation). Mounting an SD card to those pins requires reflow or
+// fine-pitch magnet-wire work, which is impractical for a hand-built
+// FC. The four pins below all sit on the top-edge castellations and
+// solder cleanly to 0.1" perfboard.
+//
+// On the RP2350 SPI0 has multiple alt-function banks. The Tiny exposes
+// these top-edge pins: RX on GP0 or GP4, SCK on GP2 or GP6, TX on GP3
+// or GP7. The chosen set avoids GP3 (PIN_ESP_IO0) and GP4/GP5 (I2C),
+// so SD logging is compatible with ESP companion flash and the IMU on
+// the same build.
+//
+// PIN_SD_MOSI = GP7 collides with PIN_PWM_RX[1].
+// PIN_SD_CS   = GP6 collides with PIN_PWM_RX[0].
+// SD logging and PWM receiver are therefore MUTUALLY EXCLUSIVE on this
+// board. (Picking SBUS, CRSF, or PPM for RX avoids the conflict.) The
+// static_assert at the end of Config.h catches the conflict at build
+// time if both are enabled.
+//
+// The firmware calls SPI.setRX/setTX/setSCK with these constants before
+// SD.begin() so the remap actually takes effect (see SdLogger.cpp).
+constexpr uint8_t PIN_SD_MOSI       = 7;   // SPI0 TX bank-1 alt. Conflicts with PIN_PWM_RX[1].
+constexpr uint8_t PIN_SD_MISO       = 0;   // SPI0 RX bank-0 alt.
+constexpr uint8_t PIN_SD_SCK        = 2;   // SPI0 SCK bank-0 alt.
+constexpr uint8_t PIN_SD_CS         = 6;   // Software-driven CS. Conflicts with PIN_PWM_RX[0].
 
 // The Waveshare RP2350-Tiny does NOT break out GP24 or GP25 as castellated
 // pins. They are only available on the user-mode boot-strap SMD pads and

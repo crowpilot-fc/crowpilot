@@ -321,8 +321,15 @@ void init() {
     Serial.println("Logger: async, SD bring-up deferred to core 1.");
   }
 #else
-  // Synchronous logger. SD bring-up runs here. The Pi Pico Arduino
-  // core's `SD.h` configures SPI0 internally based on the CS pin.
+  // Synchronous logger. SD bring-up runs here. The Pi Pico Arduino core's
+  // SD library opens the default SPI bus (SPI0) at SD.begin(). The board
+  // profile may remap MOSI/MISO/SCK away from the SPI0 default pins (the
+  // Waveshare Tiny does this because its default SPI0 pins are bottom-side
+  // SMD pads). Push the board-profile pins into the SPI driver BEFORE
+  // SD.begin() so the remap actually takes effect.
+  SPI.setRX(PIN_SD_MISO);
+  SPI.setTX(PIN_SD_MOSI);
+  SPI.setSCK(PIN_SD_SCK);
   if (!SD.begin(PIN_SD_CS)) {
     if (Serial) {
       Serial.println("Logger: SD.begin failed. No card or unsupported card.");
@@ -404,6 +411,14 @@ void core1_setup() {
   // first log file. On any failure we leave s_async_init_done false,
   // which keeps is_active() returning false on core 0; the rest of the
   // firmware proceeds without logging.
+  //
+  // Push the board-profile MOSI/MISO/SCK into the SPI driver before
+  // SD.begin() so a non-default SPI0 pin set (e.g. the Waveshare Tiny's
+  // top-edge remap) actually takes effect. The SD library's own setup
+  // does not re-pin SPI0.
+  SPI.setRX(PIN_SD_MISO);
+  SPI.setTX(PIN_SD_MOSI);
+  SPI.setSCK(PIN_SD_SCK);
   if (!SD.begin(PIN_SD_CS)) {
     if (Serial) {
       Serial.println("Logger (core1): SD.begin failed.");
