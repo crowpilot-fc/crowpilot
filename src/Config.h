@@ -1102,3 +1102,16 @@ static_assert(cp::PIN_SD_MOSI != cp::PIN_PWM_RX[0] &&
               "An SD pin collides with one of the PIN_PWM_RX entries. "
               "RX_PWM and SD logging cannot coexist on this board profile.");
 #endif
+
+#if ENABLE_COMPANION_CLI && (RX_PROTOCOL == RX_PWM)
+static_assert(cp::PIN_COMPANION_TX != cp::PIN_PWM_RX[0] &&
+              cp::PIN_COMPANION_TX != cp::PIN_PWM_RX[1] &&
+              cp::PIN_COMPANION_TX != cp::PIN_PWM_RX[2] &&
+              cp::PIN_COMPANION_TX != cp::PIN_PWM_RX[3] &&
+              cp::PIN_COMPANION_RX != cp::PIN_PWM_RX[0] &&
+              cp::PIN_COMPANION_RX != cp::PIN_PWM_RX[1] &&
+              cp::PIN_COMPANION_RX != cp::PIN_PWM_RX[2] &&
+              cp::PIN_COMPANION_RX != cp::PIN_PWM_RX[3],
+              "PIN_COMPANION_TX or PIN_COMPANION_RX collides with PIN_PWM_RX. "
+              "RX_PWM and the companion UART cannot coexist on this board profile.");
+#endif

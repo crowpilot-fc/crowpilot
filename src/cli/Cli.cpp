@@ -406,13 +406,25 @@ void init() {
   s_chan_count       = 1;
 
 #if BUILD_TARGET == BUILD_TARGET_NATIVE && ENABLE_COMPANION_CLI
-  // The companion UART is UART1 (Serial2 on the arduino-pico core), routed
-  // to the board's companion pins. An ESP WiFi module bridges it to a
-  // phone. Harmless when nothing is attached: an idle UART, no bytes.
+  // The companion UART bridges to an ESP WiFi module that exposes the CLI
+  // to a phone. Boards whose PIN_COMPANION_TX/RX are valid UART1 alt-function
+  // pins use the hardware UART (Serial2 on the arduino-pico core). Boards
+  // that route the companion to non-UART pins (e.g. the Waveshare Tiny,
+  // whose top-edge castellations leave no free hardware UART pair) define
+  // BOARD_COMPANION_USES_SERIALPIO=1 in their board profile; on those
+  // boards the dispatcher uses SerialPIO, the rp2040 Arduino core's
+  // PIO-based UART that runs on any GPIO. Harmless when nothing is
+  // attached: an idle UART, no bytes.
+  #if BOARD_COMPANION_USES_SERIALPIO
+  static SerialPIO s_companion_pio(PIN_COMPANION_TX, PIN_COMPANION_RX);
+  s_companion_pio.begin(kCompanionBaud);
+  s_chan[1].io       = &s_companion_pio;
+  #else
   Serial2.setTX(PIN_COMPANION_TX);
   Serial2.setRX(PIN_COMPANION_RX);
   Serial2.begin(kCompanionBaud);
   s_chan[1].io       = &Serial2;
+  #endif
   s_chan[1].len      = 0;
   s_chan[1].overflow = false;
   s_chan_count       = 2;

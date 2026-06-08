@@ -65,8 +65,18 @@ constexpr uint8_t PIN_SD_CS         = 6;   // Software-driven CS. Conflicts with
 constexpr uint8_t PIN_LED_STATUS    = 14;
 constexpr uint8_t PIN_LED_ONBOARD   = 14;
 
-constexpr uint8_t PIN_COMPANION_TX  = 20;  // UART1 TX. ESP companion (v1.1) or GPS (v2). Mutually exclusive.
-constexpr uint8_t PIN_COMPANION_RX  = 21;  // UART1 RX.
+// Companion UART pins. On the Tiny, the hardware UART alt-function pins
+// (UART1: GP4/5, GP8/9, GP12/13, GP20/21) are either taken by I2C, the
+// servos, or sit on bottom-side SMD pads. The companion UART is therefore
+// routed via SerialPIO (the rp2040 Arduino core's PIO-based UART) on two
+// free top-edge castellations. GP15 carries Tiny TX (to ESP RX), GP26
+// carries Tiny RX (from ESP TX). Both are clear in SBUS / CRSF builds;
+// they conflict with PIN_PWM_RX[2] and PIN_PWM_RX[3] when RX_PROTOCOL is
+// RX_PWM, so PWM-RX builds must drop ENABLE_COMPANION_CLI or remap the
+// PWM pins.
+constexpr uint8_t PIN_COMPANION_TX  = 15;  // SerialPIO TX. Top-edge castellated.
+constexpr uint8_t PIN_COMPANION_RX  = 26;  // SerialPIO RX. Top-edge castellated.
+#define BOARD_COMPANION_USES_SERIALPIO 1
 
 // ESP passthrough flash control lines. See weact_rp2350a_v10.h for the role.
 constexpr uint8_t PIN_ESP_EN        = 22;
