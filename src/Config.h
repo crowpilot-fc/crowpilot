@@ -1082,36 +1082,44 @@ static_assert(cp::LED_FLASHER_PIN != cp::PIN_SD_MOSI &&
 #if ENABLE_TELEMETRY_LOG && (RX_PROTOCOL == RX_PWM)
 // PIN_PWM_RX is only declared in board profiles that expose PWM RC inputs.
 // RX_PROTOCOL == RX_PWM already requires those profiles, so referencing the
-// array here is safe.
-static_assert(cp::PIN_SD_MOSI != cp::PIN_PWM_RX[0] &&
-              cp::PIN_SD_MOSI != cp::PIN_PWM_RX[1] &&
-              cp::PIN_SD_MOSI != cp::PIN_PWM_RX[2] &&
-              cp::PIN_SD_MOSI != cp::PIN_PWM_RX[3] &&
-              cp::PIN_SD_CS   != cp::PIN_PWM_RX[0] &&
-              cp::PIN_SD_CS   != cp::PIN_PWM_RX[1] &&
-              cp::PIN_SD_CS   != cp::PIN_PWM_RX[2] &&
-              cp::PIN_SD_CS   != cp::PIN_PWM_RX[3] &&
-              cp::PIN_SD_MISO != cp::PIN_PWM_RX[0] &&
-              cp::PIN_SD_MISO != cp::PIN_PWM_RX[1] &&
-              cp::PIN_SD_MISO != cp::PIN_PWM_RX[2] &&
-              cp::PIN_SD_MISO != cp::PIN_PWM_RX[3] &&
-              cp::PIN_SD_SCK  != cp::PIN_PWM_RX[0] &&
-              cp::PIN_SD_SCK  != cp::PIN_PWM_RX[1] &&
-              cp::PIN_SD_SCK  != cp::PIN_PWM_RX[2] &&
-              cp::PIN_SD_SCK  != cp::PIN_PWM_RX[3],
+// array here is safe. Helper computes the array size at compile time so a
+// board profile bumping PIN_PWM_RX from 4 to 5 (or fewer) entries does not
+// silently skip the new slot.
+namespace cp {
+constexpr bool sd_collides_with_pwm_rx() {
+  constexpr uint8_t kSdPins[] = {PIN_SD_MOSI, PIN_SD_MISO, PIN_SD_SCK, PIN_SD_CS};
+  constexpr size_t  kNumPwm   = sizeof(PIN_PWM_RX) / sizeof(PIN_PWM_RX[0]);
+  for (size_t s = 0; s < 4; ++s) {
+    for (size_t p = 0; p < kNumPwm; ++p) {
+      if (kSdPins[s] == PIN_PWM_RX[p]) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+}  // namespace cp
+static_assert(!cp::sd_collides_with_pwm_rx(),
               "An SD pin collides with one of the PIN_PWM_RX entries. "
               "RX_PWM and SD logging cannot coexist on this board profile.");
 #endif
 
 #if ENABLE_COMPANION_CLI && (RX_PROTOCOL == RX_PWM)
-static_assert(cp::PIN_COMPANION_TX != cp::PIN_PWM_RX[0] &&
-              cp::PIN_COMPANION_TX != cp::PIN_PWM_RX[1] &&
-              cp::PIN_COMPANION_TX != cp::PIN_PWM_RX[2] &&
-              cp::PIN_COMPANION_TX != cp::PIN_PWM_RX[3] &&
-              cp::PIN_COMPANION_RX != cp::PIN_PWM_RX[0] &&
-              cp::PIN_COMPANION_RX != cp::PIN_PWM_RX[1] &&
-              cp::PIN_COMPANION_RX != cp::PIN_PWM_RX[2] &&
-              cp::PIN_COMPANION_RX != cp::PIN_PWM_RX[3],
+namespace cp {
+constexpr bool companion_collides_with_pwm_rx() {
+  constexpr uint8_t kCompanionPins[] = {PIN_COMPANION_TX, PIN_COMPANION_RX};
+  constexpr size_t  kNumPwm = sizeof(PIN_PWM_RX) / sizeof(PIN_PWM_RX[0]);
+  for (size_t c = 0; c < 2; ++c) {
+    for (size_t p = 0; p < kNumPwm; ++p) {
+      if (kCompanionPins[c] == PIN_PWM_RX[p]) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+}  // namespace cp
+static_assert(!cp::companion_collides_with_pwm_rx(),
               "PIN_COMPANION_TX or PIN_COMPANION_RX collides with PIN_PWM_RX. "
               "RX_PWM and the companion UART cannot coexist on this board profile.");
 #endif

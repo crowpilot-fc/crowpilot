@@ -146,10 +146,13 @@ constexpr uint32_t kMaxPulseUs = 2200;
 // ISR-touched state. volatile because the main loop reads them outside
 // the noInterrupts() critical section. uint16_t pulse_width is the most
 // recent valid pulse; uint32_t last_pulse_us is when it was captured.
-volatile uint32_t s_pulse_start_us[kNumPwmChannels] = {0};
-volatile uint16_t s_pulse_width_us[kNumPwmChannels] = {1500, 1500, 1500, 1500};
-volatile uint32_t s_last_pulse_us[kNumPwmChannels]  = {0};
-volatile bool     s_channel_seen[kNumPwmChannels]   = {false};
+// Pulse widths get centred to 1500 us in rx_init() rather than via the
+// static initializer so the array size can change without dropping the
+// centre value on the new elements.
+volatile uint32_t s_pulse_start_us[kNumPwmChannels] = {};
+volatile uint16_t s_pulse_width_us[kNumPwmChannels] = {};
+volatile uint32_t s_last_pulse_us[kNumPwmChannels]  = {};
+volatile bool     s_channel_seen[kNumPwmChannels]   = {};
 
 RxState s_state = {};
 
@@ -193,6 +196,7 @@ bool rx_init() {
     s_state.channel_us[i] = 1500;
   }
   for (uint8_t i = 0; i < kNumPwmChannels; ++i) {
+    s_pulse_width_us[i] = 1500;
     pinMode(PIN_PWM_RX[i], INPUT);
     attachInterrupt(digitalPinToInterrupt(PIN_PWM_RX[i]), kIsrs[i], CHANGE);
   }

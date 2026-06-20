@@ -84,13 +84,24 @@ constexpr uint8_t PIN_ESP_IO0       = 3;
 
 // Per-channel PWM RC input pins used only when RX_PROTOCOL = RX_PWM.
 // Each entry is one receiver channel wired to the listed GPIO. Order is
-// (roll, pitch, throttle, yaw / 4th channel). The 4th channel is named
-// "yaw" by convention but the firmware reads whatever role CHANNEL_*
-// maps to that index. On the F-14 swing-wing build this fourth channel
-// drives the wing-sweep servo from user-sketch.ino. Pins picked from
-// the Tiny GPIOs that are free with everything else default. Edit if
-// your build claims those pins for something else.
-constexpr uint8_t PIN_PWM_RX[]      = {6, 7, 15, 26};
+// (roll, pitch, throttle, yaw, aux). The fifth channel is typically a
+// mode-switch (e.g. STAB/MANUAL) but the firmware reads whatever role
+// CHANNEL_* maps to that index. Five entries chosen so a single
+// experimental board can carry a 4-channel AETR receiver plus one
+// auxiliary switch channel, the most common conventional-plane setup.
+// Pins picked from Tiny GPIOs that are free with default features.
+//
+// Conflicts when RX_PROTOCOL = RX_PWM is selected:
+//   GP3  (PIN_PWM_RX[4]) collides with PIN_ESP_IO0  (ESP companion flash)
+//   GP6  (PIN_PWM_RX[0]) collides with PIN_SD_CS    (SD logging)
+//   GP7  (PIN_PWM_RX[1]) collides with PIN_SD_MOSI  (SD logging)
+//   GP15 (PIN_PWM_RX[2]) collides with PIN_COMPANION_TX (ESP UART telemetry)
+//   GP26 (PIN_PWM_RX[3]) collides with PIN_COMPANION_RX (ESP UART telemetry)
+// Static_asserts in Config.h catch the SD and companion conflicts at
+// build time. ESP flash collision on GP3 is benign because the firmware
+// only drives ESP_IO0 during the brief one-shot passthrough flash, not
+// during normal flight.
+constexpr uint8_t PIN_PWM_RX[]      = {6, 7, 15, 26, 3};
 
 }  // namespace cp::boards::waveshare_rp2350_tiny
 
