@@ -55,3 +55,35 @@ CP_PARAM(KP_RATE_PITCH_PLANE, "kp_rate_pitch", KP_PLANE_RATE_PITCH, 0.0f, 0.05f,
 CP_PARAM(GAIN_CHANNEL,    "gain_channel",   GAIN_CHANNEL_DEFAULT,   0.0f, 16.0f, 1)
 CP_PARAM(GAIN_AUTHORITY,  "gain_authority", GAIN_AUTHORITY_DEFAULT, 0.0f,  1.0f, 1)
 CP_PARAM(GAIN_LPF_TC_S,   "gain_lpf_tc_s",  GAIN_LPF_TC_DEFAULT_S,  0.01f, 5.0f, 1)
+
+// Plane shape primitives, read by AIRFRAME_PLANE_GENERIC. One PCB design plus
+// one firmware flash supports every plane variant; the pilot picks the shape
+// via the Crowpilot Companion app and the generic mixer composes the right
+// mix. PLANE_TAIL_STYLE values: 0 traditional, 1 V-tail, 2 none (flying wing).
+CP_PARAM(PLANE_MOTORS_COUNT,  "plane_motors",  PLANE_MOTORS_COUNT_DEFAULT,  1.0f, 2.0f, 1)
+CP_PARAM(PLANE_TAIL_STYLE,    "plane_tail",    PLANE_TAIL_STYLE_DEFAULT,    0.0f, 2.0f, 1)
+CP_PARAM(PLANE_AILERON_COUNT, "plane_ailerons", PLANE_AILERON_COUNT_DEFAULT, 0.0f, 2.0f, 1)
+
+// Failsafe channel values applied when the receiver link is lost. Compile-time
+// defaults come from the per-airframe constexpr block (FS_THROTTLE_US, etc.)
+// so an out-of-the-box build behaves the same as v0.x. The pilot can override
+// any of these via the Crowpilot Companion app to suit a specific airframe
+// (e.g. a heavy plane might prefer 1100us for slight residual thrust on
+// glide, while a flying wing wants pure 1000us motors-off).
+CP_PARAM(FS_THROTTLE_US_RT, "fs_throttle_us", FS_THROTTLE_US, 1000.0f, 2000.0f, 1)
+CP_PARAM(FS_ROLL_US_RT,     "fs_roll_us",     FS_ROLL_US,     1000.0f, 2000.0f, 1)
+CP_PARAM(FS_PITCH_US_RT,    "fs_pitch_us",    FS_PITCH_US,    1000.0f, 2000.0f, 1)
+CP_PARAM(FS_YAW_US_RT,      "fs_yaw_us",      FS_YAW_US,      1000.0f, 2000.0f, 1)
+CP_PARAM(FS_ARM_US_RT,      "fs_arm_us",      FS_ARM_US,      1000.0f, 2000.0f, 1)
+
+// Runtime RX protocol selection. Default matches the compile-time RX_PROTOCOL
+// so existing builds keep working. Changing this param via the Crowpilot
+// Companion app saves the new value to flash but DOES NOT YET re-init the
+// receiver; the runtime RX dispatch refactor is scheduled for a focused
+// follow-up session because all three protocol drivers (SBUS PIO, PWM
+// interrupts, CRSF UART) need to compile in alongside each other. For now
+// this param is data only; reading and writing it works but the firmware
+// reads the compile-time RX_PROTOCOL macro to actually configure the
+// receiver. After the refactor, this param becomes the source of truth and
+// changes trigger a reboot to apply.
+CP_PARAM(RX_PROTOCOL_RT, "rx_protocol", RX_PROTOCOL, 0.0f, 3.0f, 1)

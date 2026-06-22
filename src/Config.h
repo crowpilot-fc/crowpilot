@@ -135,10 +135,32 @@
 #define AIRFRAME_TAILSITTER_QUAD     6
 #define AIRFRAME_PLANE_FLYING_WING   7
 #define AIRFRAME_PLANE_VTAIL         8
+#define AIRFRAME_PLANE_GENERIC       9
 
 #ifndef AIRFRAME
   #define AIRFRAME AIRFRAME_PLANE_SINGLE
 #endif
+
+// Plane shape sub-parameters, read by AIRFRAME_PLANE_GENERIC at runtime. The
+// generic plane mixer composes the right behaviour from these primitives:
+//   Motors:        1 or 2 (single-engine or twin)
+//   Tail style:    Traditional (elevator + rudder), V-tail (ruddervators), or
+//                  None (flying wing, no separate tail surfaces)
+//   Aileron count: 0 (rudder + elevator only, 3-channel trainer), 1 (single
+//                  aileron servo), or 2 (independent left/right ailerons or
+//                  elevons when tail = None)
+// These are runtime params so the Crowpilot Companion app can change them
+// without re-flashing.
+
+#define PLANE_TAIL_TRADITIONAL 0
+#define PLANE_TAIL_VTAIL       1
+#define PLANE_TAIL_NONE        2
+
+// Defaults for the runtime params (matched to PLANE_SINGLE-equivalent for
+// backwards-compatible behaviour with the existing Gee Bee class).
+constexpr float PLANE_MOTORS_COUNT_DEFAULT  = 1.0f;
+constexpr float PLANE_TAIL_STYLE_DEFAULT    = static_cast<float>(PLANE_TAIL_TRADITIONAL);
+constexpr float PLANE_AILERON_COUNT_DEFAULT = 2.0f;
 
 // ===========================================================================
 // IMU

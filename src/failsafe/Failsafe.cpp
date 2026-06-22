@@ -6,6 +6,7 @@
 #include <Arduino.h>
 
 #include "src/Config.h"
+#include "src/params/Params.h"
 #include "src/radio/Receiver.h"
 
 namespace cp::failsafe {
@@ -46,11 +47,14 @@ void applyFailsafeDefaults(Channels& out) {
   for (uint8_t i = 0; i < cp::radio::MAX_CHANNELS; ++i) {
     out.ch_us[i] = 1500;
   }
-  out.ch_us[CHANNEL_THROTTLE   - 1] = FS_THROTTLE_US;
-  out.ch_us[CHANNEL_ROLL       - 1] = FS_ROLL_US;
-  out.ch_us[CHANNEL_PITCH      - 1] = FS_PITCH_US;
-  out.ch_us[CHANNEL_YAW        - 1] = FS_YAW_US;
-  out.ch_us[CHANNEL_ARM        - 1] = FS_ARM_US;
+  // Runtime params override the per-airframe constexpr defaults so the
+  // pilot can tune failsafe behaviour via the Crowpilot Companion app.
+  namespace pr = cp::params;
+  out.ch_us[CHANNEL_THROTTLE - 1] = static_cast<uint16_t>(pr::get(pr::FS_THROTTLE_US_RT) + 0.5f);
+  out.ch_us[CHANNEL_ROLL     - 1] = static_cast<uint16_t>(pr::get(pr::FS_ROLL_US_RT)     + 0.5f);
+  out.ch_us[CHANNEL_PITCH    - 1] = static_cast<uint16_t>(pr::get(pr::FS_PITCH_US_RT)    + 0.5f);
+  out.ch_us[CHANNEL_YAW      - 1] = static_cast<uint16_t>(pr::get(pr::FS_YAW_US_RT)      + 0.5f);
+  out.ch_us[CHANNEL_ARM      - 1] = static_cast<uint16_t>(pr::get(pr::FS_ARM_US_RT)      + 0.5f);
   // Hold the hover end of the transition so a tailsitter that loses link
   // descends in hover rather than slewing toward mid-transition. The plane
   // airframes ignore this channel.

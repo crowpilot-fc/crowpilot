@@ -126,6 +126,37 @@ constexpr uint8_t SERVO_VTAIL_RIGHT   = 3;
 constexpr uint8_t SERVO_LEFT  = SERVO_AILERON_LEFT;
 constexpr uint8_t SERVO_RIGHT = SERVO_AILERON_RIGHT;
 
+#elif AIRFRAME == AIRFRAME_PLANE_GENERIC
+
+// Generic plane: composed at runtime from PLANE_MOTORS_COUNT, PLANE_TAIL_STYLE,
+// and PLANE_AILERON_COUNT params. Replaces the four specific plane airframes
+// (single, twin cargo, flying wing, V-tail) with one mixer that handles all
+// 12 combinations. The slot count is the max needed across every combination
+// so the actuator stage iterates a fixed array. Unused slots stay at neutral.
+//
+// Output slot to header mapping (locked to the v1.0 PCB):
+//   motor[0]  -> J2 (ESC1)   GP10. Always active.
+//   motor[1]  -> J7 (ESC2)   GP11. Active when PLANE_MOTORS_COUNT == 2.
+//   servo[0]  -> J3 (Servo1) GP12. Left aileron / left elevon / sole aileron.
+//   servo[1]  -> J4 (Servo2) GP13. Right aileron / right elevon.
+//   servo[2]  -> J5 (Servo3) GP8.  Elevator / V-tail left.
+//   servo[3]  -> J6 (Servo4) GP9.  Rudder / V-tail right.
+constexpr uint8_t N_MOTORS = 2;
+constexpr uint8_t N_SERVOS = 4;
+
+constexpr uint8_t MOTOR_RIGHT = 0;
+constexpr uint8_t MOTOR_LEFT  = 1;
+
+// Generic role indices. The mixer interprets them per the configured
+// PLANE_TAIL_STYLE and PLANE_AILERON_COUNT at runtime.
+constexpr uint8_t SERVO_OUT_0 = 0;
+constexpr uint8_t SERVO_OUT_1 = 1;
+constexpr uint8_t SERVO_OUT_2 = 2;
+constexpr uint8_t SERVO_OUT_3 = 3;
+
+constexpr uint8_t SERVO_LEFT  = SERVO_OUT_0;
+constexpr uint8_t SERVO_RIGHT = SERVO_OUT_1;
+
 #elif AIRFRAME == AIRFRAME_HEX_X
   #error "AIRFRAME_HEX_X is a v2.x deliverable."
 #elif AIRFRAME == AIRFRAME_TRICOPTER
