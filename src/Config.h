@@ -583,6 +583,22 @@ constexpr float KP_PLANE_RATE_PITCH = 0.005f;
 // Scales each stabilizer axis output before the final clamp. Provisional.
 constexpr float STAB_OUTPUT_SCALE = 1.0f;
 
+// Stab authority blending. Lets the pilot scale how much of the stab
+// output reaches the surfaces in real time, by reading a transmitter
+// channel (pot or slider) and blending the PID output with pure
+// passthrough. Authority 0.0 = pure manual (PID output ignored), 1.0 =
+// full stab (current behavior). Continuous values in between blend the
+// two. Pilot configures GAIN_CHANNEL in the Crowpilot Companion app to
+// pick which channel carries the knob; 0 means no channel assigned, in
+// which case GAIN_AUTHORITY_DEFAULT is used directly.
+//
+// The raw channel value is low-pass filtered through a first-order
+// filter with time constant GAIN_LPF_TC_DEFAULT_S so receiver jitter
+// does not modulate the gain at frame rate.
+constexpr float GAIN_CHANNEL_DEFAULT     = 0.0f;   // 0 = no gain channel
+constexpr float GAIN_AUTHORITY_DEFAULT   = 1.0f;   // full stab when no channel
+constexpr float GAIN_LPF_TC_DEFAULT_S    = 0.5f;   // ~0.32 Hz cutoff
+
 // Coordinated-turn assist gains. Used only when ENABLE_TURN_COORDINATION is 1.
 // TURN_COORD_RUDDER_GAIN scales sin(bank) into the rudder. PITCH_TURN_COMP_GAIN
 // scales the (1/cos(bank) - 1) altitude-hold-in-turn term into the elevator.

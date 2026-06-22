@@ -29,6 +29,11 @@ float s_climb_rate_mps = 0.0f;
 // setImuLossOverride().
 bool  s_imu_loss_override = false;
 
+// Low-pass-filtered stab authority. Seeded to the param default at init so
+// the first stab tick uses a sensible value before any channel data has
+// arrived.
+float s_authority_filt = 1.0f;
+
 inline float clampUnit(float x) {
   if (x >  1.0f) return  1.0f;
   if (x < -1.0f) return -1.0f;
@@ -88,6 +93,7 @@ void init() {
   s_prev_alt_m     = 0.0f;
   s_have_prev_alt  = false;
   s_climb_rate_mps = 0.0f;
+  s_authority_filt = cp::params::get(cp::params::GAIN_AUTHORITY);
 }
 
 void update(const cp::estimation::attitude::Euler& euler,
@@ -97,10 +103,32 @@ void update(const cp::estimation::attitude::Euler& euler,
             bool baro_valid,
             const uint16_t* channels,
             float dt_s) {
+  namespace pr = cp::params;
+
   const uint8_t mode = selectMode(channels);
   s_output.mode = mode;
   const bool passthrough = (mode == PLANE_MODE_MANUAL);
   s_output.passthrough_active = passthrough;
+
+  // Stab authority: pick a fresh raw value from the gain channel (or the
+  // param default when no channel is assigned) and low-pass filter it. This
+  // runs every tick regardless of flight mode so the filter tracks the
+  // pilot's knob across manual-to-stab switches without resetting.
+  {
+    const uint8_t gain_ch = static_cast<uint8_t>(pr::get(pr::GAIN_CHANNEL) + 0.5f);
+    float authority_raw;
+    if (gain_ch == 0 || gain_ch > 16) {
+      authority_raw = pr::get(pr::GAIN_AUTHORITY);
+    } else {
+      const float ch_us = static_cast<float>(channels[gain_ch - 1]);
+      authority_raw = (ch_us - 1000.0f) * 0.001f;
+      if (authority_raw < 0.0f) authority_raw = 0.0f;
+      if (authority_raw > 1.0f) authority_raw = 1.0f;
+    }
+    const float gain_tc = pr::get(pr::GAIN_LPF_TC_S);
+    const float alpha   = (gain_tc + dt_s > 0.0f) ? dt_s / (gain_tc + dt_s) : 1.0f;
+    s_authority_filt = alpha * authority_raw + (1.0f - alpha) * s_authority_filt;
+  }
 
   // Flaperon and airbrake commands from their channels, applied to the
   // ailerons by the mixer in every mode. 0 when the option is off.
@@ -126,6 +154,7 @@ void update(const cp::estimation::attitude::Euler& euler,
     s_output.yaw   = clampUnit(desired.yaw_passthru);
     s_output.throttle = clamp01(desired.throttle);
     s_output.alt_hold_active = false;
+    s_output.stab_authority  = 0.0f;
     s_alt_hold_armed = false;
     s_have_prev_alt  = false;
     return;
@@ -136,7 +165,6 @@ void update(const cp::estimation::attitude::Euler& euler,
   // knob scales the P gains, the D knob the D gains, exactly as for the
   // tailsitter PID. The registry value is the base; the knob is a multiplier
   // on top.
-  namespace pr = cp::params;
   const float kp_mult = cp::params::live::kpMultiplier();
   const float kd_mult = cp::params::live::kdMultiplier();
 
@@ -196,9 +224,19 @@ void update(const cp::estimation::attitude::Euler& euler,
   }
 #endif
 
-  s_output.roll  = clampUnit(STAB_OUTPUT_SCALE * roll_cmd);
-  s_output.pitch = clampUnit(STAB_OUTPUT_SCALE * pitch_cmd);
-  s_output.yaw   = clampUnit(STAB_OUTPUT_SCALE * yaw_cmd);
+  // Stab authority blend. Authority 1.0 = full PID output (the historical
+  // behaviour). Authority 0.0 = pure pilot passthrough (the surfaces follow
+  // the sticks with no stabilization). The pilot sets this on the fly via
+  // a TX knob assigned to GAIN_CHANNEL; the LPF state s_authority_filt is
+  // already updated at the top of this function.
+  const float authority  = s_authority_filt;
+  const float roll_stab  = STAB_OUTPUT_SCALE * roll_cmd;
+  const float pitch_stab = STAB_OUTPUT_SCALE * pitch_cmd;
+  const float yaw_stab   = STAB_OUTPUT_SCALE * yaw_cmd;
+  s_output.roll  = clampUnit((1.0f - authority) * desired.roll_passthru  + authority * roll_stab);
+  s_output.pitch = clampUnit((1.0f - authority) * desired.pitch_passthru + authority * pitch_stab);
+  s_output.yaw   = clampUnit((1.0f - authority) * desired.yaw_passthru   + authority * yaw_stab);
+  s_output.stab_authority = authority;
 
   // Altitude hold. Optional, and only meaningful with a healthy baro.
   float throttle_out = clamp01(desired.throttle);

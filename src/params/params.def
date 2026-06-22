@@ -46,3 +46,12 @@ CP_PARAM(KD_PITCH_PLANE, "kd_stab_pitch",  KD_STAB_PITCH,       0.0f, 1.0f, 1)
 CP_PARAM(KD_YAW_PLANE,   "kd_stab_yaw",    KD_STAB_YAW,         0.0f, 1.0f, 1)
 CP_PARAM(KP_RATE_ROLL_PLANE,  "kp_rate_roll",  KP_PLANE_RATE_ROLL,  0.0f, 0.05f, 1)
 CP_PARAM(KP_RATE_PITCH_PLANE, "kp_rate_pitch", KP_PLANE_RATE_PITCH, 0.0f, 0.05f, 1)
+
+// Stab authority. GAIN_CHANNEL picks which transmitter channel carries the
+// authority knob (0 = none, 1..16 = channel index). GAIN_AUTHORITY is the
+// fallback authority used when no channel is assigned or before the first
+// receiver frame arrives. GAIN_LPF_TC_S is the time constant of the
+// first-order low-pass on the channel reading.
+CP_PARAM(GAIN_CHANNEL,    "gain_channel",   GAIN_CHANNEL_DEFAULT,   0.0f, 16.0f, 1)
+CP_PARAM(GAIN_AUTHORITY,  "gain_authority", GAIN_AUTHORITY_DEFAULT, 0.0f,  1.0f, 1)
+CP_PARAM(GAIN_LPF_TC_S,   "gain_lpf_tc_s",  GAIN_LPF_TC_DEFAULT_S,  0.01f, 5.0f, 1)

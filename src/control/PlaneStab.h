@@ -34,6 +34,11 @@ struct Output {
   uint8_t mode;      // active PLANE_MODE_* this tick
   bool    passthrough_active;
   bool    alt_hold_active;
+  // Stab authority [0, 1] applied this tick. 1.0 = full stab, 0.0 = pure
+  // pilot passthrough. Always 0.0 in MANUAL mode. In the other modes it
+  // is the (low-pass filtered) GAIN_CHANNEL value, or the GAIN_AUTHORITY
+  // param when no channel is assigned.
+  float   stab_authority;
 };
 
 // Coordinated-turn feedforward for a given bank angle in degrees. Returns the
