@@ -42,6 +42,8 @@
 #if ENABLE_LAUNCH_ASSIST
 #include "src/control/LaunchAssist.h"
 #endif
+
+#include "src/control/Gimbal.h"
 #endif
 
 // NATIVE and SITL are implemented (src/hal/native/ and src/hal/sim/).
@@ -524,6 +526,7 @@ void init() {
 #if ENABLE_LAUNCH_ASSIST
   cp::control::launch::init();
 #endif
+  cp::control::gimbal::init();
 #endif
 }
 
@@ -675,6 +678,9 @@ void tick() {
       dt_s);
   cp::airframes::update(eff_desired.throttle, 0.0f, 0.0f, 0.0f,
                         0.0f, 0.0f, 0.0f, fader);
+  // Gimbal stabilization. No-op when GIMBAL_ENABLE = 0 or the board
+  // profile does not define PIN_GIMBAL_PAN.
+  cp::control::gimbal::tick(channels, cp::estimation::attitude::bodyRates());
 #endif
 
   // Pre-arm checks. Arming is refused unless the IMU is healthy, the receiver

@@ -82,6 +82,15 @@ constexpr uint8_t PIN_COMPANION_RX  = 26;  // SerialPIO RX. Top-edge castellated
 constexpr uint8_t PIN_ESP_EN        = 22;
 constexpr uint8_t PIN_ESP_IO0       = 3;
 
+// 2-axis pan/tilt gimbal servo outputs, used when GIMBAL_ENABLE = 1.
+// GP3 and GP28 are free in the default SBUS build (GP3 doubles as ESP_IO0
+// only during ESP passthrough flash; GP28 is otherwise spare unless the
+// battery monitor claims it). The Servo lib attaches these pins only when
+// the gimbal is enabled, so they remain free GPIOs in builds that do not
+// use the gimbal feature.
+constexpr uint8_t PIN_GIMBAL_PAN    = 3;
+constexpr uint8_t PIN_GIMBAL_TILT   = 28;
+
 // Per-channel PWM RC input pins used only when RX_PROTOCOL = RX_PWM.
 // Each entry is one receiver channel wired to the listed GPIO. Order is
 // (roll, pitch, throttle, yaw, aux). The fifth channel is typically a

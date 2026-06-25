@@ -893,6 +893,47 @@ constexpr uint32_t LED_BEACON_ON_MS     = 130;   // beacon flash on-time
 }  // namespace cp
 
 // ===========================================================================
+// Gimbal stabilization (2-axis pan/tilt)
+// ===========================================================================
+// Drives two extra servos for a head-tracked pan/tilt camera mount (typical
+// use: DJI O3 Camera on a 3D-printed gimbal). The pilot's headtracker sends
+// pan and tilt commands over RC channels; the firmware passes them through
+// to the gimbal servos with a rate-damping correction subtracted to smooth
+// out plane jitter:
+//
+//   gimbal_pan_us  = headtracker_pan_us  - GIMBAL_GAIN_PAN  * yaw_rate_dps
+//   gimbal_tilt_us = headtracker_tilt_us - GIMBAL_GAIN_TILT * pitch_rate_dps
+//
+// Gains in microseconds-per-degrees-per-second. Higher = more shake
+// suppression but more lag against fast head movement. Default 2.0 is a
+// good starting point. Pilot tunes via the Crowpilot Companion app.
+//
+// All knobs are runtime params so the pilot can enable, disable, channel-
+// map, trim, set endpoints, and reverse each axis without re-flashing.
+//
+// The whole feature is gated by the GIMBAL_ENABLE runtime param. Default
+// off: existing builds get zero behaviour change and the gimbal pins stay
+// free for other uses.
+
+namespace cp {
+
+constexpr float GIMBAL_ENABLE_DEFAULT       = 0.0f;     // off by default
+constexpr float GIMBAL_CHANNEL_PAN_DEFAULT  = 7.0f;     // typical SBUS aux
+constexpr float GIMBAL_CHANNEL_TILT_DEFAULT = 8.0f;
+constexpr float GIMBAL_GAIN_PAN_DEFAULT     = 2.0f;     // us per deg/s
+constexpr float GIMBAL_GAIN_TILT_DEFAULT    = 2.0f;
+constexpr float GIMBAL_TRIM_PAN_DEFAULT     = 0.0f;     // us offset
+constexpr float GIMBAL_TRIM_TILT_DEFAULT    = 0.0f;
+constexpr float GIMBAL_MIN_PAN_US_DEFAULT   = 1000.0f;
+constexpr float GIMBAL_MAX_PAN_US_DEFAULT   = 2000.0f;
+constexpr float GIMBAL_MIN_TILT_US_DEFAULT  = 1000.0f;
+constexpr float GIMBAL_MAX_TILT_US_DEFAULT  = 2000.0f;
+constexpr float GIMBAL_REVERSE_PAN_DEFAULT  = 0.0f;
+constexpr float GIMBAL_REVERSE_TILT_DEFAULT = 0.0f;
+
+}  // namespace cp
+
+// ===========================================================================
 // Attitude estimation
 // ===========================================================================
 // The AHRS is a Madgwick gradient-descent orientation filter, gyro and
