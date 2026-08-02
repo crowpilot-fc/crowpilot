@@ -70,12 +70,21 @@ constexpr uint8_t PIN_GIMBAL_TILT   = 28;
 // logging and the Crowpilot Companion app. That is the reason to prefer this
 // board over the Tiny for a PWM airframe.
 //
-// Two shared pins to know about:
-//   GP1 is PIN_SBUS_RX, unused in a PWM build, so it is free here.
-//   GP3 is PIN_ESP_IO0. The firmware only drives ESP_IO0 during a one-shot
-//   ESP passthrough flash, never in flight, so the collision is benign. Do
-//   not run cp esp flash with the receiver connected.
-constexpr uint8_t PIN_PWM_RX[]      = {0, 1, 2, 3, 12, 13, 15, 26};
+// Index 0 is GP1, not GP0, and the order is deliberate. GP1 is PIN_SBUS_RX
+// and also the CRSF UART receive pin, so putting PWM channel 1 there lets a
+// single physical header serve all three receiver protocols: PWM channel 1
+// in a PWM build, SBUS in an SBUS build, CRSF in a CRSF build. Header 2 then
+// lands on GP0, which is the reserved CRSF telemetry transmit pin, so the
+// first two headers together carry a full bidirectional CRSF link. In a
+// serial build headers 3 through 8 are simply unpopulated.
+//
+// GP3 is also PIN_ESP_IO0. Unlike the SBUS pin this is a genuine hazard, not
+// a benign overlap: ESP_IO0 is the ESP32-C3's boot-strap pin, so wiring that
+// jumper while a receiver drives GP3 would park 50 Hz PWM on the strap and
+// the ESP's boot mode would depend on stick position at its power-up. On a
+// PWM build, leave the ESP_EN and ESP_IO0 jumpers unpopulated and flash the
+// companion over its own USB port. That also frees GP22.
+constexpr uint8_t PIN_PWM_RX[]      = {1, 0, 2, 3, 12, 13, 15, 26};
 
 }  // namespace cp::boards::weact_rp2350a_v10
 

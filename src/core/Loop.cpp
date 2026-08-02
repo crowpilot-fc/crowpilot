@@ -679,8 +679,9 @@ void tick() {
   cp::airframes::update(eff_desired.throttle, 0.0f, 0.0f, 0.0f,
                         0.0f, 0.0f, 0.0f, fader);
   // Gimbal stabilization. No-op when GIMBAL_ENABLE = 0 or the board
-  // profile does not define PIN_GIMBAL_PAN.
-  cp::control::gimbal::tick(channels, cp::estimation::attitude::bodyRates());
+  // profile does not set BOARD_HAS_GIMBAL.
+  cp::control::gimbal::tick(channels, cp::estimation::attitude::bodyRates(),
+                            dt_s);
 #endif
 
   // Pre-arm checks. Arming is refused unless the IMU is healthy, the receiver

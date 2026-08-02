@@ -13,10 +13,19 @@
 // out of the video.
 //
 // Math (per axis):
-//   servo_us = headtracker_us + trim_us - gain * gyro_rate_dps
+//   servo_us = headtracker_us + trim_us - gain * washout(gyro_rate_dps)
 //
 // Where gain is in microseconds-per-degrees-per-second. gain=0 disables
 // stabilization (pure passthrough). Typical good values are 1-5.
+//
+// washout() is a first-order high-pass with time constant
+// GIMBAL_WASHOUT_TC_S. Without it the damping term cannot distinguish a
+// disturbance worth cancelling from a rotation the pilot commanded, so a
+// sustained manoeuvre biases the camera for its whole duration: a 90 deg/s
+// loop at gain 2 holds an 18 degree offset until the exit. The high-pass
+// keeps the fast content the damping is for and lets slow, deliberate
+// rotation fall out of the correction. Setting the time constant to 0
+// disables it and restores raw rate damping.
 //
 // Entire feature is gated by the GIMBAL_ENABLE runtime param. When off,
 // init() does not attach the servo pins, leaving them free for other use.
@@ -47,8 +56,10 @@ bool active();
 // One stabilization tick. Reads the configured pan and tilt channels from
 // `channels` (the failsafe-effective channel snapshot, microseconds, 1-based
 // channel indices into 0-based array), reads the body rates from `rates`,
-// writes the rate-damped output to the gimbal servos. No-op when not active.
+// writes the rate-damped output to the gimbal servos. `dt_s` is the loop
+// period, used to advance the washout filter. No-op when not active.
 void tick(const uint16_t* channels,
-          const cp::estimation::attitude::BodyRates& rates);
+          const cp::estimation::attitude::BodyRates& rates,
+          float dt_s);
 
 }  // namespace cp::control::gimbal

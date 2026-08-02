@@ -831,8 +831,27 @@ constexpr uint16_t SERVO_MAX_US = 2000;        // Servo PWM at command 1.
 //
 // Expo and stick rates are pilot input shaping and stay on the transmitter,
 // not here, since this stage sees the already-mixed surface command.
+//
+// This is ON, and the endpoints below ship as the full 1000-2000 us range,
+// which is behaviourally identical to leaving it off. That is deliberate:
+// the mechanism is live so a bench session can narrow each surface without
+// a config-flag round trip, and the values are identity so nothing silently
+// loses control authority before anyone has measured a linkage.
+//
+// SET THESE BEFORE FLYING. This is a power-safety item, not just a tuning
+// nicety. A stabilizer command plus full stick can drive a surface past its
+// mechanical travel and hold it against the stop, and a servo stalled
+// against a stop draws stall current for as long as it is held. Two of them
+// doing that on a shared BEC is a brownout, and a brownout reboots the
+// flight controller in flight. Measure each surface with the linkage
+// connected and set the endpoint that stops just short of binding.
+//
+// These arrays cover the airframe's flying surfaces only. The pan/tilt
+// gimbal has its own GIMBAL_MIN/MAX_*_US runtime params and is not indexed
+// here; cheap 9 g servos will buzz and stall at their own limits too, so
+// those need setting on the same bench pass.
 
-#define ENABLE_SERVO_CONFIG 0
+#define ENABLE_SERVO_CONFIG 1
 
 namespace cp {
 
@@ -952,6 +971,27 @@ constexpr float GIMBAL_CHANNEL_PAN_DEFAULT  = 5.0f;
 constexpr float GIMBAL_CHANNEL_TILT_DEFAULT = 6.0f;
 constexpr float GIMBAL_GAIN_PAN_DEFAULT     = 2.0f;     // us per deg/s
 constexpr float GIMBAL_GAIN_TILT_DEFAULT    = 2.0f;
+
+// Washout (high-pass) time constant on the gyro term, in seconds.
+//
+// Raw rate damping cannot tell a disturbance you want cancelled from a
+// rotation you commanded on purpose. A loop is several seconds of large,
+// deliberate pitch rate, and an unwashed damping term fights all of it: at
+// the 2.0 gain above a 90 deg/s loop biases the camera by 180 us, roughly
+// 18 degrees, held for the whole manoeuvre and snapping back at the exit.
+// Turn the gain up to the top of its useful range and the servo sits on an
+// endpoint instead.
+//
+// The washout high-passes the gyro signal so the damping responds to
+// turbulence and airframe jitter but decays to zero under sustained
+// rotation. The corner is 1 / (2 * pi * TC), so 0.20 s puts it near 0.8 Hz:
+// a few-Hz vibration passes almost untouched, while a loop entry produces a
+// brief kick that is ~95 percent gone within 0.6 s. It also bounds the
+// stale-rate case, since a frozen gyro reading now washes out instead of
+// holding the servo off-centre indefinitely.
+//
+// Set to 0 to disable the washout and get the original pure rate damping.
+constexpr float GIMBAL_WASHOUT_TC_S_DEFAULT = 0.20f;
 constexpr float GIMBAL_TRIM_PAN_DEFAULT     = 0.0f;     // us offset
 constexpr float GIMBAL_TRIM_TILT_DEFAULT    = 0.0f;
 constexpr float GIMBAL_MIN_PAN_US_DEFAULT   = 1000.0f;

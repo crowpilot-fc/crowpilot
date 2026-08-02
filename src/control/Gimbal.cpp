@@ -22,6 +22,12 @@ Servo s_servo_tilt;
 
 bool s_active = false;
 
+// Washout state: a first-order low-pass per axis. The high-passed rate the
+// damping actually uses is (raw - low-pass), so a sustained rotation decays
+// out of the term while fast disturbances pass through.
+float s_yaw_lp   = 0.0f;
+float s_pitch_lp = 0.0f;
+
 inline float clampf(float v, float lo, float hi) {
   if (v < lo) return lo;
   if (v > hi) return hi;
@@ -31,7 +37,9 @@ inline float clampf(float v, float lo, float hi) {
 }  // anonymous namespace
 
 void init() {
-  s_active = false;
+  s_active   = false;
+  s_yaw_lp   = 0.0f;
+  s_pitch_lp = 0.0f;
 
 #if BOARD_HAS_GIMBAL
   namespace pr = cp::params;
@@ -66,7 +74,8 @@ bool active() {
 }
 
 void tick(const uint16_t* channels,
-          const cp::estimation::attitude::BodyRates& rates) {
+          const cp::estimation::attitude::BodyRates& rates,
+          float dt_s) {
 #if BOARD_HAS_GIMBAL
   if (!s_active) {
     return;
@@ -113,11 +122,26 @@ void tick(const uint16_t* channels,
   const float pan_damp_sign  = rev_pan  ? -1.0f : 1.0f;
   const float tilt_damp_sign = rev_tilt ? -1.0f : 1.0f;
 
+  // Washout. Track a slow low-pass of each rate and damp on the difference,
+  // so a sustained commanded rotation (a loop, a long turn) falls out of the
+  // correction while turbulence and airframe jitter still get cancelled.
+  // A time constant of 0 disables it and restores raw rate damping.
+  const float washout_tc = pr::get(pr::GIMBAL_WASHOUT_TC_S);
+  float yaw_damp   = rates.yaw_dps;
+  float pitch_damp = rates.pitch_dps;
+  if (washout_tc > 0.0f && dt_s > 0.0f) {
+    const float alpha = dt_s / (washout_tc + dt_s);
+    s_yaw_lp   += (rates.yaw_dps   - s_yaw_lp)   * alpha;
+    s_pitch_lp += (rates.pitch_dps - s_pitch_lp) * alpha;
+    yaw_damp   = rates.yaw_dps   - s_yaw_lp;
+    pitch_damp = rates.pitch_dps - s_pitch_lp;
+  }
+
   const float pan_us  = clampf(
-      pan_raw  + trim_pan  - pan_damp_sign  * k_pan  * rates.yaw_dps,
+      pan_raw  + trim_pan  - pan_damp_sign  * k_pan  * yaw_damp,
       min_pan,  max_pan);
   const float tilt_us = clampf(
-      tilt_raw + trim_tilt - tilt_damp_sign * k_tilt * rates.pitch_dps,
+      tilt_raw + trim_tilt - tilt_damp_sign * k_tilt * pitch_damp,
       min_tilt, max_tilt);
 
 #if BUILD_TARGET == BUILD_TARGET_NATIVE
@@ -130,6 +154,7 @@ void tick(const uint16_t* channels,
 #else
   (void)channels;
   (void)rates;
+  (void)dt_s;
 #endif  // BOARD_HAS_GIMBAL
 }
 
