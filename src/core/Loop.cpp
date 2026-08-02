@@ -723,13 +723,27 @@ void tick() {
   //   stabilization. Disarming hands the aircraft to gravity, which is
   //   no worse than letting it maneuver on stale data.
   //
-  // The plane override is cleared the moment the IMU comes back. The
-  // disarm cases are irreversible until the pilot reboots; arming will be
-  // refused by the pre-arm gate until IMU is healthy again anyway.
+  // The plane override LATCHES for the rest of the armed period. Health
+  // drops after three consecutive failed reads but is restored by a single
+  // good one, so an intermittent I2C bus (a marginal solder joint, a
+  // connector shaken loose in flight) would otherwise flip the aircraft
+  // back and forth between MANUAL and the stabilized mode every few
+  // hundred milliseconds. Alternating control laws mid-flight is worse for
+  // the pilot than either law on its own, so once the IMU has dropped while
+  // armed the aircraft stays in manual until the pilot disarms. Disarming
+  // clears it, which on the ground is continuous, so a bench IMU glitch
+  // does not require a reboot to recover from.
+  //
+  // The disarm cases are irreversible until the pilot reboots; arming will
+  // be refused by the pre-arm gate until IMU is healthy again anyway.
   const bool armed_now =
       cp::actuators::arm_state() == cp::actuators::ArmState::ARMED;
-  const bool imu_lost_in_flight = armed_now && !prearm_imu;
-  s_imu_loss_degraded = imu_lost_in_flight;
+  if (!armed_now) {
+    s_imu_loss_degraded = false;
+  } else if (!prearm_imu) {
+    s_imu_loss_degraded = true;
+  }
+  const bool imu_lost_in_flight = s_imu_loss_degraded;
   uint16_t effective_arm_us = desired.arm_us;
 #if AIRFRAME == AIRFRAME_TAILSITTER_BICOPTER || AIRFRAME == AIRFRAME_QUAD_X
   if (imu_lost_in_flight) {

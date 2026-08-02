@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <stddef.h>
 #include <stdint.h>
 
 // CrowPilot compile-time configuration.
@@ -74,6 +75,15 @@
 // touching its own USB port. The NEO is pin-tight and leaves this at 0.
 #ifndef BOARD_HAS_ESP_FLASH
   #define BOARD_HAS_ESP_FLASH 0
+#endif
+
+// A board header defines BOARD_HAS_GIMBAL when it declares PIN_GIMBAL_PAN and
+// PIN_GIMBAL_TILT, the two servo outputs for the head-tracked pan/tilt camera
+// mount. The gimbal module tests this macro rather than the pin constants,
+// because the pins are constexpr values and not preprocessor symbols. Boards
+// without it compile the gimbal away and keep those GPIOs free.
+#ifndef BOARD_HAS_GIMBAL
+  #define BOARD_HAS_GIMBAL 0
 #endif
 
 // ===========================================================================
@@ -290,16 +300,32 @@ constexpr uint32_t I2C_BUS_HZ = 400000;  // 400 kHz fast mode on I2C0.
 
 namespace cp {
 
-// AETR primaries on ch1-4. ch5 and ch6 carry a second throttle and a
-// second aileron on the Caribou's transmitter and are read by the user
-// sketch rather than the firmware mixer. ch7, ch8, ch9 are user-sketch
-// aux switches (gear, flap, bay). Stab and arm sit on the high channels
-// so they cannot collide with any TX-side primary or aux assignment.
+// AETR primaries on ch1-4.
+//
+// Stab and arm sat on channels 14 and 16 while SBUS was the only receiver
+// worth planning around: SBUS always carries 16 channels, so parking the
+// role switches at the top guaranteed they could not collide with a TX-side
+// primary or aux assignment. A PWM receiver has no such headroom. Its
+// channel count is the number of wires, and any role above that count reads
+// the 1500 us boot default forever, which silently pins the flight mode to
+// whatever PLANE_MODE_SW_MID happens to be and never lets the pilot reach
+// MANUAL in the air.
+//
+// So the roles now sit inside an 8-channel budget, which is what the Scout
+// XL flies: AETR on 1-4, head-tracker pan and tilt on 5 and 6, flight mode
+// on 7, arm on 8. An SBUS build is unaffected in practice, since it simply
+// assigns those same low channels on the transmitter.
+//
+// Note that CHANNEL_STAB and CHANNEL_ARM now overlap CHANNEL_CROW (7) and
+// CHANNEL_FLAP (8) below. ENABLE_CROW and ENABLE_FLAPERON are both off by
+// default so nothing clashes today, but a build that turns either on must
+// move it to a free channel first. The static_assert at the end of this
+// file enforces that.
 constexpr uint8_t CHANNEL_ROLL       = 1;
 constexpr uint8_t CHANNEL_PITCH      = 2;
 constexpr uint8_t CHANNEL_THROTTLE   = 3;
 constexpr uint8_t CHANNEL_YAW        = 4;
-constexpr uint8_t CHANNEL_ARM        = 16;  // dedicated arm switch, top SBUS channel
+constexpr uint8_t CHANNEL_ARM        = 8;   // dedicated arm switch
 constexpr uint8_t CHANNEL_TRANSITION = 15;  // tailsitter fader only; parked here so the plane build leaves it at neutral 1500
 
 constexpr uint16_t RC_MIN_US = 1000;
@@ -579,7 +605,7 @@ constexpr float LIVE_TUNE_RANGE = 0.5f;
 
 namespace cp {
 
-constexpr uint8_t CHANNEL_STAB     = 14;  // 1-based: flight-mode switch (high SBUS channel, away from TX primaries and aux).
+constexpr uint8_t CHANNEL_STAB     = 7;   // 1-based: flight-mode switch. Inside the 8-channel PWM budget; see the channel-map note above.
 constexpr uint8_t CHANNEL_ALT_HOLD = 13;  // 1-based: altitude-hold on/off switch.
 
 // Mode-switch thresholds on CHANNEL_STAB, in microseconds. Below LOW_MAX is
@@ -918,8 +944,12 @@ constexpr uint32_t LED_BEACON_ON_MS     = 130;   // beacon flash on-time
 namespace cp {
 
 constexpr float GIMBAL_ENABLE_DEFAULT       = 0.0f;     // off by default
-constexpr float GIMBAL_CHANNEL_PAN_DEFAULT  = 7.0f;     // typical SBUS aux
-constexpr float GIMBAL_CHANNEL_TILT_DEFAULT = 8.0f;
+// Channels 5 and 6, immediately above AETR. These used to default to 7 and 8,
+// which is where the flight-mode and arm switches now live: enabling the
+// gimbal without overriding them would have pointed the camera servos at the
+// mode and arm switches. Keep these below CHANNEL_STAB and CHANNEL_ARM.
+constexpr float GIMBAL_CHANNEL_PAN_DEFAULT  = 5.0f;
+constexpr float GIMBAL_CHANNEL_TILT_DEFAULT = 6.0f;
 constexpr float GIMBAL_GAIN_PAN_DEFAULT     = 2.0f;     // us per deg/s
 constexpr float GIMBAL_GAIN_TILT_DEFAULT    = 2.0f;
 constexpr float GIMBAL_TRIM_PAN_DEFAULT     = 0.0f;     // us offset
@@ -1201,4 +1231,118 @@ constexpr bool companion_collides_with_pwm_rx() {
 static_assert(!cp::companion_collides_with_pwm_rx(),
               "PIN_COMPANION_TX or PIN_COMPANION_RX collides with PIN_PWM_RX. "
               "RX_PWM and the companion UART cannot coexist on this board profile.");
+#endif
+
+// The gimbal servo pins are the newest claim on the pin budget and the most
+// likely to be reshuffled, so they get the same treatment. A collision here
+// is nastier than most: the Servo library would drive a pin the receiver ISR
+// is reading as an input, and neither side reports an error. The Tiny already
+// ships one of these (PIN_GIMBAL_PAN and PIN_PWM_RX[4] are both GP3), so a
+// PWM build on that board must remap one of them before enabling the gimbal.
+#if BOARD_HAS_GIMBAL && (RX_PROTOCOL == RX_PWM)
+namespace cp {
+constexpr bool gimbal_collides_with_pwm_rx() {
+  constexpr uint8_t kGimbalPins[] = {PIN_GIMBAL_PAN, PIN_GIMBAL_TILT};
+  constexpr size_t  kNumPwm = sizeof(PIN_PWM_RX) / sizeof(PIN_PWM_RX[0]);
+  for (size_t g = 0; g < 2; ++g) {
+    for (size_t p = 0; p < kNumPwm; ++p) {
+      if (kGimbalPins[g] == PIN_PWM_RX[p]) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+}  // namespace cp
+static_assert(!cp::gimbal_collides_with_pwm_rx(),
+              "PIN_GIMBAL_PAN or PIN_GIMBAL_TILT collides with a PIN_PWM_RX entry. "
+              "The Servo library would drive a pin the receiver ISR reads. "
+              "Remap the gimbal pins or the PWM inputs in the board profile.");
+#endif
+
+// The battery divider wants an ADC pin, and the spare ADC pins are exactly
+// where the gimbal servos tend to land.
+#if BOARD_HAS_GIMBAL && ENABLE_BATTERY_MONITOR
+static_assert(cp::BATTERY_ADC_PIN != cp::PIN_GIMBAL_PAN &&
+              cp::BATTERY_ADC_PIN != cp::PIN_GIMBAL_TILT,
+              "BATTERY_ADC_PIN collides with a gimbal servo pin. Move the battery "
+              "divider to another ADC pin, or disable one of the two features.");
+#endif
+
+// The LED flasher drives a bare GPIO, so it must be checked against the PWM
+// receiver inputs as well as the SD pins above. This one is easy to miss: on
+// a board with BOARD_HAS_ESP_FLASH the flasher defaults to GP2, which is a
+// PIN_PWM_RX entry on the V10 profile, and enabling it would drive the
+// throttle input pin as an output.
+#if ENABLE_LED_FLASHER && (RX_PROTOCOL == RX_PWM)
+namespace cp {
+constexpr bool led_flasher_collides_with_pwm_rx() {
+  constexpr size_t kNumPwm = sizeof(PIN_PWM_RX) / sizeof(PIN_PWM_RX[0]);
+  for (size_t p = 0; p < kNumPwm; ++p) {
+    if (LED_FLASHER_PIN == PIN_PWM_RX[p]) {
+      return true;
+    }
+  }
+  return false;
+}
+}  // namespace cp
+static_assert(!cp::led_flasher_collides_with_pwm_rx(),
+              "LED_FLASHER_PIN collides with a PIN_PWM_RX entry. The flasher would "
+              "drive a receiver input as an output. Change LED_FLASHER_PIN or "
+              "disable ENABLE_LED_FLASHER.");
+#endif
+
+// Every role channel the build actually reads has to be inside the receiver's
+// wire count. A PWM receiver has no channels above the number of signal wires
+// it exposes: anything past that reads the parked 1500 us boot default for the
+// whole flight. For CHANNEL_STAB that silently pins the flight mode to
+// PLANE_MODE_SW_MID with no way for the pilot to reach MANUAL in the air, and
+// for CHANNEL_ARM it means the aircraft can never be armed or, worse, reads as
+// armed. This is the guard that would have caught the 14/16 defaults on an
+// 8-channel receiver.
+#if RX_PROTOCOL == RX_PWM
+namespace cp {
+constexpr uint8_t PWM_RX_CHANNEL_COUNT =
+    static_cast<uint8_t>(sizeof(PIN_PWM_RX) / sizeof(PIN_PWM_RX[0]));
+}  // namespace cp
+static_assert(cp::CHANNEL_ROLL     <= cp::PWM_RX_CHANNEL_COUNT &&
+              cp::CHANNEL_PITCH    <= cp::PWM_RX_CHANNEL_COUNT &&
+              cp::CHANNEL_THROTTLE <= cp::PWM_RX_CHANNEL_COUNT &&
+              cp::CHANNEL_YAW      <= cp::PWM_RX_CHANNEL_COUNT,
+              "A primary AETR channel is above the PWM receiver's wire count. "
+              "It would read a parked 1500 us for the whole flight.");
+#if ENABLE_PLANE_STAB
+static_assert(cp::CHANNEL_STAB <= cp::PWM_RX_CHANNEL_COUNT,
+              "CHANNEL_STAB is above the PWM receiver's wire count, so the flight "
+              "mode would be pinned to PLANE_MODE_SW_MID with no MANUAL bailout. "
+              "Lower CHANNEL_STAB or add PIN_PWM_RX entries.");
+#endif
+#if !ENABLE_ARM_GESTURE
+static_assert(cp::CHANNEL_ARM <= cp::PWM_RX_CHANNEL_COUNT,
+              "CHANNEL_ARM is above the PWM receiver's wire count. Lower it, add "
+              "PIN_PWM_RX entries, or set ENABLE_ARM_GESTURE to arm on sticks.");
+#endif
+#endif
+
+// Channel-role collisions. CHANNEL_STAB and CHANNEL_ARM moved down to 7 and 8
+// to fit an 8-channel PWM receiver, which puts them on top of the crow and
+// flaperon channels. Both of those are off by default, so this only bites a
+// build that turns one on without remapping it first.
+#if ENABLE_CROW
+static_assert(cp::CHANNEL_CROW != cp::CHANNEL_STAB &&
+              cp::CHANNEL_CROW != cp::CHANNEL_ARM &&
+              cp::CHANNEL_CROW != cp::CHANNEL_ROLL &&
+              cp::CHANNEL_CROW != cp::CHANNEL_PITCH &&
+              cp::CHANNEL_CROW != cp::CHANNEL_THROTTLE &&
+              cp::CHANNEL_CROW != cp::CHANNEL_YAW,
+              "CHANNEL_CROW duplicates a primary or role channel. Pick a free channel.");
+#endif
+#if ENABLE_FLAPERON
+static_assert(cp::CHANNEL_FLAP != cp::CHANNEL_STAB &&
+              cp::CHANNEL_FLAP != cp::CHANNEL_ARM &&
+              cp::CHANNEL_FLAP != cp::CHANNEL_ROLL &&
+              cp::CHANNEL_FLAP != cp::CHANNEL_PITCH &&
+              cp::CHANNEL_FLAP != cp::CHANNEL_THROTTLE &&
+              cp::CHANNEL_FLAP != cp::CHANNEL_YAW,
+              "CHANNEL_FLAP duplicates a primary or role channel. Pick a free channel.");
 #endif

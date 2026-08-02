@@ -24,9 +24,15 @@
 // drives them every main loop iteration.
 //
 // Pin assignment is per-board in the board profile. The Tiny exposes
-// PIN_GIMBAL_PAN = GP3 and PIN_GIMBAL_TILT = GP28. Other boards add their
-// own constants if they want to support the gimbal. Boards that omit
-// PIN_GIMBAL_PAN cause this module to compile to a no-op.
+// PIN_GIMBAL_PAN = GP3 and PIN_GIMBAL_TILT = GP28; the WeAct V10 exposes
+// GP27 and GP28. A board that supports the gimbal declares the two pin
+// constants and also defines BOARD_HAS_GIMBAL to 1, which is what this
+// module tests. Boards that leave BOARD_HAS_GIMBAL at its default of 0
+// compile this module to a no-op and keep the pins free.
+//
+// The pins are constexpr, not macros, so the guard has to be the
+// BOARD_HAS_GIMBAL macro. An earlier #ifdef PIN_GIMBAL_PAN was never true
+// on any board and silently disabled the whole feature.
 
 namespace cp::control::gimbal {
 

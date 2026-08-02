@@ -33,7 +33,7 @@ inline float clampf(float v, float lo, float hi) {
 void init() {
   s_active = false;
 
-#ifdef PIN_GIMBAL_PAN
+#if BOARD_HAS_GIMBAL
   namespace pr = cp::params;
   const bool enable = pr::get(pr::GIMBAL_ENABLE) >= 0.5f;
   if (!enable) {
@@ -43,14 +43,22 @@ void init() {
   }
 
 #if BUILD_TARGET == BUILD_TARGET_NATIVE
-  s_servo_pan.attach(cp::PIN_GIMBAL_PAN);
-  s_servo_tilt.attach(cp::PIN_GIMBAL_TILT);
+  // attach() returns 0 when the core has no PIO state machine left. Claiming
+  // the gimbal is active after a failed attach would report a working camera
+  // mount that never moves, so both pins have to succeed.
+  const int pan_ch  = s_servo_pan.attach(cp::PIN_GIMBAL_PAN);
+  const int tilt_ch = s_servo_tilt.attach(cp::PIN_GIMBAL_TILT);
+  if (pan_ch == 0 || tilt_ch == 0) {
+    if (pan_ch  != 0) s_servo_pan.detach();
+    if (tilt_ch != 0) s_servo_tilt.detach();
+    return;  // s_active stays false
+  }
   // Center both servos so the gimbal does not snap on power-up.
   s_servo_pan.writeMicroseconds(1500);
   s_servo_tilt.writeMicroseconds(1500);
 #endif
   s_active = true;
-#endif  // PIN_GIMBAL_PAN
+#endif  // BOARD_HAS_GIMBAL
 }
 
 bool active() {
@@ -59,7 +67,7 @@ bool active() {
 
 void tick(const uint16_t* channels,
           const cp::estimation::attitude::BodyRates& rates) {
-#ifdef PIN_GIMBAL_PAN
+#if BOARD_HAS_GIMBAL
   if (!s_active) {
     return;
   }
@@ -94,8 +102,23 @@ void tick(const uint16_t* channels,
   // the servo follows the headtracker exactly.
   // Pan corrects yaw rate; tilt corrects pitch rate. Roll is not
   // compensated (a 2-axis gimbal cannot).
-  const float pan_us  = clampf(pan_raw  + trim_pan  - k_pan  * rates.yaw_dps,   min_pan,  max_pan);
-  const float tilt_us = clampf(tilt_raw + trim_tilt - k_tilt * rates.pitch_dps, min_tilt, max_tilt);
+  //
+  // The reverse flags describe a servo whose linkage runs the opposite way,
+  // so the damping term has to flip with them. Reversing only the
+  // headtracker input (as this did originally) leaves the gyro correction
+  // pushing the same physical direction as the disturbance on a reversed
+  // axis, which turns damping into amplification and makes the camera chase
+  // the shake instead of cancelling it. Trim is deliberately not flipped: it
+  // is an output-space offset applied after the reversal.
+  const float pan_damp_sign  = rev_pan  ? -1.0f : 1.0f;
+  const float tilt_damp_sign = rev_tilt ? -1.0f : 1.0f;
+
+  const float pan_us  = clampf(
+      pan_raw  + trim_pan  - pan_damp_sign  * k_pan  * rates.yaw_dps,
+      min_pan,  max_pan);
+  const float tilt_us = clampf(
+      tilt_raw + trim_tilt - tilt_damp_sign * k_tilt * rates.pitch_dps,
+      min_tilt, max_tilt);
 
 #if BUILD_TARGET == BUILD_TARGET_NATIVE
   s_servo_pan.writeMicroseconds(static_cast<int>(pan_us  + 0.5f));
@@ -107,7 +130,7 @@ void tick(const uint16_t* channels,
 #else
   (void)channels;
   (void)rates;
-#endif  // PIN_GIMBAL_PAN
+#endif  // BOARD_HAS_GIMBAL
 }
 
 }  // namespace cp::control::gimbal

@@ -90,6 +90,7 @@ constexpr uint8_t PIN_ESP_IO0       = 3;
 // use the gimbal feature.
 constexpr uint8_t PIN_GIMBAL_PAN    = 3;
 constexpr uint8_t PIN_GIMBAL_TILT   = 28;
+#define BOARD_HAS_GIMBAL 1
 
 // Per-channel PWM RC input pins used only when RX_PROTOCOL = RX_PWM.
 // Each entry is one receiver channel wired to the listed GPIO. Order is
@@ -106,10 +107,16 @@ constexpr uint8_t PIN_GIMBAL_TILT   = 28;
 //   GP7  (PIN_PWM_RX[1]) collides with PIN_SD_MOSI  (SD logging)
 //   GP15 (PIN_PWM_RX[2]) collides with PIN_COMPANION_TX (ESP UART telemetry)
 //   GP26 (PIN_PWM_RX[3]) collides with PIN_COMPANION_RX (ESP UART telemetry)
-// Static_asserts in Config.h catch the SD and companion conflicts at
-// build time. ESP flash collision on GP3 is benign because the firmware
+//   GP3  (PIN_PWM_RX[4]) collides with PIN_GIMBAL_PAN  (pan/tilt gimbal)
+// Static_asserts in Config.h catch the SD, companion, and gimbal conflicts
+// at build time. ESP flash collision on GP3 is benign because the firmware
 // only drives ESP_IO0 during the brief one-shot passthrough flash, not
-// during normal flight.
+// during normal flight. The gimbal collision on the same pin is NOT benign:
+// the Servo lib would hold GP3 as an output for the whole flight while the
+// receiver ISR reads it as an input. A PWM build on this board must remap
+// either PIN_PWM_RX[4] or PIN_GIMBAL_PAN before enabling the gimbal. The
+// WeAct V10 profile has room for eight PWM inputs and both gimbal pins
+// without any of this, and is the better board for a PWM airframe.
 constexpr uint8_t PIN_PWM_RX[]      = {6, 7, 15, 26, 3};
 
 }  // namespace cp::boards::waveshare_rp2350_tiny
