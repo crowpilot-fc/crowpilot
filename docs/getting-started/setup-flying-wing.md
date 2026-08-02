@@ -69,7 +69,7 @@ elevon mixer.
 
 ## Flight modes and tuning
 
-Same as the simple plane: ch14 (or your remapped mode channel) gives LOW
+Same as the simple plane: ch7 (or your remapped mode channel) gives LOW
 angle, MID horizon, HIGH manual. Plane gains are runtime parameters tunable
 from the configurator or a live-tune knob, with the `Config.h` values as
 defaults. See [setup-simple-plane.md](setup-simple-plane.md#tuning-the-gyro-gains).

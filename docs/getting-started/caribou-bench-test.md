@@ -75,7 +75,7 @@ The nose wheel is steered mechanically off the rudder servo (it shares the
 rudder signal), so it needs no separate output. The LED2 nav-blink is driven
 by the sketch directly.
 
-**Important:** assign physical switches to ch14 and ch16 on the
+**Important:** assign physical switches to ch7 and ch8 on the
 transmitter. They sit above the nine Caribou functions, so a TX that only
 outputs nine channels leaves them undriven and the aircraft cannot arm.
 The arm switch must also be cycled through disarm once after power-up

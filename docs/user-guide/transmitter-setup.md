@@ -24,10 +24,10 @@ This is the standard AETR order (Aileron, Elevator, Throttle, Rudder).
 
 | Channel | Function | Control | Range |
 |---|---|---|---|
-| ch14 | Flight mode | Two or three position switch | LOW angle (self-level), MID horizon, HIGH manual passthrough |
-| ch16 | Arm / cut | Two-position switch | 1000 (LOW, armed) / 2000 (HIGH, disarmed) |
+| ch7 | Flight mode | Two or three position switch | LOW angle (self-level), MID horizon, HIGH manual passthrough |
+| ch8 | Arm / cut | Two-position switch | 1000 (LOW, armed) / 2000 (HIGH, disarmed) |
 
-The arm switch on ch16 is mandatory. The flight-mode switch on ch14 picks the stabilizer mode by switch position: LOW is angle (self-leveling), the middle is horizon (self-levels near center stick, full control at full stick), and HIGH is full manual passthrough. A two-position switch reaches only angle and manual, which matches the older stabilized-or-manual behavior. The default position-to-mode mapping is in `Config.h` (`PLANE_MODE_SW_LOW/MID/HIGH`) and can be remapped, for example to put rate mode in the middle. These two channels sit above the nine Caribou functions so they cannot collide with a primary or an aux assignment, so you must assign them explicitly on the transmitter. A transmitter that only outputs nine channels will leave ch14 and ch16 undriven, and the aircraft then cannot arm.
+The arm switch on ch8 is mandatory. The flight-mode switch on ch7 picks the stabilizer mode by switch position: LOW is angle (self-leveling), the middle is horizon (self-levels near center stick, full control at full stick), and HIGH is full manual passthrough. A two-position switch reaches only angle and manual, which matches the older stabilized-or-manual behavior. The default position-to-mode mapping is in `Config.h` (`PLANE_MODE_SW_LOW/MID/HIGH`) and can be remapped, for example to put rate mode in the middle. These two channels used to sit at ch14 and ch16, above every Caribou function, so that they could not collide with a primary or aux assignment. That only works on SBUS and CRSF, which always carry 16 channels. A PWM receiver has exactly as many channels as it has signal wires, and any role above that count reads a parked 1500 us forever, which pins the flight mode with no way to reach manual in the air. They now sit at ch7 and ch8, inside an 8-channel budget. You must still assign both explicitly on the transmitter, and on a PWM build both wires must physically reach the flight controller. A `static_assert` in `Config.h` refuses to build if either role lands above the receiver's channel count.
 
 `CHANNEL_ALT_HOLD` (ch13) and the live-tune knobs `LIVE_TUNE_CH_KP` (ch11) and `LIVE_TUNE_CH_KD` (ch12) are optional. Altitude hold is off by default (`ENABLE_ALT_HOLD = 0`). Leave these channels unassigned to skip them.
 
@@ -55,12 +55,12 @@ Flap 1 (ch8) and flap 2 (ch10) are independent. To work them together, assign on
 
 ## Switch assignments
 
-- **ch16 (arm/cut)** goes to a two-position switch. Pick one with a physical guard if your transmitter has one, or at least a switch you will not knock by accident. HIGH must mean disarmed.
-- **ch14 (flight mode)** goes to a two or three position switch. LOW is angle (self-level), the middle is horizon, HIGH is full manual passthrough. A two-position switch reaches angle and manual. Fly the maiden in angle (LOW).
+- **ch8 (arm/cut)** goes to a two-position switch. Pick one with a physical guard if your transmitter has one, or at least a switch you will not knock by accident. HIGH must mean disarmed.
+- **ch7 (flight mode)** goes to a two or three position switch. LOW is angle (self-level), the middle is horizon, HIGH is full manual passthrough. A two-position switch reaches angle and manual. Fly the maiden in angle (LOW).
 
 ## Channel direction
 
-If a stick or switch reads inverted on the bench (throttle up reads 1000 instead of 2000, ch16 HIGH reads armed instead of disarmed), fix it on the transmitter by reversing the channel. Do not invert it in `Config.h`. Keeping all inversion on the transmitter side keeps one source of truth.
+If a stick or switch reads inverted on the bench (throttle up reads 1000 instead of 2000, ch8 HIGH reads armed instead of disarmed), fix it on the transmitter by reversing the channel. Do not invert it in `Config.h`. Keeping all inversion on the transmitter side keeps one source of truth.
 
 ## Verifying the setup
 

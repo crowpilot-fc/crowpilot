@@ -11,7 +11,7 @@ the pilot controls, and the failsafe, which handles a lost radio link.
 The motors cannot spin unless the pilot has explicitly armed the aircraft.
 The boot state is disarmed.
 
-A transmitter switch channel, `CHANNEL_ARM` (channel 16 by default), arms and
+A transmitter switch channel, `CHANNEL_ARM` (channel 8 by default), arms and
 disarms. The low position is the armed position and the high position is
 disarm.
 
@@ -49,7 +49,7 @@ field first.
 
 The seen-disarmed requirement means a board powered up with the switch
 already in the armed position will not arm until you cycle the switch
-through disarm. It also means a transmitter that never drives ch16 cannot
+through disarm. It also means a transmitter that never drives ch8 cannot
 arm the aircraft at all, so assign the arm switch before you go to the
 bench.
 

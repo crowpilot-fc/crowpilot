@@ -5,7 +5,7 @@
 
 This page covers the tailsitter airframe. The DHC-4 Caribou plane, the
 current first-flight aircraft, has no transition: it flies as a conventional
-fixed-wing, with the flight-mode switch (ch14) selecting between angle
+fixed-wing, with the flight-mode switch (ch7) selecting between angle
 (self-level), horizon, and full manual passthrough. See
 [transmitter-setup.md](transmitter-setup.md) for the plane switches and the
 plane stabilization section of [config-options.md](../reference/config-options.md)

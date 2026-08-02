@@ -20,7 +20,12 @@ The firmware mixer drives four control-surface servos and two motors:
 - One rudder for yaw.
 - Two motors, one per nacelle, sharing the throttle command.
 
-Body axes are x out the nose, y out the right wing, z through the belly.
+Body axes are x out the nose, z pointing up, and y out the **left** wing to
+complete the right-handed triad. A level airframe at rest reads +1 g on the z
+accelerometer. This matches the estimator in `src/estimation/Attitude.h`; mount
+the IMU to this frame. An earlier revision of this page said y out the right
+wing and z through the belly, which is the opposite handedness on two axes and
+would invert the roll and pitch corrections into positive feedback.
 Pin assignments are in [Pin maps](../reference/pin-maps.md) and the wiring
 is in [Wiring](../getting-started/wiring.md).
 
@@ -40,7 +45,7 @@ travel fraction.
 
 ## Stabilizer and manual passthrough
 
-A transmitter switch on `CHANNEL_STAB` (channel 14) selects the flight mode:
+A transmitter switch on `CHANNEL_STAB` (channel 7) selects the flight mode:
 
 - **LOW: stabilized.** A wing leveler holds the roll angle, a pitch hold
   holds the pitch angle, and a yaw damper takes out the wallow. The sticks

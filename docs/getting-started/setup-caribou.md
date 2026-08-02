@@ -61,7 +61,7 @@ The Caribou uses the documented high-channel layout:
 | 15 | Transition (unused on a plane) | firmware |
 | 16 | Arm / cut | firmware |
 
-The arm switch on ch16 is mandatory. Map them on the transmitter per
+The arm switch on ch8 is mandatory. Map them on the transmitter per
 [transmitter-setup.md](../user-guide/transmitter-setup.md).
 
 ## `Config.h`
@@ -84,7 +84,7 @@ on an ADC pin (see [config-options.md](../reference/config-options.md)).
 
 ## Flight modes
 
-The flight-mode switch (ch14) reads as three positions: LOW angle, MID horizon,
+The flight-mode switch (ch7) reads as three positions: LOW angle, MID horizon,
 HIGH manual passthrough. Fly the maiden in LOW (angle). See
 [flight-modes.md](../user-guide/flight-modes.md).
 

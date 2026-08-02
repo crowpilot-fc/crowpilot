@@ -6,7 +6,7 @@
 This is the bench procedure for the carried **tailsitter** airframe. For the
 DHC-4 Caribou, the current first-flight airframe, use the
 [Caribou bench test](caribou-bench-test.md) instead. The channel map is
-shared across airframes: AETR primaries on ch1-4, arm on ch16, transition on
+shared across airframes: AETR primaries on ch1-4, arm on ch8, transition on
 ch15.
 
 The smoke test before propellers go anywhere near the airframe. Work through these steps in order. Do not skip ahead.
@@ -18,7 +18,7 @@ The smoke test before propellers go anywhere near the airframe. Work through the
 - Propellers REMOVED from the motors.
 - ESC battery DISCONNECTED.
 - FC and airframe on a stable bench. No clutter within propeller-strike radius (even though props are off).
-- Transmitter ON, bound to the receiver, **ch16 HIGH (throttle cut), throttle stick at minimum**.
+- Transmitter ON, bound to the receiver, **ch8 HIGH (throttle cut), throttle stick at minimum**.
 - Multimeter or oscilloscope available.
 - Fire extinguisher rated for electrical and lithium fires within reach.
 
@@ -68,7 +68,7 @@ If static gyro reads farther than a few dps from zero, run the IMU bias calibrat
 
 ## Stage 3. Receiver mapping
 
-With the transmitter ON, ch16 HIGH, throttle stick at minimum:
+With the transmitter ON, ch8 HIGH, throttle stick at minimum:
 
 1. Set `DEBUG_PRINT_IMU = 0` and `DEBUG_PRINT_RX = 1` in `Config.h`. Reflash.
 2. Expected output: 10 Hz lines like `rx ch=[1000, 1500, 1500, 1500, 2000, 1500] roles[arm16=2000 stab14=1500 trans15=1500 alt13=1500] valid=1 fs=0 fl=0 lost=0`. The `ch=[...]` list is the first six channels. The `roles[...]` group shows the high role channels by their configured indices, since those sit above channel six and would otherwise be invisible.
@@ -122,17 +122,17 @@ This stage runs with motors connected to ESCs but NO PROPELLERS. ESC battery sti
 
 1. Set `DEBUG_PRINT_MODE = 0` and `DEBUG_PRINT_MIXER = 1`. Reflash.
 2. Power the FC by USB. NOT_ARMED state. Mixer output should show `mix m=[~throttle, ~throttle] s=[~0.50, ~0.50]` with throttle and servos at safe defaults.
-3. Power transmitter on, ch16 LOW (arm switch enabled), throttle stick at minimum. The FC should auto-arm.
+3. Power transmitter on, ch8 LOW (arm switch enabled), throttle stick at minimum. The FC should auto-arm.
 4. Verify mixer responses to stick deflections in hover and forward modes. No motor or servo movement at this stage (no battery).
 
 ## Stage 8. ESC connected (no motors yet)
 
 Now connect ESC battery. Motors stay disconnected from the ESC.
 
-1. With ch16 HIGH (throttle cut), verify ESC stays silent (no arm tone).
-2. Flick ch16 LOW with throttle at minimum. ESC should beep its arm tone.
+1. With ch8 HIGH (throttle cut), verify ESC stays silent (no arm tone).
+2. Flick ch8 LOW with throttle at minimum. ESC should beep its arm tone.
 3. Push throttle stick up slowly. ESC follows the pulse width internally (no motor connected, so nothing spins).
-4. Flick ch16 HIGH. ESC returns to silent.
+4. Flick ch8 HIGH. ESC returns to silent.
 5. Disconnect ESC battery.
 
 ## Stage 9. Motors connected, propellers OFF
@@ -142,10 +142,10 @@ Now connect motors to ESCs. **Propellers stay OFF.**
 1. Tether the airframe so it cannot tip over or jump.
 2. Power FC, then ESC battery.
 3. Verify NOT_ARMED state. The disarmed motor signal depends on `MOTOR_PROTOCOL`: 1000 microseconds for the default PWM, ~120 microseconds for OneShot125 (below the valid range), or the digital motor-stop command for DShot (no measurable pulse width on a scope). The motor stays stopped in every case.
-4. Arm: ch16 LOW, throttle stick at minimum. Motors should idle (visible spin or twitch at idle pulse).
+4. Arm: ch8 LOW, throttle stick at minimum. Motors should idle (visible spin or twitch at idle pulse).
 5. Throttle up slowly. Verify motor direction matches the airframe geometry (right motor clockwise, left counterclockwise when viewed from behind, for the Eclipson reference build).
 6. Verify each stick affects the correct motor differential or servo deflection in both hover and forward modes per [docs/user-guide/tuning.md](../user-guide/tuning.md).
-7. ch16 HIGH immediately disarms. The motor signal snaps back to the disarmed motor-stop value for the protocol (see step 3) and the motors stop.
+7. ch8 HIGH immediately disarms. The motor signal snaps back to the disarmed motor-stop value for the protocol (see step 3) and the motors stop.
 8. Power off TX during ARMED+low-throttle. Failsafe activates within ~200 ms. Motors hold at the failsafe-throttle value (~30 percent), not zero.
 
 ## Stage 10. Propellers on, tethered
