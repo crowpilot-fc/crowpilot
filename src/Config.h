@@ -838,13 +838,19 @@ constexpr uint16_t SERVO_MAX_US = 2000;        // Servo PWM at command 1.
 // a config-flag round trip, and the values are identity so nothing silently
 // loses control authority before anyone has measured a linkage.
 //
-// SET THESE BEFORE FLYING. This is a power-safety item, not just a tuning
-// nicety. A stabilizer command plus full stick can drive a surface past its
-// mechanical travel and hold it against the stop, and a servo stalled
-// against a stop draws stall current for as long as it is held. Two of them
-// doing that on a shared BEC is a brownout, and a brownout reboots the
-// flight controller in flight. Measure each surface with the linkage
-// connected and set the endpoint that stops just short of binding.
+// SET THESE BEFORE FLYING. A stabilizer command plus full stick can drive a
+// surface past its mechanical travel and hold it against the stop, and a
+// servo stalled against a stop draws stall current for as long as it is
+// held. That overheats the servo, strips its gears, and grinds the linkage.
+//
+// It is not, on this airframe, a brownout risk on its own. Two stalled 9 g
+// servos on top of cruise come to about 3 A against a 5 A BEC. It takes
+// close to every servo stalled at once to threaten the supply, which is a
+// jam or a crash rather than a flight condition. The draw does eat margin
+// you want available for a genuine multi-surface event, so this is still
+// worth getting right, just not for the reason an earlier version of this
+// comment gave. Measure each surface with the linkage connected and set the
+// endpoint that stops just short of binding.
 //
 // These arrays cover the airframe's flying surfaces only. The pan/tilt
 // gimbal has its own GIMBAL_MIN/MAX_*_US runtime params and is not indexed
