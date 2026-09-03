@@ -100,6 +100,6 @@ int main() {
                  safety.state() == crowpilot::FlightState::armed);
 
         watchdog_update();
-        sleep_until(delayed_by_us(tick_start, kLoopPeriodUs));
+        busy_wait_until(delayed_by_us(tick_start, kLoopPeriodUs));
     }
 }
