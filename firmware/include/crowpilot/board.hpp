@@ -30,7 +30,7 @@ inline constexpr unsigned kCompanionTxPin = 20;
 inline constexpr unsigned kCompanionRxPin = 21;
 inline constexpr unsigned kCompanionEnablePin = 22;
 inline constexpr unsigned kStatusLedPin = 25;
-inline constexpr std::array<unsigned, 2> kExpansionPins = {26, 27};
+inline constexpr std::array<unsigned, 3> kExpansionPins = {26, 27, 29};
 inline constexpr unsigned kBatteryAdcPin = 28;
 
 consteval bool assigned_pins_are_unique() {

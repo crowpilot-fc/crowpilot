@@ -21,6 +21,8 @@ producing thrust during development or initial bench testing.
 
 The current architecture and implementation plan are maintained in
 [Notion](https://app.notion.com/p/3d0f4e695ae381d5b3c9dfaea4ba3e7e).
+The authoritative physical BOM, wiring schedule, and staged assembly checks are
+in the [Rebuild V1 bench carrier build pack](https://app.notion.com/p/3d0f4e695ae3812eb996db04cc5e7621).
 
 ## Host tests
 
