@@ -1,0 +1,67 @@
+(footprint "PinHeader_1x03_P2.54mm_Butt"
+  (version 20241229)
+  (generator "kicad-mcp")
+  (generator_version "9.0")
+  (layer "F.Cu")
+  (descr "3-pin 2.54mm THT header with a courtyard trimmed to 2.5mm so adjacent channels can butt at true 2.54mm centres, as a physical servo rail does. The stock KiCad 1x03 courtyard is 3.63mm wide and overlaps when butted.")
+  (tags "connector pin header servo 2.54mm")
+
+  (property "Reference" "REF**" (at 0 -2.6 0)
+    (layer "F.SilkS")
+    (uuid "cc971de7-69d0-45c1-bf15-87f244cbfb3a")
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (property "Value" "PinHeader_1x03_P2.54mm_Butt" (at 0 7.7 0)
+    (layer "F.Fab")
+    (uuid "2e855bb0-bd13-4b89-acc1-f3534436d027")
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (property "Datasheet" "" (at 0 0 0)
+    (layer "F.Fab")
+    (uuid "f5623977-f80d-41ca-826a-3a8300191077")
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+
+  (fp_rect
+    (start -1.25 -1.25)
+    (end 1.25 6.33)
+    (stroke (width 0.05) (type default))
+    (fill none)
+    (layer "F.CrtYd")
+    (uuid "fc4a3181-6b28-4105-8c91-d28c19529ae7")
+  )
+
+  (fp_rect
+    (start -1.25 -1.25)
+    (end 1.25 6.33)
+    (stroke (width 0.1) (type default))
+    (fill none)
+    (layer "F.Fab")
+    (uuid "d7f885fa-a622-477c-ba57-fc0485946a1a")
+  )
+
+  (pad "1" thru_hole rect
+    (at 0 0)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (uuid "84b7fb95-6c04-4090-b4e0-21b0296ae5de")
+  )
+
+  (pad "2" thru_hole circle
+    (at 0 2.54)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (uuid "72be81ed-383f-4410-8f40-3a8b392318c1")
+  )
+
+  (pad "3" thru_hole circle
+    (at 0 5.08)
+    (size 1.7 1.7)
+    (drill 1)
+    (layers "*.Cu" "*.Mask")
+    (uuid "680b8e6d-f084-4ec3-bafb-f751d8e54e7f")
+  )
+
+)

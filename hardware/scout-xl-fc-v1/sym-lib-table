@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "crowpilot")(type "KiCad")(uri "/opt/homebrew/var/www/crowpilot/hardware/scout-xl-fc-v1/crowpilot.kicad_sym")(options "")(descr "CrowPilot custom symbols"))
+)

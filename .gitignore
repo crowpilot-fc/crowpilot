@@ -17,6 +17,11 @@ desktop.ini
 *.swo
 *~
 
+# KiCad local history and generated recovery snapshots
+**/.history/
+**/.mcp-backups/
+*.kicad_prl
+
 # Claude Code local state and worktrees
 .claude/
 

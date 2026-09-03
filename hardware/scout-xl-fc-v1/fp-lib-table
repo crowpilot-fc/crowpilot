@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "crowpilot")(type "KiCad")(uri "/opt/homebrew/var/www/crowpilot/hardware/scout-xl-fc-v1/crowpilot.pretty")(options "")(descr "CrowPilot custom footprints"))
+)
