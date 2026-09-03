@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Nitin Kumar
+
+# Local assistant and editor state
+.claude/
+.codex-claude-log.md
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Project documentation is maintained in Notion
+internal-docs/
+
+# Legacy KiCad local history retained outside the rebuild
+**/.history/
+**/.mcp-backups/
+*.kicad_prl
+
+# Build output
+build/
+build-*/
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+*.elf
+*.uf2
+*.hex
+*.bin
+*.map
+
+# Host tools and tests
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# Captured flight data
+*.cplog
+*.csv
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

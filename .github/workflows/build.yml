@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Nitin Kumar
+
+name: build
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  host-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build/host -G Ninja
+      - name: Build
+        run: cmake --build build/host
+      - name: Test
+        run: ctest --test-dir build/host --output-on-failure
+
+  rp2350-firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Arm toolchain
+        run: sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi libnewlib-arm-none-eabi ninja-build
+      - name: Fetch Pico SDK 2.3.0
+        run: |
+          git clone --depth 1 --branch 2.3.0 https://github.com/raspberrypi/pico-sdk.git "$RUNNER_TEMP/pico-sdk"
+          git -C "$RUNNER_TEMP/pico-sdk" submodule update --init --recursive --depth 1
+      - name: Configure
+        env:
+          PICO_SDK_PATH: ${{ runner.temp }}/pico-sdk
+        run: cmake -S firmware -B build/firmware -G Ninja -DPICO_BOARD=pico2
+      - name: Build
+        run: cmake --build build/firmware
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crowpilot-rp2350a
+          path: |
+            build/firmware/crowpilot.elf
+            build/firmware/crowpilot.uf2
